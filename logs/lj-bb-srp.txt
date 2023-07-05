@@ -1,0 +1,5986 @@
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Qs7h7d.cfr
+SOLVER: started
+SOLVER:
+running time: 66.210
+EV OOP: 5.882
+EV IP: 40.820
+OOP's MES: 85.370
+IP's MES: 101.394
+Exploitable for: 70.031
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Qs7h7d.cfr
+SOLVER: started
+SOLVER:
+running time: 71.646
+EV OOP: 4.513
+EV IP: 42.137
+OOP's MES: 112.900
+IP's MES: 109.575
+Exploitable for: 87.912
+SOLVER:
+running time: 139.560
+EV OOP: 14.296
+EV IP: 32.496
+OOP's MES: 50.944
+IP's MES: 52.897
+Exploitable for: 28.524
+SOLVER:
+running time: 206.163
+EV OOP: 14.943
+EV IP: 31.900
+OOP's MES: 36.845
+IP's MES: 45.862
+Exploitable for: 17.932
+SOLVER:
+running time: 272.420
+EV OOP: 15.348
+EV IP: 31.507
+OOP's MES: 28.651
+IP's MES: 43.168
+Exploitable for: 12.481
+SOLVER:
+running time: 336.884
+EV OOP: 15.621
+EV IP: 31.261
+OOP's MES: 22.771
+IP's MES: 37.268
+Exploitable for: 6.579
+SOLVER:
+running time: 400.311
+EV OOP: 15.503
+EV IP: 31.377
+OOP's MES: 25.109
+IP's MES: 39.465
+Exploitable for: 8.847
+SOLVER:
+running time: 464.662
+EV OOP: 15.637
+EV IP: 31.254
+OOP's MES: 24.947
+IP's MES: 38.046
+Exploitable for: 8.051
+SOLVER:
+running time: 527.142
+EV OOP: 15.832
+EV IP: 31.065
+OOP's MES: 19.925
+IP's MES: 34.317
+Exploitable for: 3.673
+SOLVER:
+running time: 589.023
+EV OOP: 15.847
+EV IP: 31.051
+OOP's MES: 20.993
+IP's MES: 34.018
+Exploitable for: 4.056
+SOLVER:
+running time: 652.541
+EV OOP: 15.872
+EV IP: 31.022
+OOP's MES: 19.227
+IP's MES: 33.222
+Exploitable for: 2.777
+SOLVER:
+running time: 714.884
+EV OOP: 15.877
+EV IP: 31.021
+OOP's MES: 19.283
+IP's MES: 33.060
+Exploitable for: 2.723
+SOLVER:
+running time: 775.975
+EV OOP: 15.901
+EV IP: 30.996
+OOP's MES: 19.250
+IP's MES: 32.456
+Exploitable for: 2.405
+SOLVER:
+running time: 837.049
+EV OOP: 15.885
+EV IP: 31.013
+OOP's MES: 20.223
+IP's MES: 34.032
+Exploitable for: 3.679
+SOLVER:
+running time: 897.441
+EV OOP: 15.916
+EV IP: 30.981
+OOP's MES: 18.243
+IP's MES: 32.297
+Exploitable for: 1.822
+SOLVER:
+running time: 957.043
+EV OOP: 15.922
+EV IP: 30.976
+OOP's MES: 18.969
+IP's MES: 33.229
+Exploitable for: 2.650
+SOLVER:
+running time: 1015.710
+EV OOP: 15.944
+EV IP: 30.955
+OOP's MES: 17.405
+IP's MES: 31.772
+Exploitable for: 1.139
+SOLVER:
+running time: 1074.877
+EV OOP: 15.951
+EV IP: 30.949
+OOP's MES: 17.144
+IP's MES: 31.551
+Exploitable for: 0.897
+SOLVER:
+running time: 1133.665
+EV OOP: 15.952
+EV IP: 30.949
+OOP's MES: 17.195
+IP's MES: 31.789
+Exploitable for: 1.041
+SOLVER:
+running time: 1192.771
+EV OOP: 15.942
+EV IP: 30.959
+OOP's MES: 17.995
+IP's MES: 32.317
+Exploitable for: 1.705
+SOLVER:
+running time: 1254.943
+EV OOP: 15.671
+EV IP: 31.226
+OOP's MES: 25.749
+IP's MES: 38.872
+Exploitable for: 8.862
+SOLVER:
+running time: 1319.866
+EV OOP: 15.812
+EV IP: 31.078
+OOP's MES: 23.742
+IP's MES: 35.270
+Exploitable for: 6.061
+SOLVER:
+running time: 1382.351
+EV OOP: 15.940
+EV IP: 30.958
+OOP's MES: 18.351
+IP's MES: 33.156
+Exploitable for: 2.304
+SOLVER:
+running time: 1443.614
+EV OOP: 15.940
+EV IP: 30.957
+OOP's MES: 19.557
+IP's MES: 32.500
+Exploitable for: 2.580
+SOLVER:
+running time: 1504.983
+EV OOP: 15.963
+EV IP: 30.936
+OOP's MES: 17.039
+IP's MES: 31.797
+Exploitable for: 0.968
+SOLVER:
+running time: 1564.001
+EV OOP: 15.969
+EV IP: 30.933
+OOP's MES: 16.596
+IP's MES: 31.347
+Exploitable for: 0.520
+SOLVER:
+running time: 1621.510
+EV OOP: 15.970
+EV IP: 30.931
+OOP's MES: 16.422
+IP's MES: 31.288
+Exploitable for: 0.404
+SOLVER:
+running time: 1679.006
+EV OOP: 15.971
+EV IP: 30.931
+OOP's MES: 16.333
+IP's MES: 31.193
+Exploitable for: 0.312
+SOLVER:
+running time: 1735.884
+EV OOP: 15.972
+EV IP: 30.930
+OOP's MES: 16.276
+IP's MES: 31.203
+Exploitable for: 0.288
+SOLVER:
+running time: 1792.753
+EV OOP: 15.971
+EV IP: 30.930
+OOP's MES: 16.258
+IP's MES: 31.136
+Exploitable for: 0.246
+SOLVER:
+running time: 1849.096
+EV OOP: 15.973
+EV IP: 30.929
+OOP's MES: 16.229
+IP's MES: 31.182
+Exploitable for: 0.255
+SOLVER:
+running time: 1905.220
+EV OOP: 15.973
+EV IP: 30.929
+OOP's MES: 16.226
+IP's MES: 31.138
+Exploitable for: 0.231
+SOLVER:
+running time: 1960.635
+EV OOP: 15.971
+EV IP: 30.930
+OOP's MES: 16.326
+IP's MES: 31.259
+Exploitable for: 0.341
+SOLVER:
+running time: 2016.224
+EV OOP: 15.971
+EV IP: 30.931
+OOP's MES: 16.398
+IP's MES: 31.451
+Exploitable for: 0.474
+SOLVER:
+running time: 2071.858
+EV OOP: 15.972
+EV IP: 30.929
+OOP's MES: 16.343
+IP's MES: 31.331
+Exploitable for: 0.386
+SOLVER:
+running time: 2127.203
+EV OOP: 15.971
+EV IP: 30.930
+OOP's MES: 16.318
+IP's MES: 31.163
+Exploitable for: 0.290
+SOLVER:
+running time: 2180.525
+EV OOP: 15.974
+EV IP: 30.927
+OOP's MES: 16.190
+IP's MES: 31.122
+Exploitable for: 0.205
+SOLVER:
+running time: 2235.377
+EV OOP: 15.974
+EV IP: 30.927
+OOP's MES: 16.152
+IP's MES: 31.047
+Exploitable for: 0.149
+SOLVER:
+running time: 2290.378
+EV OOP: 15.974
+EV IP: 30.928
+OOP's MES: 16.200
+IP's MES: 31.113
+Exploitable for: 0.205
+SOLVER:
+running time: 2345.271
+EV OOP: 15.974
+EV IP: 30.927
+OOP's MES: 16.152
+IP's MES: 31.062
+Exploitable for: 0.157
+SOLVER:
+running time: 2399.842
+EV OOP: 15.975
+EV IP: 30.927
+OOP's MES: 16.147
+IP's MES: 31.084
+Exploitable for: 0.165
+SOLVER:
+running time: 2454.504
+EV OOP: 15.975
+EV IP: 30.927
+OOP's MES: 16.119
+IP's MES: 31.046
+Exploitable for: 0.132
+SOLVER:
+running time: 2509.253
+EV OOP: 15.975
+EV IP: 30.926
+OOP's MES: 16.124
+IP's MES: 31.059
+Exploitable for: 0.141
+SOLVER:
+running time: 2563.759
+EV OOP: 15.974
+EV IP: 30.927
+OOP's MES: 16.216
+IP's MES: 31.123
+Exploitable for: 0.219
+SOLVER:
+running time: 2618.251
+EV OOP: 15.967
+EV IP: 30.933
+OOP's MES: 16.566
+IP's MES: 31.691
+Exploitable for: 0.678
+SOLVER:
+running time: 2668.548
+EV OOP: 15.973
+EV IP: 30.927
+OOP's MES: 16.346
+IP's MES: 31.203
+Exploitable for: 0.324
+SOLVER:
+running time: 2717.859
+EV OOP: 15.975
+EV IP: 30.926
+OOP's MES: 16.193
+IP's MES: 31.118
+Exploitable for: 0.205
+SOLVER:
+running time: 2769.497
+EV OOP: 15.974
+EV IP: 30.927
+OOP's MES: 16.180
+IP's MES: 31.074
+Exploitable for: 0.176
+SOLVER:
+running time: 2821.485
+EV OOP: 15.976
+EV IP: 30.926
+OOP's MES: 16.125
+IP's MES: 31.027
+Exploitable for: 0.125
+SOLVER:
+running time: 2874.034
+EV OOP: 15.975
+EV IP: 30.926
+OOP's MES: 16.099
+IP's MES: 31.000
+Exploitable for: 0.099
+SOLVER:
+running time: 2926.786
+EV OOP: 15.976
+EV IP: 30.925
+OOP's MES: 16.082
+IP's MES: 30.998
+Exploitable for: 0.089
+SOLVER:
+running time: 2979.868
+EV OOP: 15.976
+EV IP: 30.926
+OOP's MES: 16.074
+IP's MES: 30.992
+Exploitable for: 0.082
+SOLVER: stopped (timeout reached)
+EV OOP: 15.975
+EV IP: 30.926
+OOP's MES: 16.073
+IP's MES: 30.992
+Exploitable for: 0.082
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\8s8h6s.cfr
+SOLVER: started
+SOLVER:
+running time: 71.348
+EV OOP: 8.232
+EV IP: 38.361
+OOP's MES: 90.382
+IP's MES: 98.297
+Exploitable for: 71.043
+SOLVER:
+running time: 139.983
+EV OOP: 16.641
+EV IP: 30.007
+OOP's MES: 42.571
+IP's MES: 52.300
+Exploitable for: 24.112
+SOLVER:
+running time: 207.620
+EV OOP: 16.906
+EV IP: 29.792
+OOP's MES: 41.453
+IP's MES: 45.449
+Exploitable for: 20.102
+SOLVER:
+running time: 274.123
+EV OOP: 17.310
+EV IP: 29.390
+OOP's MES: 31.005
+IP's MES: 39.108
+Exploitable for: 11.707
+SOLVER:
+running time: 339.807
+EV OOP: 17.573
+EV IP: 29.147
+OOP's MES: 27.110
+IP's MES: 36.040
+Exploitable for: 8.215
+SOLVER:
+running time: 404.976
+EV OOP: 17.611
+EV IP: 29.122
+OOP's MES: 25.920
+IP's MES: 34.838
+Exploitable for: 7.013
+SOLVER:
+running time: 470.888
+EV OOP: 17.333
+EV IP: 29.407
+OOP's MES: 31.327
+IP's MES: 40.640
+Exploitable for: 12.613
+SOLVER:
+running time: 536.970
+EV OOP: 17.656
+EV IP: 29.078
+OOP's MES: 24.362
+IP's MES: 35.473
+Exploitable for: 6.550
+SOLVER:
+running time: 601.188
+EV OOP: 17.799
+EV IP: 28.944
+OOP's MES: 20.815
+IP's MES: 31.646
+Exploitable for: 2.859
+SOLVER:
+running time: 664.999
+EV OOP: 17.819
+EV IP: 28.926
+OOP's MES: 20.470
+IP's MES: 30.494
+Exploitable for: 2.109
+SOLVER:
+running time: 729.203
+EV OOP: 17.820
+EV IP: 28.927
+OOP's MES: 20.806
+IP's MES: 30.400
+Exploitable for: 2.229
+SOLVER:
+running time: 793.011
+EV OOP: 17.822
+EV IP: 28.927
+OOP's MES: 20.843
+IP's MES: 30.908
+Exploitable for: 2.501
+SOLVER:
+running time: 856.377
+EV OOP: 17.817
+EV IP: 28.934
+OOP's MES: 21.212
+IP's MES: 31.459
+Exploitable for: 2.960
+SOLVER:
+running time: 919.982
+EV OOP: 17.803
+EV IP: 28.948
+OOP's MES: 22.670
+IP's MES: 31.140
+Exploitable for: 3.529
+SOLVER:
+running time: 985.660
+EV OOP: 17.437
+EV IP: 29.320
+OOP's MES: 31.269
+IP's MES: 39.198
+Exploitable for: 11.855
+SOLVER:
+running time: 1051.856
+EV OOP: 17.814
+EV IP: 28.932
+OOP's MES: 22.271
+IP's MES: 32.705
+Exploitable for: 4.115
+SOLVER:
+running time: 1115.540
+EV OOP: 17.876
+EV IP: 28.874
+OOP's MES: 19.539
+IP's MES: 30.081
+Exploitable for: 1.435
+SOLVER:
+running time: 1178.258
+EV OOP: 17.886
+EV IP: 28.869
+OOP's MES: 19.184
+IP's MES: 29.878
+Exploitable for: 1.153
+SOLVER:
+running time: 1240.944
+EV OOP: 17.894
+EV IP: 28.864
+OOP's MES: 19.011
+IP's MES: 29.703
+Exploitable for: 0.978
+SOLVER:
+running time: 1303.309
+EV OOP: 17.891
+EV IP: 28.868
+OOP's MES: 19.068
+IP's MES: 30.036
+Exploitable for: 1.172
+SOLVER:
+running time: 1365.197
+EV OOP: 17.889
+EV IP: 28.871
+OOP's MES: 19.411
+IP's MES: 30.441
+Exploitable for: 1.546
+SOLVER:
+running time: 1427.197
+EV OOP: 17.900
+EV IP: 28.861
+OOP's MES: 19.273
+IP's MES: 30.154
+Exploitable for: 1.333
+SOLVER:
+running time: 1488.818
+EV OOP: 17.895
+EV IP: 28.868
+OOP's MES: 19.273
+IP's MES: 30.219
+Exploitable for: 1.365
+SOLVER:
+running time: 1550.340
+EV OOP: 17.877
+EV IP: 28.886
+OOP's MES: 20.127
+IP's MES: 30.498
+Exploitable for: 1.931
+SOLVER:
+running time: 1612.233
+EV OOP: 17.907
+EV IP: 28.856
+OOP's MES: 19.154
+IP's MES: 29.791
+Exploitable for: 1.091
+SOLVER:
+running time: 1676.948
+EV OOP: 17.709
+EV IP: 29.040
+OOP's MES: 26.797
+IP's MES: 37.346
+Exploitable for: 8.697
+SOLVER:
+running time: 1743.315
+EV OOP: 17.897
+EV IP: 28.856
+OOP's MES: 19.663
+IP's MES: 30.594
+Exploitable for: 1.752
+SOLVER:
+running time: 1808.033
+EV OOP: 17.911
+EV IP: 28.849
+OOP's MES: 18.903
+IP's MES: 29.728
+Exploitable for: 0.936
+SOLVER:
+running time: 1872.353
+EV OOP: 17.912
+EV IP: 28.850
+OOP's MES: 18.720
+IP's MES: 29.622
+Exploitable for: 0.790
+SOLVER:
+running time: 1935.839
+EV OOP: 17.911
+EV IP: 28.851
+OOP's MES: 18.728
+IP's MES: 29.751
+Exploitable for: 0.858
+SOLVER:
+running time: 1998.716
+EV OOP: 17.920
+EV IP: 28.844
+OOP's MES: 18.536
+IP's MES: 29.455
+Exploitable for: 0.614
+SOLVER:
+running time: 2061.609
+EV OOP: 17.917
+EV IP: 28.847
+OOP's MES: 18.645
+IP's MES: 29.580
+Exploitable for: 0.730
+SOLVER:
+running time: 2124.901
+EV OOP: 17.911
+EV IP: 28.853
+OOP's MES: 18.934
+IP's MES: 30.442
+Exploitable for: 1.306
+SOLVER:
+running time: 2186.516
+EV OOP: 17.916
+EV IP: 28.847
+OOP's MES: 18.671
+IP's MES: 29.765
+Exploitable for: 0.836
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Qs7h7d.cfr
+SOLVER: started
+SOLVER:
+running time: 63.298
+EV OOP: 8.207
+EV IP: 38.624
+OOP's MES: 86.350
+IP's MES: 83.838
+Exploitable for: 61.678
+SOLVER:
+running time: 124.393
+EV OOP: 13.955
+EV IP: 32.808
+OOP's MES: 42.557
+IP's MES: 51.626
+Exploitable for: 23.710
+SOLVER:
+running time: 185.093
+EV OOP: 14.168
+EV IP: 32.605
+OOP's MES: 37.292
+IP's MES: 47.844
+Exploitable for: 19.182
+SOLVER:
+running time: 245.240
+EV OOP: 14.487
+EV IP: 32.287
+OOP's MES: 29.462
+IP's MES: 41.209
+Exploitable for: 11.948
+SOLVER:
+running time: 305.266
+EV OOP: 14.797
+EV IP: 31.982
+OOP's MES: 26.524
+IP's MES: 40.252
+Exploitable for: 9.998
+SOLVER:
+running time: 364.443
+EV OOP: 14.827
+EV IP: 31.955
+OOP's MES: 25.360
+IP's MES: 39.138
+Exploitable for: 8.857
+SOLVER:
+running time: 422.885
+EV OOP: 15.027
+EV IP: 31.766
+OOP's MES: 21.892
+IP's MES: 36.052
+Exploitable for: 5.575
+SOLVER:
+running time: 481.007
+EV OOP: 15.039
+EV IP: 31.762
+OOP's MES: 22.716
+IP's MES: 35.655
+Exploitable for: 5.785
+SOLVER:
+running time: 540.027
+EV OOP: 15.063
+EV IP: 31.733
+OOP's MES: 21.958
+IP's MES: 35.116
+Exploitable for: 5.139
+SOLVER:
+running time: 597.964
+EV OOP: 15.135
+EV IP: 31.671
+OOP's MES: 19.767
+IP's MES: 34.620
+Exploitable for: 3.791
+SOLVER:
+running time: 655.639
+EV OOP: 15.140
+EV IP: 31.671
+OOP's MES: 20.843
+IP's MES: 35.192
+Exploitable for: 4.612
+SOLVER:
+running time: 713.556
+EV OOP: 14.208
+EV IP: 32.603
+OOP's MES: 47.669
+IP's MES: 43.993
+Exploitable for: 22.426
+SOLVER:
+running time: 773.677
+EV OOP: 15.206
+EV IP: 31.597
+OOP's MES: 18.407
+IP's MES: 33.802
+Exploitable for: 2.703
+SOLVER:
+running time: 831.856
+EV OOP: 15.248
+EV IP: 31.567
+OOP's MES: 17.060
+IP's MES: 33.004
+Exploitable for: 1.624
+SOLVER:
+running time: 889.670
+EV OOP: 15.253
+EV IP: 31.564
+OOP's MES: 16.867
+IP's MES: 32.914
+Exploitable for: 1.482
+SOLVER:
+running time: 947.500
+EV OOP: 15.262
+EV IP: 31.554
+OOP's MES: 16.873
+IP's MES: 32.910
+Exploitable for: 1.484
+SOLVER:
+running time: 1004.989
+EV OOP: 15.268
+EV IP: 31.547
+OOP's MES: 17.085
+IP's MES: 32.734
+Exploitable for: 1.502
+SOLVER:
+running time: 1062.512
+EV OOP: 15.267
+EV IP: 31.548
+OOP's MES: 17.540
+IP's MES: 32.735
+Exploitable for: 1.731
+SOLVER:
+running time: 1119.999
+EV OOP: 15.272
+EV IP: 31.542
+OOP's MES: 17.655
+IP's MES: 32.749
+Exploitable for: 1.795
+SOLVER:
+running time: 1176.253
+EV OOP: 15.286
+EV IP: 31.528
+OOP's MES: 17.079
+IP's MES: 32.320
+Exploitable for: 1.293
+SOLVER:
+running time: 1231.849
+EV OOP: 15.277
+EV IP: 31.537
+OOP's MES: 17.019
+IP's MES: 32.457
+Exploitable for: 1.331
+SOLVER:
+running time: 1290.244
+EV OOP: 15.177
+EV IP: 31.629
+OOP's MES: 21.826
+IP's MES: 35.179
+Exploitable for: 5.100
+SOLVER:
+running time: 1349.102
+EV OOP: 15.294
+EV IP: 31.515
+OOP's MES: 17.045
+IP's MES: 32.762
+Exploitable for: 1.499
+SOLVER:
+running time: 1406.553
+EV OOP: 15.306
+EV IP: 31.505
+OOP's MES: 16.307
+IP's MES: 32.382
+Exploitable for: 0.939
+SOLVER:
+running time: 1463.358
+EV OOP: 15.313
+EV IP: 31.497
+OOP's MES: 15.922
+IP's MES: 31.993
+Exploitable for: 0.552
+SOLVER:
+running time: 1519.793
+EV OOP: 15.316
+EV IP: 31.494
+OOP's MES: 15.752
+IP's MES: 31.842
+Exploitable for: 0.392
+SOLVER:
+running time: 1575.927
+EV OOP: 15.317
+EV IP: 31.492
+OOP's MES: 15.678
+IP's MES: 31.907
+Exploitable for: 0.388
+SOLVER:
+running time: 1631.996
+EV OOP: 15.317
+EV IP: 31.492
+OOP's MES: 15.766
+IP's MES: 31.752
+Exploitable for: 0.355
+SOLVER:
+running time: 1686.774
+EV OOP: 15.320
+EV IP: 31.488
+OOP's MES: 15.657
+IP's MES: 31.770
+Exploitable for: 0.310
+SOLVER:
+running time: 1741.793
+EV OOP: 15.319
+EV IP: 31.488
+OOP's MES: 15.654
+IP's MES: 31.938
+Exploitable for: 0.392
+SOLVER:
+running time: 1796.706
+EV OOP: 15.321
+EV IP: 31.486
+OOP's MES: 15.630
+IP's MES: 31.737
+Exploitable for: 0.280
+SOLVER:
+running time: 1851.812
+EV OOP: 15.300
+EV IP: 31.507
+OOP's MES: 16.111
+IP's MES: 31.841
+Exploitable for: 0.573
+SOLVER:
+running time: 1905.574
+EV OOP: 15.317
+EV IP: 31.489
+OOP's MES: 15.859
+IP's MES: 31.861
+Exploitable for: 0.457
+SOLVER:
+running time: 1956.426
+EV OOP: 15.322
+EV IP: 31.484
+OOP's MES: 15.691
+IP's MES: 31.764
+Exploitable for: 0.324
+SOLVER:
+running time: 2007.882
+EV OOP: 15.323
+EV IP: 31.483
+OOP's MES: 15.705
+IP's MES: 31.731
+Exploitable for: 0.315
+SOLVER:
+running time: 2059.987
+EV OOP: 15.319
+EV IP: 31.487
+OOP's MES: 15.863
+IP's MES: 31.748
+Exploitable for: 0.403
+SOLVER:
+running time: 2112.288
+EV OOP: 15.317
+EV IP: 31.488
+OOP's MES: 15.949
+IP's MES: 31.970
+Exploitable for: 0.557
+SOLVER:
+running time: 2160.949
+EV OOP: 15.324
+EV IP: 31.481
+OOP's MES: 15.637
+IP's MES: 31.690
+Exploitable for: 0.261
+SOLVER:
+running time: 2208.697
+EV OOP: 15.324
+EV IP: 31.481
+OOP's MES: 15.619
+IP's MES: 31.671
+Exploitable for: 0.242
+SOLVER:
+running time: 2257.868
+EV OOP: 15.324
+EV IP: 31.481
+OOP's MES: 15.627
+IP's MES: 31.716
+Exploitable for: 0.269
+SOLVER:
+running time: 2306.940
+EV OOP: 15.285
+EV IP: 31.520
+OOP's MES: 16.143
+IP's MES: 31.854
+Exploitable for: 0.597
+SOLVER:
+running time: 2357.427
+EV OOP: 15.325
+EV IP: 31.479
+OOP's MES: 15.643
+IP's MES: 31.694
+Exploitable for: 0.266
+SOLVER:
+running time: 2405.020
+EV OOP: 15.326
+EV IP: 31.478
+OOP's MES: 15.599
+IP's MES: 31.634
+Exploitable for: 0.215
+SOLVER:
+running time: 2455.932
+EV OOP: 15.326
+EV IP: 31.477
+OOP's MES: 15.551
+IP's MES: 31.607
+Exploitable for: 0.177
+SOLVER:
+running time: 2507.046
+EV OOP: 15.327
+EV IP: 31.477
+OOP's MES: 15.519
+IP's MES: 31.590
+Exploitable for: 0.153
+SOLVER:
+running time: 2557.946
+EV OOP: 15.327
+EV IP: 31.477
+OOP's MES: 15.493
+IP's MES: 31.587
+Exploitable for: 0.138
+SOLVER:
+running time: 2609.267
+EV OOP: 15.321
+EV IP: 31.482
+OOP's MES: 15.586
+IP's MES: 31.739
+Exploitable for: 0.261
+SOLVER:
+running time: 2655.916
+EV OOP: 15.325
+EV IP: 31.478
+OOP's MES: 15.594
+IP's MES: 31.615
+Exploitable for: 0.203
+SOLVER:
+running time: 2702.788
+EV OOP: 15.320
+EV IP: 31.484
+OOP's MES: 15.732
+IP's MES: 31.800
+Exploitable for: 0.365
+SOLVER:
+running time: 2749.531
+EV OOP: 15.327
+EV IP: 31.476
+OOP's MES: 15.562
+IP's MES: 31.602
+Exploitable for: 0.181
+SOLVER:
+running time: 2794.617
+EV OOP: 15.327
+EV IP: 31.475
+OOP's MES: 15.524
+IP's MES: 31.575
+Exploitable for: 0.148
+SOLVER:
+running time: 2839.870
+EV OOP: 15.327
+EV IP: 31.475
+OOP's MES: 15.486
+IP's MES: 31.581
+Exploitable for: 0.132
+SOLVER:
+running time: 2885.959
+EV OOP: 15.327
+EV IP: 31.475
+OOP's MES: 15.480
+IP's MES: 31.591
+Exploitable for: 0.134
+SOLVER:
+running time: 2934.659
+EV OOP: 15.321
+EV IP: 31.482
+OOP's MES: 15.689
+IP's MES: 31.715
+Exploitable for: 0.301
+SOLVER:
+running time: 2983.088
+EV OOP: 15.327
+EV IP: 31.476
+OOP's MES: 15.526
+IP's MES: 31.594
+Exploitable for: 0.159
+SOLVER: stopped (timeout reached)
+EV OOP: 15.327
+EV IP: 31.476
+OOP's MES: 15.535
+IP's MES: 31.587
+Exploitable for: 0.159
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\8s8h6s.cfr
+SOLVER: started
+SOLVER:
+running time: 64.254
+EV OOP: 9.755
+EV IP: 36.899
+OOP's MES: 99.687
+IP's MES: 84.075
+Exploitable for: 68.554
+SOLVER:
+running time: 126.067
+EV OOP: 16.834
+EV IP: 29.800
+OOP's MES: 41.381
+IP's MES: 51.202
+Exploitable for: 22.974
+SOLVER:
+running time: 187.169
+EV OOP: 16.967
+EV IP: 29.646
+OOP's MES: 40.217
+IP's MES: 43.732
+Exploitable for: 18.668
+SOLVER:
+running time: 247.244
+EV OOP: 17.587
+EV IP: 29.041
+OOP's MES: 30.819
+IP's MES: 38.033
+Exploitable for: 11.112
+SOLVER:
+running time: 307.307
+EV OOP: 17.315
+EV IP: 29.307
+OOP's MES: 33.971
+IP's MES: 39.032
+Exploitable for: 13.191
+SOLVER:
+running time: 367.609
+EV OOP: 17.635
+EV IP: 28.995
+OOP's MES: 29.694
+IP's MES: 42.761
+Exploitable for: 12.912
+SOLVER:
+running time: 426.693
+EV OOP: 17.880
+EV IP: 28.760
+OOP's MES: 26.938
+IP's MES: 34.330
+Exploitable for: 7.314
+SOLVER:
+running time: 485.768
+EV OOP: 17.851
+EV IP: 28.790
+OOP's MES: 26.260
+IP's MES: 36.432
+Exploitable for: 8.025
+SOLVER:
+running time: 544.725
+EV OOP: 17.945
+EV IP: 28.697
+OOP's MES: 24.367
+IP's MES: 33.203
+Exploitable for: 5.463
+SOLVER:
+running time: 603.369
+EV OOP: 18.004
+EV IP: 28.640
+OOP's MES: 23.900
+IP's MES: 31.601
+Exploitable for: 4.428
+SOLVER:
+running time: 661.560
+EV OOP: 18.033
+EV IP: 28.615
+OOP's MES: 23.445
+IP's MES: 30.804
+Exploitable for: 3.800
+SOLVER:
+running time: 719.826
+EV OOP: 18.048
+EV IP: 28.603
+OOP's MES: 23.320
+IP's MES: 30.708
+Exploitable for: 3.689
+SOLVER:
+running time: 777.970
+EV OOP: 18.025
+EV IP: 28.625
+OOP's MES: 23.406
+IP's MES: 30.690
+Exploitable for: 3.723
+SOLVER:
+running time: 835.910
+EV OOP: 18.042
+EV IP: 28.611
+OOP's MES: 22.692
+IP's MES: 30.956
+Exploitable for: 3.497
+SOLVER:
+running time: 894.449
+EV OOP: 17.005
+EV IP: 29.641
+OOP's MES: 43.249
+IP's MES: 39.712
+Exploitable for: 18.158
+SOLVER:
+running time: 954.414
+EV OOP: 18.069
+EV IP: 28.575
+OOP's MES: 22.212
+IP's MES: 31.015
+Exploitable for: 3.292
+SOLVER:
+running time: 1012.609
+EV OOP: 18.119
+EV IP: 28.535
+OOP's MES: 20.572
+IP's MES: 29.900
+Exploitable for: 1.910
+SOLVER:
+running time: 1070.371
+EV OOP: 18.132
+EV IP: 28.527
+OOP's MES: 19.767
+IP's MES: 29.679
+Exploitable for: 1.394
+SOLVER:
+running time: 1128.027
+EV OOP: 18.099
+EV IP: 28.563
+OOP's MES: 20.878
+IP's MES: 30.130
+Exploitable for: 2.173
+SOLVER:
+running time: 1185.816
+EV OOP: 18.126
+EV IP: 28.536
+OOP's MES: 20.967
+IP's MES: 30.109
+Exploitable for: 2.207
+SOLVER:
+running time: 1243.266
+EV OOP: 18.107
+EV IP: 28.556
+OOP's MES: 21.860
+IP's MES: 30.399
+Exploitable for: 2.798
+SOLVER:
+running time: 1300.849
+EV OOP: 18.126
+EV IP: 28.536
+OOP's MES: 20.798
+IP's MES: 30.294
+Exploitable for: 2.215
+SOLVER:
+running time: 1358.087
+EV OOP: 18.117
+EV IP: 28.548
+OOP's MES: 20.985
+IP's MES: 30.336
+Exploitable for: 2.328
+SOLVER:
+running time: 1415.462
+EV OOP: 18.130
+EV IP: 28.535
+OOP's MES: 20.738
+IP's MES: 30.182
+Exploitable for: 2.127
+SOLVER:
+running time: 1472.760
+EV OOP: 18.132
+EV IP: 28.534
+OOP's MES: 20.349
+IP's MES: 29.939
+Exploitable for: 1.811
+SOLVER:
+running time: 1529.834
+EV OOP: 18.156
+EV IP: 28.512
+OOP's MES: 20.187
+IP's MES: 29.842
+Exploitable for: 1.680
+SOLVER:
+running time: 1586.607
+EV OOP: 18.124
+EV IP: 28.547
+OOP's MES: 20.699
+IP's MES: 29.672
+Exploitable for: 1.850
+SOLVER:
+running time: 1643.825
+EV OOP: 18.122
+EV IP: 28.549
+OOP's MES: 20.632
+IP's MES: 30.247
+Exploitable for: 2.104
+SOLVER:
+running time: 1701.021
+EV OOP: 18.156
+EV IP: 28.513
+OOP's MES: 19.679
+IP's MES: 29.476
+Exploitable for: 1.243
+SOLVER:
+running time: 1758.403
+EV OOP: 18.157
+EV IP: 28.512
+OOP's MES: 19.782
+IP's MES: 29.513
+Exploitable for: 1.312
+SOLVER:
+running time: 1815.474
+EV OOP: 18.117
+EV IP: 28.553
+OOP's MES: 20.809
+IP's MES: 29.963
+Exploitable for: 2.051
+SOLVER:
+running time: 1872.836
+EV OOP: 18.164
+EV IP: 28.505
+OOP's MES: 19.642
+IP's MES: 29.421
+Exploitable for: 1.197
+SOLVER:
+running time: 1929.536
+EV OOP: 18.152
+EV IP: 28.520
+OOP's MES: 21.353
+IP's MES: 29.425
+Exploitable for: 2.053
+SOLVER:
+running time: 1986.594
+EV OOP: 18.142
+EV IP: 28.531
+OOP's MES: 19.722
+IP's MES: 29.587
+Exploitable for: 1.318
+SOLVER:
+running time: 2046.647
+EV OOP: 18.133
+EV IP: 28.514
+OOP's MES: 22.598
+IP's MES: 31.778
+Exploitable for: 3.864
+SOLVER:
+running time: 2105.895
+EV OOP: 18.181
+EV IP: 28.479
+OOP's MES: 19.377
+IP's MES: 29.581
+Exploitable for: 1.149
+SOLVER:
+running time: 2164.472
+EV OOP: 18.193
+EV IP: 28.477
+OOP's MES: 18.856
+IP's MES: 29.132
+Exploitable for: 0.659
+SOLVER:
+running time: 2222.440
+EV OOP: 18.195
+EV IP: 28.477
+OOP's MES: 18.655
+IP's MES: 28.973
+Exploitable for: 0.478
+SOLVER:
+running time: 2280.088
+EV OOP: 18.197
+EV IP: 28.476
+OOP's MES: 18.551
+IP's MES: 28.873
+Exploitable for: 0.375
+SOLVER:
+running time: 2337.826
+EV OOP: 18.195
+EV IP: 28.477
+OOP's MES: 18.571
+IP's MES: 28.800
+Exploitable for: 0.349
+SOLVER:
+running time: 2395.134
+EV OOP: 18.189
+EV IP: 28.484
+OOP's MES: 18.790
+IP's MES: 28.928
+Exploitable for: 0.523
+SOLVER:
+running time: 2451.884
+EV OOP: 18.189
+EV IP: 28.483
+OOP's MES: 18.728
+IP's MES: 28.927
+Exploitable for: 0.492
+SOLVER:
+running time: 2509.097
+EV OOP: 18.167
+EV IP: 28.506
+OOP's MES: 19.316
+IP's MES: 29.455
+Exploitable for: 1.049
+SOLVER:
+running time: 2566.419
+EV OOP: 18.195
+EV IP: 28.477
+OOP's MES: 18.881
+IP's MES: 28.903
+Exploitable for: 0.556
+SOLVER:
+running time: 2622.901
+EV OOP: 18.195
+EV IP: 28.477
+OOP's MES: 18.601
+IP's MES: 28.887
+Exploitable for: 0.408
+SOLVER:
+running time: 2679.441
+EV OOP: 18.197
+EV IP: 28.476
+OOP's MES: 18.597
+IP's MES: 28.747
+Exploitable for: 0.335
+SOLVER:
+running time: 2736.118
+EV OOP: 18.196
+EV IP: 28.477
+OOP's MES: 18.683
+IP's MES: 28.719
+Exploitable for: 0.364
+SOLVER:
+running time: 2792.938
+EV OOP: 18.187
+EV IP: 28.487
+OOP's MES: 19.080
+IP's MES: 28.886
+Exploitable for: 0.646
+SOLVER:
+running time: 2849.602
+EV OOP: 18.199
+EV IP: 28.476
+OOP's MES: 18.554
+IP's MES: 28.749
+Exploitable for: 0.314
+SOLVER:
+running time: 2906.106
+EV OOP: 18.198
+EV IP: 28.477
+OOP's MES: 18.627
+IP's MES: 28.778
+Exploitable for: 0.365
+SOLVER:
+running time: 2963.334
+EV OOP: 18.178
+EV IP: 28.495
+OOP's MES: 19.877
+IP's MES: 29.622
+Exploitable for: 1.413
+SOLVER: stopped (timeout reached)
+EV OOP: 17.293
+EV IP: 29.380
+OOP's MES: 36.112
+IP's MES: 41.017
+Exploitable for: 15.228
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Ks9s9h.cfr
+SOLVER: started
+SOLVER:
+running time: 61.691
+EV OOP: 3.714
+EV IP: 43.057
+OOP's MES: 93.292
+IP's MES: 113.989
+Exploitable for: 80.256
+SOLVER:
+running time: 120.780
+EV OOP: 13.126
+EV IP: 33.691
+OOP's MES: 35.932
+IP's MES: 52.115
+Exploitable for: 20.615
+SOLVER:
+running time: 178.856
+EV OOP: 13.591
+EV IP: 33.203
+OOP's MES: 32.427
+IP's MES: 41.295
+Exploitable for: 13.464
+SOLVER:
+running time: 236.369
+EV OOP: 13.786
+EV IP: 33.003
+OOP's MES: 30.274
+IP's MES: 44.269
+Exploitable for: 13.877
+SOLVER:
+running time: 293.618
+EV OOP: 14.134
+EV IP: 32.652
+OOP's MES: 24.388
+IP's MES: 37.546
+Exploitable for: 7.574
+SOLVER:
+running time: 349.834
+EV OOP: 14.202
+EV IP: 32.581
+OOP's MES: 23.720
+IP's MES: 36.515
+Exploitable for: 6.726
+SOLVER:
+running time: 406.259
+EV OOP: 14.140
+EV IP: 32.646
+OOP's MES: 27.324
+IP's MES: 37.770
+Exploitable for: 9.154
+SOLVER:
+running time: 463.199
+EV OOP: 14.092
+EV IP: 32.681
+OOP's MES: 25.476
+IP's MES: 41.870
+Exploitable for: 10.287
+SOLVER:
+running time: 519.159
+EV OOP: 14.454
+EV IP: 32.322
+OOP's MES: 18.067
+IP's MES: 34.113
+Exploitable for: 2.702
+SOLVER:
+running time: 574.500
+EV OOP: 14.494
+EV IP: 32.290
+OOP's MES: 17.587
+IP's MES: 34.395
+Exploitable for: 2.599
+SOLVER:
+running time: 629.606
+EV OOP: 14.506
+EV IP: 32.284
+OOP's MES: 18.471
+IP's MES: 34.268
+Exploitable for: 2.975
+SOLVER:
+running time: 684.939
+EV OOP: 14.492
+EV IP: 32.302
+OOP's MES: 18.635
+IP's MES: 34.633
+Exploitable for: 3.237
+SOLVER:
+running time: 741.396
+EV OOP: 14.471
+EV IP: 32.312
+OOP's MES: 20.420
+IP's MES: 35.266
+Exploitable for: 4.451
+SOLVER:
+running time: 797.561
+EV OOP: 14.327
+EV IP: 32.454
+OOP's MES: 21.489
+IP's MES: 39.332
+Exploitable for: 7.020
+SOLVER:
+running time: 853.779
+EV OOP: 14.485
+EV IP: 32.304
+OOP's MES: 19.817
+IP's MES: 36.046
+Exploitable for: 4.537
+SOLVER:
+running time: 908.777
+EV OOP: 14.613
+EV IP: 32.180
+OOP's MES: 15.901
+IP's MES: 33.407
+Exploitable for: 1.257
+SOLVER:
+running time: 963.436
+EV OOP: 14.627
+EV IP: 32.167
+OOP's MES: 15.441
+IP's MES: 32.904
+Exploitable for: 0.775
+SOLVER:
+running time: 1018.237
+EV OOP: 14.634
+EV IP: 32.159
+OOP's MES: 15.338
+IP's MES: 32.669
+Exploitable for: 0.607
+SOLVER:
+running time: 1072.715
+EV OOP: 14.639
+EV IP: 32.154
+OOP's MES: 15.184
+IP's MES: 32.517
+Exploitable for: 0.454
+SOLVER:
+running time: 1126.946
+EV OOP: 14.631
+EV IP: 32.161
+OOP's MES: 15.880
+IP's MES: 32.951
+Exploitable for: 1.019
+SOLVER:
+running time: 1181.076
+EV OOP: 14.630
+EV IP: 32.161
+OOP's MES: 15.605
+IP's MES: 33.047
+Exploitable for: 0.930
+SOLVER:
+running time: 1234.326
+EV OOP: 14.646
+EV IP: 32.145
+OOP's MES: 15.326
+IP's MES: 32.588
+Exploitable for: 0.562
+SOLVER:
+running time: 1287.486
+EV OOP: 14.647
+EV IP: 32.143
+OOP's MES: 15.230
+IP's MES: 32.586
+Exploitable for: 0.513
+SOLVER:
+running time: 1341.139
+EV OOP: 14.065
+EV IP: 32.726
+OOP's MES: 33.254
+IP's MES: 39.864
+Exploitable for: 13.164
+SOLVER:
+running time: 1397.837
+EV OOP: 14.627
+EV IP: 32.161
+OOP's MES: 16.811
+IP's MES: 33.312
+Exploitable for: 1.668
+SOLVER:
+running time: 1452.821
+EV OOP: 14.652
+EV IP: 32.138
+OOP's MES: 15.548
+IP's MES: 32.678
+Exploitable for: 0.719
+SOLVER:
+running time: 1507.025
+EV OOP: 14.654
+EV IP: 32.135
+OOP's MES: 15.261
+IP's MES: 32.539
+Exploitable for: 0.506
+SOLVER:
+running time: 1560.799
+EV OOP: 14.658
+EV IP: 32.130
+OOP's MES: 15.084
+IP's MES: 32.407
+Exploitable for: 0.352
+SOLVER:
+running time: 1614.364
+EV OOP: 14.645
+EV IP: 32.143
+OOP's MES: 15.336
+IP's MES: 32.572
+Exploitable for: 0.560
+SOLVER:
+running time: 1667.319
+EV OOP: 14.649
+EV IP: 32.137
+OOP's MES: 15.255
+IP's MES: 32.601
+Exploitable for: 0.535
+SOLVER:
+running time: 1719.293
+EV OOP: 14.658
+EV IP: 32.129
+OOP's MES: 15.207
+IP's MES: 32.503
+Exploitable for: 0.461
+SOLVER:
+running time: 1771.301
+EV OOP: 14.660
+EV IP: 32.127
+OOP's MES: 15.054
+IP's MES: 32.440
+Exploitable for: 0.354
+SOLVER:
+running time: 1822.609
+EV OOP: 14.655
+EV IP: 32.132
+OOP's MES: 15.200
+IP's MES: 32.500
+Exploitable for: 0.456
+SOLVER:
+running time: 1873.271
+EV OOP: 14.659
+EV IP: 32.128
+OOP's MES: 15.043
+IP's MES: 32.423
+Exploitable for: 0.340
+SOLVER:
+running time: 1922.375
+EV OOP: 14.661
+EV IP: 32.126
+OOP's MES: 15.020
+IP's MES: 32.359
+Exploitable for: 0.296
+SOLVER:
+running time: 1973.194
+EV OOP: 14.647
+EV IP: 32.140
+OOP's MES: 15.545
+IP's MES: 32.799
+Exploitable for: 0.778
+SOLVER:
+running time: 2022.090
+EV OOP: 14.649
+EV IP: 32.138
+OOP's MES: 15.156
+IP's MES: 32.595
+Exploitable for: 0.482
+SOLVER:
+running time: 2071.643
+EV OOP: 14.656
+EV IP: 32.131
+OOP's MES: 15.161
+IP's MES: 32.537
+Exploitable for: 0.455
+SOLVER:
+running time: 2118.518
+EV OOP: 14.663
+EV IP: 32.124
+OOP's MES: 14.993
+IP's MES: 32.337
+Exploitable for: 0.272
+SOLVER:
+running time: 2167.022
+EV OOP: 14.656
+EV IP: 32.132
+OOP's MES: 15.159
+IP's MES: 32.457
+Exploitable for: 0.415
+SOLVER:
+running time: 2213.653
+EV OOP: 14.662
+EV IP: 32.124
+OOP's MES: 14.959
+IP's MES: 32.363
+Exploitable for: 0.268
+SOLVER:
+running time: 2259.101
+EV OOP: 14.663
+EV IP: 32.123
+OOP's MES: 14.887
+IP's MES: 32.278
+Exploitable for: 0.190
+SOLVER:
+running time: 2304.359
+EV OOP: 14.664
+EV IP: 32.122
+OOP's MES: 14.898
+IP's MES: 32.265
+Exploitable for: 0.189
+SOLVER:
+running time: 2350.842
+EV OOP: 14.660
+EV IP: 32.126
+OOP's MES: 14.932
+IP's MES: 32.327
+Exploitable for: 0.236
+SOLVER:
+running time: 2394.078
+EV OOP: 14.664
+EV IP: 32.121
+OOP's MES: 14.872
+IP's MES: 32.243
+Exploitable for: 0.165
+SOLVER:
+running time: 2437.530
+EV OOP: 14.665
+EV IP: 32.120
+OOP's MES: 14.828
+IP's MES: 32.222
+Exploitable for: 0.132
+SOLVER:
+running time: 2481.478
+EV OOP: 14.663
+EV IP: 32.123
+OOP's MES: 14.966
+IP's MES: 32.354
+Exploitable for: 0.268
+SOLVER:
+running time: 2529.471
+EV OOP: 14.662
+EV IP: 32.124
+OOP's MES: 15.053
+IP's MES: 32.405
+Exploitable for: 0.336
+SOLVER:
+running time: 2575.202
+EV OOP: 14.651
+EV IP: 32.134
+OOP's MES: 15.250
+IP's MES: 32.566
+Exploitable for: 0.515
+SOLVER:
+running time: 2619.801
+EV OOP: 14.659
+EV IP: 32.127
+OOP's MES: 15.267
+IP's MES: 32.418
+Exploitable for: 0.450
+SOLVER:
+running time: 2663.997
+EV OOP: 14.665
+EV IP: 32.121
+OOP's MES: 14.906
+IP's MES: 32.269
+Exploitable for: 0.195
+SOLVER:
+running time: 2708.760
+EV OOP: 14.665
+EV IP: 32.120
+OOP's MES: 14.871
+IP's MES: 32.264
+Exploitable for: 0.175
+SOLVER:
+running time: 2753.682
+EV OOP: 14.663
+EV IP: 32.122
+OOP's MES: 14.889
+IP's MES: 32.324
+Exploitable for: 0.214
+SOLVER:
+running time: 2796.940
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.792
+IP's MES: 32.224
+Exploitable for: 0.115
+SOLVER:
+running time: 2842.160
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.792
+IP's MES: 32.207
+Exploitable for: 0.107
+SOLVER:
+running time: 2886.372
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.784
+IP's MES: 32.189
+Exploitable for: 0.094
+SOLVER:
+running time: 2929.435
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.816
+IP's MES: 32.211
+Exploitable for: 0.121
+SOLVER:
+running time: 2971.832
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.787
+IP's MES: 32.194
+Exploitable for: 0.098
+SOLVER: stopped (timeout reached)
+EV OOP: 14.666
+EV IP: 32.119
+OOP's MES: 14.774
+IP's MES: 32.187
+Exploitable for: 0.088
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\TsTh8s.cfr
+SOLVER: started
+SOLVER:
+running time: 62.749
+EV OOP: 9.076
+EV IP: 37.489
+OOP's MES: 100.480
+IP's MES: 87.762
+Exploitable for: 70.839
+SOLVER:
+running time: 123.100
+EV OOP: 16.386
+EV IP: 30.273
+OOP's MES: 43.170
+IP's MES: 47.475
+Exploitable for: 21.993
+SOLVER:
+running time: 182.472
+EV OOP: 16.544
+EV IP: 30.098
+OOP's MES: 42.617
+IP's MES: 44.462
+Exploitable for: 20.218
+SOLVER:
+running time: 240.810
+EV OOP: 17.115
+EV IP: 29.536
+OOP's MES: 31.507
+IP's MES: 36.652
+Exploitable for: 10.754
+SOLVER:
+running time: 299.011
+EV OOP: 16.170
+EV IP: 30.489
+OOP's MES: 36.050
+IP's MES: 52.386
+Exploitable for: 20.889
+SOLVER:
+running time: 357.320
+EV OOP: 17.520
+EV IP: 29.130
+OOP's MES: 24.144
+IP's MES: 33.759
+Exploitable for: 5.627
+SOLVER:
+running time: 414.244
+EV OOP: 17.547
+EV IP: 29.106
+OOP's MES: 25.507
+IP's MES: 33.426
+Exploitable for: 6.140
+SOLVER:
+running time: 471.229
+EV OOP: 17.599
+EV IP: 29.056
+OOP's MES: 24.100
+IP's MES: 33.188
+Exploitable for: 5.316
+SOLVER:
+running time: 528.399
+EV OOP: 17.619
+EV IP: 29.036
+OOP's MES: 23.509
+IP's MES: 32.454
+Exploitable for: 4.654
+SOLVER:
+running time: 585.333
+EV OOP: 17.652
+EV IP: 29.000
+OOP's MES: 23.953
+IP's MES: 32.169
+Exploitable for: 4.735
+SOLVER:
+running time: 642.449
+EV OOP: 16.167
+EV IP: 30.475
+OOP's MES: 40.227
+IP's MES: 44.653
+Exploitable for: 19.120
+SOLVER:
+running time: 700.362
+EV OOP: 17.771
+EV IP: 28.877
+OOP's MES: 21.269
+IP's MES: 31.200
+Exploitable for: 2.911
+SOLVER:
+running time: 756.987
+EV OOP: 17.808
+EV IP: 28.842
+OOP's MES: 19.560
+IP's MES: 30.402
+Exploitable for: 1.656
+SOLVER:
+running time: 812.970
+EV OOP: 17.823
+EV IP: 28.829
+OOP's MES: 19.611
+IP's MES: 29.793
+Exploitable for: 1.376
+SOLVER:
+running time: 868.810
+EV OOP: 17.817
+EV IP: 28.837
+OOP's MES: 20.264
+IP's MES: 29.975
+Exploitable for: 1.792
+SOLVER:
+running time: 924.658
+EV OOP: 17.816
+EV IP: 28.839
+OOP's MES: 21.612
+IP's MES: 30.142
+Exploitable for: 2.550
+SOLVER:
+running time: 979.785
+EV OOP: 17.823
+EV IP: 28.833
+OOP's MES: 20.566
+IP's MES: 30.001
+Exploitable for: 1.955
+SOLVER:
+running time: 1035.149
+EV OOP: 17.829
+EV IP: 28.828
+OOP's MES: 21.175
+IP's MES: 29.785
+Exploitable for: 2.152
+SOLVER:
+running time: 1090.325
+EV OOP: 17.836
+EV IP: 28.821
+OOP's MES: 20.714
+IP's MES: 30.024
+Exploitable for: 2.041
+SOLVER:
+running time: 1145.601
+EV OOP: 17.855
+EV IP: 28.801
+OOP's MES: 20.032
+IP's MES: 29.732
+Exploitable for: 1.554
+SOLVER:
+running time: 1200.880
+EV OOP: 17.845
+EV IP: 28.812
+OOP's MES: 20.202
+IP's MES: 29.882
+Exploitable for: 1.714
+SOLVER:
+running time: 1256.264
+EV OOP: 17.709
+EV IP: 28.944
+OOP's MES: 22.441
+IP's MES: 32.802
+Exploitable for: 4.295
+SOLVER:
+running time: 1313.505
+EV OOP: 17.817
+EV IP: 28.834
+OOP's MES: 21.891
+IP's MES: 31.160
+Exploitable for: 3.200
+SOLVER:
+running time: 1369.562
+EV OOP: 17.863
+EV IP: 28.792
+OOP's MES: 19.758
+IP's MES: 30.112
+Exploitable for: 1.607
+SOLVER:
+running time: 1425.139
+EV OOP: 17.881
+EV IP: 28.775
+OOP's MES: 18.750
+IP's MES: 29.526
+Exploitable for: 0.810
+SOLVER:
+running time: 1480.584
+EV OOP: 17.881
+EV IP: 28.776
+OOP's MES: 18.753
+IP's MES: 29.278
+Exploitable for: 0.686
+SOLVER:
+running time: 1535.687
+EV OOP: 17.891
+EV IP: 28.768
+OOP's MES: 18.477
+IP's MES: 29.166
+Exploitable for: 0.492
+SOLVER:
+running time: 1590.861
+EV OOP: 17.888
+EV IP: 28.772
+OOP's MES: 19.028
+IP's MES: 29.156
+Exploitable for: 0.762
+SOLVER:
+running time: 1646.076
+EV OOP: 17.891
+EV IP: 28.770
+OOP's MES: 18.873
+IP's MES: 29.145
+Exploitable for: 0.678
+SOLVER:
+running time: 1701.140
+EV OOP: 17.892
+EV IP: 28.769
+OOP's MES: 18.784
+IP's MES: 29.133
+Exploitable for: 0.628
+SOLVER:
+running time: 1755.918
+EV OOP: 17.893
+EV IP: 28.769
+OOP's MES: 18.772
+IP's MES: 29.320
+Exploitable for: 0.715
+SOLVER:
+running time: 1810.843
+EV OOP: 17.879
+EV IP: 28.782
+OOP's MES: 19.764
+IP's MES: 29.779
+Exploitable for: 1.441
+SOLVER:
+running time: 1865.674
+EV OOP: 17.892
+EV IP: 28.771
+OOP's MES: 18.925
+IP's MES: 29.536
+Exploitable for: 0.899
+SOLVER:
+running time: 1919.546
+EV OOP: 17.890
+EV IP: 28.774
+OOP's MES: 18.895
+IP's MES: 29.652
+Exploitable for: 0.942
+SOLVER:
+running time: 1973.534
+EV OOP: 17.899
+EV IP: 28.766
+OOP's MES: 18.588
+IP's MES: 29.328
+Exploitable for: 0.626
+SOLVER:
+running time: 2027.717
+EV OOP: 17.900
+EV IP: 28.766
+OOP's MES: 18.739
+IP's MES: 29.252
+Exploitable for: 0.663
+SOLVER:
+running time: 2081.636
+EV OOP: 17.898
+EV IP: 28.768
+OOP's MES: 18.610
+IP's MES: 29.329
+Exploitable for: 0.636
+SOLVER:
+running time: 2135.427
+EV OOP: 17.902
+EV IP: 28.764
+OOP's MES: 18.585
+IP's MES: 29.237
+Exploitable for: 0.578
+SOLVER:
+running time: 2189.641
+EV OOP: 17.894
+EV IP: 28.771
+OOP's MES: 19.005
+IP's MES: 29.399
+Exploitable for: 0.869
+SOLVER:
+running time: 2243.785
+EV OOP: 17.894
+EV IP: 28.773
+OOP's MES: 18.869
+IP's MES: 29.365
+Exploitable for: 0.784
+SOLVER:
+running time: 2297.934
+EV OOP: 17.907
+EV IP: 28.760
+OOP's MES: 18.342
+IP's MES: 29.136
+Exploitable for: 0.405
+SOLVER:
+running time: 2351.856
+EV OOP: 17.892
+EV IP: 28.777
+OOP's MES: 18.954
+IP's MES: 29.223
+Exploitable for: 0.754
+SOLVER:
+running time: 2405.902
+EV OOP: 17.900
+EV IP: 28.767
+OOP's MES: 18.643
+IP's MES: 29.304
+Exploitable for: 0.640
+SOLVER:
+running time: 2460.718
+EV OOP: 17.891
+EV IP: 28.776
+OOP's MES: 19.086
+IP's MES: 29.591
+Exploitable for: 1.005
+SOLVER:
+running time: 2514.959
+EV OOP: 17.878
+EV IP: 28.788
+OOP's MES: 19.667
+IP's MES: 29.838
+Exploitable for: 1.419
+SOLVER:
+running time: 2568.790
+EV OOP: 17.904
+EV IP: 28.762
+OOP's MES: 18.601
+IP's MES: 29.394
+Exploitable for: 0.664
+SOLVER:
+running time: 2622.807
+EV OOP: 17.897
+EV IP: 28.769
+OOP's MES: 18.719
+IP's MES: 29.658
+Exploitable for: 0.855
+SOLVER:
+running time: 2676.599
+EV OOP: 17.895
+EV IP: 28.772
+OOP's MES: 18.889
+IP's MES: 29.332
+Exploitable for: 0.776
+SOLVER:
+running time: 2730.174
+EV OOP: 17.889
+EV IP: 28.778
+OOP's MES: 18.977
+IP's MES: 29.828
+Exploitable for: 1.069
+SOLVER:
+running time: 2783.734
+EV OOP: 17.908
+EV IP: 28.760
+OOP's MES: 18.470
+IP's MES: 29.296
+Exploitable for: 0.549
+SOLVER:
+running time: 2836.883
+EV OOP: 17.909
+EV IP: 28.759
+OOP's MES: 18.263
+IP's MES: 29.184
+Exploitable for: 0.389
+SOLVER:
+running time: 2890.376
+EV OOP: 17.914
+EV IP: 28.755
+OOP's MES: 18.150
+IP's MES: 28.981
+Exploitable for: 0.231
+SOLVER:
+running time: 2944.230
+EV OOP: 17.902
+EV IP: 28.767
+OOP's MES: 18.307
+IP's MES: 29.288
+Exploitable for: 0.463
+SOLVER:
+running time: 2998.276
+EV OOP: 17.908
+EV IP: 28.760
+OOP's MES: 18.386
+IP's MES: 29.257
+Exploitable for: 0.487
+SOLVER: stopped (timeout reached)
+EV OOP: 17.907
+EV IP: 28.761
+OOP's MES: 18.490
+IP's MES: 29.261
+Exploitable for: 0.541
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\QsQhTd.cfr
+SOLVER: started
+SOLVER:
+running time: 63.602
+EV OOP: 8.104
+EV IP: 38.760
+OOP's MES: 82.040
+IP's MES: 65.648
+Exploitable for: 50.412
+SOLVER:
+running time: 124.435
+EV OOP: 12.524
+EV IP: 34.366
+OOP's MES: 41.543
+IP's MES: 50.595
+Exploitable for: 22.624
+SOLVER:
+running time: 184.553
+EV OOP: 12.552
+EV IP: 34.303
+OOP's MES: 34.984
+IP's MES: 48.740
+Exploitable for: 18.434
+SOLVER:
+running time: 244.525
+EV OOP: 12.983
+EV IP: 33.866
+OOP's MES: 28.933
+IP's MES: 39.795
+Exploitable for: 10.939
+SOLVER:
+running time: 303.473
+EV OOP: 12.981
+EV IP: 33.849
+OOP's MES: 28.315
+IP's MES: 43.922
+Exploitable for: 12.704
+SOLVER:
+running time: 361.645
+EV OOP: 13.365
+EV IP: 33.469
+OOP's MES: 20.832
+IP's MES: 36.044
+Exploitable for: 5.021
+SOLVER:
+running time: 418.843
+EV OOP: 13.384
+EV IP: 33.452
+OOP's MES: 21.076
+IP's MES: 36.502
+Exploitable for: 5.371
+SOLVER:
+running time: 475.959
+EV OOP: 13.423
+EV IP: 33.412
+OOP's MES: 21.266
+IP's MES: 36.101
+Exploitable for: 5.266
+SOLVER:
+running time: 532.603
+EV OOP: 13.457
+EV IP: 33.375
+OOP's MES: 20.514
+IP's MES: 36.001
+Exploitable for: 4.841
+SOLVER:
+running time: 590.794
+EV OOP: 13.401
+EV IP: 33.424
+OOP's MES: 23.650
+IP's MES: 40.570
+Exploitable for: 8.697
+SOLVER:
+running time: 649.048
+EV OOP: 13.332
+EV IP: 33.486
+OOP's MES: 21.549
+IP's MES: 38.940
+Exploitable for: 6.835
+SOLVER:
+running time: 706.863
+EV OOP: 13.460
+EV IP: 33.355
+OOP's MES: 18.880
+IP's MES: 42.754
+Exploitable for: 7.409
+SOLVER:
+running time: 763.809
+EV OOP: 13.628
+EV IP: 33.198
+OOP's MES: 18.496
+IP's MES: 35.624
+Exploitable for: 3.648
+SOLVER:
+running time: 820.110
+EV OOP: 13.731
+EV IP: 33.093
+OOP's MES: 15.456
+IP's MES: 33.969
+Exploitable for: 1.300
+SOLVER:
+running time: 876.348
+EV OOP: 13.746
+EV IP: 33.077
+OOP's MES: 15.205
+IP's MES: 33.775
+Exploitable for: 1.078
+SOLVER:
+running time: 932.301
+EV OOP: 13.733
+EV IP: 33.090
+OOP's MES: 15.889
+IP's MES: 34.249
+Exploitable for: 1.658
+SOLVER:
+running time: 987.802
+EV OOP: 13.750
+EV IP: 33.072
+OOP's MES: 15.279
+IP's MES: 34.009
+Exploitable for: 1.233
+SOLVER:
+running time: 1043.323
+EV OOP: 13.758
+EV IP: 33.063
+OOP's MES: 14.911
+IP's MES: 33.850
+Exploitable for: 0.970
+SOLVER:
+running time: 1098.894
+EV OOP: 12.813
+EV IP: 34.011
+OOP's MES: 35.369
+IP's MES: 44.264
+Exploitable for: 16.405
+SOLVER:
+running time: 1157.555
+EV OOP: 13.770
+EV IP: 33.048
+OOP's MES: 15.384
+IP's MES: 33.896
+Exploitable for: 1.231
+SOLVER:
+running time: 1214.520
+EV OOP: 13.782
+EV IP: 33.034
+OOP's MES: 14.628
+IP's MES: 33.437
+Exploitable for: 0.625
+SOLVER:
+running time: 1270.886
+EV OOP: 13.784
+EV IP: 33.031
+OOP's MES: 14.387
+IP's MES: 33.316
+Exploitable for: 0.444
+SOLVER:
+running time: 1326.263
+EV OOP: 13.785
+EV IP: 33.030
+OOP's MES: 14.239
+IP's MES: 33.290
+Exploitable for: 0.357
+SOLVER:
+running time: 1381.089
+EV OOP: 13.770
+EV IP: 33.045
+OOP's MES: 14.896
+IP's MES: 33.897
+Exploitable for: 0.989
+SOLVER:
+running time: 1433.976
+EV OOP: 13.778
+EV IP: 33.036
+OOP's MES: 14.433
+IP's MES: 33.520
+Exploitable for: 0.569
+SOLVER:
+running time: 1486.923
+EV OOP: 13.778
+EV IP: 33.036
+OOP's MES: 14.504
+IP's MES: 33.593
+Exploitable for: 0.641
+SOLVER:
+running time: 1539.595
+EV OOP: 13.791
+EV IP: 33.023
+OOP's MES: 14.302
+IP's MES: 33.289
+Exploitable for: 0.389
+SOLVER:
+running time: 1592.785
+EV OOP: 13.777
+EV IP: 33.037
+OOP's MES: 14.260
+IP's MES: 33.446
+Exploitable for: 0.446
+SOLVER:
+running time: 1643.090
+EV OOP: 13.790
+EV IP: 33.024
+OOP's MES: 14.267
+IP's MES: 33.445
+Exploitable for: 0.449
+SOLVER:
+running time: 1694.656
+EV OOP: 13.784
+EV IP: 33.029
+OOP's MES: 14.468
+IP's MES: 33.413
+Exploitable for: 0.534
+SOLVER:
+running time: 1745.060
+EV OOP: 13.792
+EV IP: 33.022
+OOP's MES: 14.291
+IP's MES: 33.274
+Exploitable for: 0.376
+SOLVER:
+running time: 1795.309
+EV OOP: 13.783
+EV IP: 33.030
+OOP's MES: 14.677
+IP's MES: 33.554
+Exploitable for: 0.709
+SOLVER:
+running time: 1846.540
+EV OOP: 13.774
+EV IP: 33.039
+OOP's MES: 15.102
+IP's MES: 33.855
+Exploitable for: 1.072
+SOLVER:
+running time: 1895.629
+EV OOP: 13.784
+EV IP: 33.029
+OOP's MES: 14.716
+IP's MES: 33.462
+Exploitable for: 0.682
+SOLVER:
+running time: 1944.242
+EV OOP: 13.797
+EV IP: 33.016
+OOP's MES: 14.164
+IP's MES: 33.246
+Exploitable for: 0.298
+SOLVER:
+running time: 1993.705
+EV OOP: 13.799
+EV IP: 33.014
+OOP's MES: 14.051
+IP's MES: 33.203
+Exploitable for: 0.221
+SOLVER:
+running time: 2043.151
+EV OOP: 13.799
+EV IP: 33.014
+OOP's MES: 14.038
+IP's MES: 33.230
+Exploitable for: 0.228
+SOLVER:
+running time: 2091.593
+EV OOP: 13.798
+EV IP: 33.014
+OOP's MES: 14.032
+IP's MES: 33.282
+Exploitable for: 0.250
+SOLVER:
+running time: 2138.930
+EV OOP: 13.800
+EV IP: 33.013
+OOP's MES: 13.963
+IP's MES: 33.170
+Exploitable for: 0.160
+SOLVER:
+running time: 2188.531
+EV OOP: 13.800
+EV IP: 33.013
+OOP's MES: 13.946
+IP's MES: 33.166
+Exploitable for: 0.149
+SOLVER:
+running time: 2238.900
+EV OOP: 13.801
+EV IP: 33.012
+OOP's MES: 13.964
+IP's MES: 33.126
+Exploitable for: 0.139
+SOLVER:
+running time: 2289.479
+EV OOP: 13.801
+EV IP: 33.012
+OOP's MES: 13.986
+IP's MES: 33.090
+Exploitable for: 0.131
+SOLVER:
+running time: 2338.801
+EV OOP: 13.801
+EV IP: 33.011
+OOP's MES: 13.920
+IP's MES: 33.076
+Exploitable for: 0.092
+SOLVER:
+running time: 2388.457
+EV OOP: 13.802
+EV IP: 33.011
+OOP's MES: 13.907
+IP's MES: 33.083
+Exploitable for: 0.088
+SOLVER:
+running time: 2437.598
+EV OOP: 13.801
+EV IP: 33.012
+OOP's MES: 13.913
+IP's MES: 33.090
+Exploitable for: 0.095
+SOLVER:
+running time: 2485.634
+EV OOP: 13.801
+EV IP: 33.012
+OOP's MES: 13.962
+IP's MES: 33.114
+Exploitable for: 0.132
+SOLVER:
+running time: 2532.229
+EV OOP: 13.801
+EV IP: 33.012
+OOP's MES: 14.043
+IP's MES: 33.153
+Exploitable for: 0.192
+SOLVER:
+running time: 2579.068
+EV OOP: 13.800
+EV IP: 33.013
+OOP's MES: 14.061
+IP's MES: 33.153
+Exploitable for: 0.201
+SOLVER:
+running time: 2623.148
+EV OOP: 13.802
+EV IP: 33.010
+OOP's MES: 13.953
+IP's MES: 33.094
+Exploitable for: 0.117
+SOLVER:
+running time: 2668.009
+EV OOP: 13.802
+EV IP: 33.010
+OOP's MES: 13.938
+IP's MES: 33.083
+Exploitable for: 0.104
+SOLVER:
+running time: 2713.885
+EV OOP: 13.803
+EV IP: 33.010
+OOP's MES: 13.909
+IP's MES: 33.086
+Exploitable for: 0.091
+SOLVER:
+running time: 2760.301
+EV OOP: 13.803
+EV IP: 33.010
+OOP's MES: 13.905
+IP's MES: 33.075
+Exploitable for: 0.084
+SOLVER:
+running time: 2806.311
+EV OOP: 13.803
+EV IP: 33.010
+OOP's MES: 13.912
+IP's MES: 33.092
+Exploitable for: 0.096
+SOLVER:
+running time: 2852.923
+EV OOP: 13.802
+EV IP: 33.010
+OOP's MES: 13.968
+IP's MES: 33.081
+Exploitable for: 0.118
+SOLVER:
+running time: 2898.821
+EV OOP: 13.800
+EV IP: 33.012
+OOP's MES: 14.028
+IP's MES: 33.151
+Exploitable for: 0.184
+SOLVER:
+running time: 2946.023
+EV OOP: 13.793
+EV IP: 33.019
+OOP's MES: 14.259
+IP's MES: 33.341
+Exploitable for: 0.394
+SOLVER:
+running time: 2991.823
+EV OOP: 13.793
+EV IP: 33.020
+OOP's MES: 14.460
+IP's MES: 33.289
+Exploitable for: 0.468
+SOLVER: stopped (timeout reached)
+EV OOP: 13.802
+EV IP: 33.011
+OOP's MES: 14.193
+IP's MES: 33.167
+Exploitable for: 0.274
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\KsKhJd.cfr
+SOLVER: started
+SOLVER:
+running time: 63.161
+EV OOP: 4.530
+EV IP: 42.435
+OOP's MES: 78.179
+IP's MES: 66.704
+Exploitable for: 48.959
+SOLVER:
+running time: 123.277
+EV OOP: 9.922
+EV IP: 37.078
+OOP's MES: 30.017
+IP's MES: 52.995
+Exploitable for: 18.006
+SOLVER:
+running time: 182.553
+EV OOP: 10.047
+EV IP: 36.910
+OOP's MES: 36.487
+IP's MES: 53.115
+Exploitable for: 21.323
+SOLVER:
+running time: 241.292
+EV OOP: 10.408
+EV IP: 36.522
+OOP's MES: 24.515
+IP's MES: 42.984
+Exploitable for: 10.284
+SOLVER:
+running time: 298.804
+EV OOP: 10.465
+EV IP: 36.462
+OOP's MES: 22.069
+IP's MES: 41.625
+Exploitable for: 8.383
+SOLVER:
+running time: 355.957
+EV OOP: 10.619
+EV IP: 36.318
+OOP's MES: 21.342
+IP's MES: 40.930
+Exploitable for: 7.668
+SOLVER:
+running time: 412.574
+EV OOP: 10.684
+EV IP: 36.238
+OOP's MES: 22.529
+IP's MES: 42.506
+Exploitable for: 9.056
+SOLVER:
+running time: 468.756
+EV OOP: 10.764
+EV IP: 36.157
+OOP's MES: 20.395
+IP's MES: 39.946
+Exploitable for: 6.710
+SOLVER:
+running time: 526.314
+EV OOP: 10.978
+EV IP: 35.943
+OOP's MES: 18.759
+IP's MES: 38.556
+Exploitable for: 5.197
+SOLVER:
+running time: 583.384
+EV OOP: 11.104
+EV IP: 35.801
+OOP's MES: 14.293
+IP's MES: 36.973
+Exploitable for: 2.181
+SOLVER:
+running time: 639.654
+EV OOP: 11.110
+EV IP: 35.790
+OOP's MES: 13.722
+IP's MES: 36.843
+Exploitable for: 1.833
+SOLVER:
+running time: 694.371
+EV OOP: 11.097
+EV IP: 35.799
+OOP's MES: 13.796
+IP's MES: 37.518
+Exploitable for: 2.209
+SOLVER:
+running time: 751.127
+EV OOP: 11.100
+EV IP: 35.801
+OOP's MES: 17.013
+IP's MES: 38.091
+Exploitable for: 4.102
+SOLVER:
+running time: 807.932
+EV OOP: 11.165
+EV IP: 35.723
+OOP's MES: 12.658
+IP's MES: 36.427
+Exploitable for: 1.098
+SOLVER:
+running time: 863.717
+EV OOP: 11.158
+EV IP: 35.728
+OOP's MES: 12.365
+IP's MES: 36.740
+Exploitable for: 1.109
+SOLVER:
+running time: 917.510
+EV OOP: 11.004
+EV IP: 35.883
+OOP's MES: 16.983
+IP's MES: 38.528
+Exploitable for: 4.312
+SOLVER:
+running time: 971.653
+EV OOP: 11.105
+EV IP: 35.782
+OOP's MES: 14.691
+IP's MES: 40.611
+Exploitable for: 4.208
+SOLVER:
+running time: 1024.885
+EV OOP: 11.121
+EV IP: 35.768
+OOP's MES: 14.625
+IP's MES: 37.782
+Exploitable for: 2.759
+SOLVER:
+running time: 1079.688
+EV OOP: 11.085
+EV IP: 35.800
+OOP's MES: 14.048
+IP's MES: 42.306
+Exploitable for: 4.734
+SOLVER:
+running time: 1133.491
+EV OOP: 11.128
+EV IP: 35.760
+OOP's MES: 14.257
+IP's MES: 37.729
+Exploitable for: 2.549
+SOLVER:
+running time: 1187.220
+EV OOP: 11.136
+EV IP: 35.749
+OOP's MES: 13.202
+IP's MES: 39.009
+Exploitable for: 2.663
+SOLVER:
+running time: 1239.905
+EV OOP: 11.155
+EV IP: 35.731
+OOP's MES: 13.741
+IP's MES: 37.352
+Exploitable for: 2.104
+SOLVER:
+running time: 1291.893
+EV OOP: 11.160
+EV IP: 35.723
+OOP's MES: 12.530
+IP's MES: 38.935
+Exploitable for: 2.291
+SOLVER:
+running time: 1343.248
+EV OOP: 11.178
+EV IP: 35.707
+OOP's MES: 12.995
+IP's MES: 36.930
+Exploitable for: 1.520
+SOLVER:
+running time: 1393.411
+EV OOP: 11.188
+EV IP: 35.693
+OOP's MES: 11.924
+IP's MES: 37.045
+Exploitable for: 1.044
+SOLVER:
+running time: 1440.279
+EV OOP: 11.190
+EV IP: 35.690
+OOP's MES: 11.808
+IP's MES: 36.383
+Exploitable for: 0.655
+SOLVER:
+running time: 1486.565
+EV OOP: 11.196
+EV IP: 35.683
+OOP's MES: 11.698
+IP's MES: 36.158
+Exploitable for: 0.488
+SOLVER:
+running time: 1534.095
+EV OOP: 11.197
+EV IP: 35.682
+OOP's MES: 11.779
+IP's MES: 36.142
+Exploitable for: 0.521
+SOLVER:
+running time: 1581.437
+EV OOP: 11.201
+EV IP: 35.677
+OOP's MES: 11.605
+IP's MES: 35.961
+Exploitable for: 0.344
+SOLVER:
+running time: 1628.830
+EV OOP: 11.203
+EV IP: 35.676
+OOP's MES: 11.523
+IP's MES: 35.949
+Exploitable for: 0.296
+SOLVER:
+running time: 1675.741
+EV OOP: 11.203
+EV IP: 35.675
+OOP's MES: 11.442
+IP's MES: 35.886
+Exploitable for: 0.225
+SOLVER:
+running time: 1722.099
+EV OOP: 11.205
+EV IP: 35.674
+OOP's MES: 11.434
+IP's MES: 35.871
+Exploitable for: 0.214
+SOLVER:
+running time: 1767.880
+EV OOP: 11.205
+EV IP: 35.673
+OOP's MES: 11.410
+IP's MES: 35.844
+Exploitable for: 0.188
+SOLVER:
+running time: 1814.454
+EV OOP: 11.203
+EV IP: 35.675
+OOP's MES: 11.507
+IP's MES: 35.907
+Exploitable for: 0.268
+SOLVER:
+running time: 1860.632
+EV OOP: 11.201
+EV IP: 35.677
+OOP's MES: 11.494
+IP's MES: 35.934
+Exploitable for: 0.275
+SOLVER:
+running time: 1907.415
+EV OOP: 11.192
+EV IP: 35.686
+OOP's MES: 12.019
+IP's MES: 36.145
+Exploitable for: 0.643
+SOLVER:
+running time: 1954.403
+EV OOP: 11.201
+EV IP: 35.677
+OOP's MES: 11.622
+IP's MES: 35.918
+Exploitable for: 0.331
+SOLVER:
+running time: 2000.290
+EV OOP: 11.205
+EV IP: 35.672
+OOP's MES: 11.430
+IP's MES: 35.848
+Exploitable for: 0.200
+SOLVER:
+running time: 2045.240
+EV OOP: 11.205
+EV IP: 35.672
+OOP's MES: 11.415
+IP's MES: 35.817
+Exploitable for: 0.178
+SOLVER:
+running time: 2090.572
+EV OOP: 11.207
+EV IP: 35.670
+OOP's MES: 11.362
+IP's MES: 35.789
+Exploitable for: 0.137
+SOLVER:
+running time: 2136.571
+EV OOP: 11.207
+EV IP: 35.670
+OOP's MES: 11.424
+IP's MES: 35.822
+Exploitable for: 0.184
+SOLVER:
+running time: 2180.837
+EV OOP: 11.207
+EV IP: 35.670
+OOP's MES: 11.377
+IP's MES: 35.795
+Exploitable for: 0.148
+SOLVER:
+running time: 2225.080
+EV OOP: 11.200
+EV IP: 35.678
+OOP's MES: 11.461
+IP's MES: 35.881
+Exploitable for: 0.232
+SOLVER:
+running time: 2270.482
+EV OOP: 11.207
+EV IP: 35.671
+OOP's MES: 11.369
+IP's MES: 35.827
+Exploitable for: 0.160
+SOLVER:
+running time: 2314.183
+EV OOP: 11.207
+EV IP: 35.670
+OOP's MES: 11.356
+IP's MES: 35.785
+Exploitable for: 0.132
+SOLVER:
+running time: 2359.320
+EV OOP: 11.197
+EV IP: 35.682
+OOP's MES: 11.813
+IP's MES: 35.991
+Exploitable for: 0.462
+SOLVER:
+running time: 2404.317
+EV OOP: 11.205
+EV IP: 35.672
+OOP's MES: 11.541
+IP's MES: 35.881
+Exploitable for: 0.273
+SOLVER:
+running time: 2448.751
+EV OOP: 11.207
+EV IP: 35.671
+OOP's MES: 11.454
+IP's MES: 35.877
+Exploitable for: 0.226
+SOLVER:
+running time: 2492.320
+EV OOP: 11.208
+EV IP: 35.670
+OOP's MES: 11.390
+IP's MES: 35.788
+Exploitable for: 0.150
+SOLVER:
+running time: 2536.856
+EV OOP: 11.205
+EV IP: 35.673
+OOP's MES: 11.392
+IP's MES: 35.819
+Exploitable for: 0.167
+SOLVER:
+running time: 2580.730
+EV OOP: 11.208
+EV IP: 35.670
+OOP's MES: 11.333
+IP's MES: 35.778
+Exploitable for: 0.117
+SOLVER:
+running time: 2625.041
+EV OOP: 11.203
+EV IP: 35.675
+OOP's MES: 11.484
+IP's MES: 35.851
+Exploitable for: 0.228
+SOLVER:
+running time: 2669.368
+EV OOP: 11.209
+EV IP: 35.668
+OOP's MES: 11.306
+IP's MES: 35.766
+Exploitable for: 0.098
+SOLVER:
+running time: 2713.971
+EV OOP: 11.209
+EV IP: 35.668
+OOP's MES: 11.286
+IP's MES: 35.736
+Exploitable for: 0.073
+SOLVER: stopped (required accuracy reached)
+EV OOP: 11.209
+EV IP: 35.668
+OOP's MES: 11.286
+IP's MES: 35.736
+Exploitable for: 0.073
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Ts3h2d.cfr
+SOLVER: started
+SOLVER:
+running time: 104.713
+EV OOP: 9.370
+EV IP: 37.384
+OOP's MES: 108.933
+IP's MES: 65.443
+Exploitable for: 63.811
+SOLVER:
+running time: 206.000
+EV OOP: 13.767
+EV IP: 32.906
+OOP's MES: 48.764
+IP's MES: 48.932
+Exploitable for: 25.511
+SOLVER:
+running time: 306.588
+EV OOP: 14.413
+EV IP: 32.222
+OOP's MES: 44.918
+IP's MES: 46.197
+Exploitable for: 22.240
+SOLVER:
+running time: 406.059
+EV OOP: 14.647
+EV IP: 31.959
+OOP's MES: 35.766
+IP's MES: 42.351
+Exploitable for: 15.756
+SOLVER:
+running time: 504.520
+EV OOP: 15.106
+EV IP: 31.499
+OOP's MES: 31.708
+IP's MES: 39.170
+Exploitable for: 12.136
+SOLVER:
+running time: 602.798
+EV OOP: 15.172
+EV IP: 31.425
+OOP's MES: 29.873
+IP's MES: 38.294
+Exploitable for: 10.785
+SOLVER:
+running time: 700.838
+EV OOP: 15.483
+EV IP: 31.115
+OOP's MES: 26.512
+IP's MES: 39.563
+Exploitable for: 9.738
+SOLVER:
+running time: 798.554
+EV OOP: 15.692
+EV IP: 30.911
+OOP's MES: 24.473
+IP's MES: 35.687
+Exploitable for: 6.779
+SOLVER:
+running time: 891.549
+EV OOP: 15.887
+EV IP: 30.713
+OOP's MES: 19.342
+IP's MES: 32.601
+Exploitable for: 2.671
+SOLVER:
+running time: 981.586
+EV OOP: 15.905
+EV IP: 30.686
+OOP's MES: 18.974
+IP's MES: 32.443
+Exploitable for: 2.413
+SOLVER:
+running time: 1072.450
+EV OOP: 15.876
+EV IP: 30.712
+OOP's MES: 20.244
+IP's MES: 32.690
+Exploitable for: 3.173
+SOLVER:
+running time: 1156.870
+EV OOP: 15.928
+EV IP: 30.654
+OOP's MES: 19.460
+IP's MES: 32.194
+Exploitable for: 2.536
+SOLVER:
+running time: 1241.486
+EV OOP: 15.824
+EV IP: 30.757
+OOP's MES: 19.744
+IP's MES: 32.188
+Exploitable for: 2.676
+SOLVER:
+running time: 1322.551
+EV OOP: 15.986
+EV IP: 30.585
+OOP's MES: 18.226
+IP's MES: 31.724
+Exploitable for: 1.690
+SOLVER:
+running time: 1406.275
+EV OOP: 15.965
+EV IP: 30.604
+OOP's MES: 19.075
+IP's MES: 31.936
+Exploitable for: 2.221
+SOLVER:
+running time: 1485.509
+EV OOP: 15.989
+EV IP: 30.576
+OOP's MES: 18.181
+IP's MES: 31.579
+Exploitable for: 1.598
+SOLVER:
+running time: 1566.349
+EV OOP: 15.998
+EV IP: 30.559
+OOP's MES: 17.479
+IP's MES: 31.348
+Exploitable for: 1.135
+SOLVER:
+running time: 1647.823
+EV OOP: 16.015
+EV IP: 30.543
+OOP's MES: 17.555
+IP's MES: 31.267
+Exploitable for: 1.132
+SOLVER:
+running time: 1727.297
+EV OOP: 16.021
+EV IP: 30.534
+OOP's MES: 17.252
+IP's MES: 31.156
+Exploitable for: 0.927
+SOLVER:
+running time: 1807.583
+EV OOP: 16.004
+EV IP: 30.548
+OOP's MES: 17.711
+IP's MES: 31.198
+Exploitable for: 1.179
+SOLVER:
+running time: 1887.599
+EV OOP: 16.025
+EV IP: 30.524
+OOP's MES: 17.165
+IP's MES: 30.984
+Exploitable for: 0.800
+SOLVER:
+running time: 1969.531
+EV OOP: 16.025
+EV IP: 30.527
+OOP's MES: 17.872
+IP's MES: 31.161
+Exploitable for: 1.241
+SOLVER:
+running time: 2052.344
+EV OOP: 15.980
+EV IP: 30.574
+OOP's MES: 18.123
+IP's MES: 31.594
+Exploitable for: 1.581
+SOLVER:
+running time: 2147.877
+EV OOP: 15.460
+EV IP: 31.102
+OOP's MES: 31.152
+IP's MES: 42.851
+Exploitable for: 13.720
+SOLVER:
+running time: 2243.922
+EV OOP: 16.032
+EV IP: 30.521
+OOP's MES: 17.859
+IP's MES: 31.579
+Exploitable for: 1.443
+SOLVER:
+running time: 2338.359
+EV OOP: 16.038
+EV IP: 30.510
+OOP's MES: 17.012
+IP's MES: 31.037
+Exploitable for: 0.751
+SOLVER:
+running time: 2431.617
+EV OOP: 16.043
+EV IP: 30.503
+OOP's MES: 16.734
+IP's MES: 30.855
+Exploitable for: 0.522
+SOLVER:
+running time: 2524.163
+EV OOP: 16.045
+EV IP: 30.499
+OOP's MES: 16.549
+IP's MES: 30.748
+Exploitable for: 0.377
+SOLVER:
+running time: 2616.495
+EV OOP: 16.046
+EV IP: 30.497
+OOP's MES: 16.449
+IP's MES: 30.698
+Exploitable for: 0.303
+SOLVER:
+running time: 2708.428
+EV OOP: 16.046
+EV IP: 30.495
+OOP's MES: 16.384
+IP's MES: 30.665
+Exploitable for: 0.254
+SOLVER:
+running time: 2800.253
+EV OOP: 16.046
+EV IP: 30.494
+OOP's MES: 16.334
+IP's MES: 30.641
+Exploitable for: 0.217
+SOLVER:
+running time: 2891.766
+EV OOP: 16.046
+EV IP: 30.493
+OOP's MES: 16.298
+IP's MES: 30.624
+Exploitable for: 0.192
+SOLVER:
+running time: 2982.714
+EV OOP: 16.045
+EV IP: 30.494
+OOP's MES: 16.272
+IP's MES: 30.613
+Exploitable for: 0.173
+SOLVER: stopped (timeout reached)
+EV OOP: 16.046
+EV IP: 30.493
+OOP's MES: 16.267
+IP's MES: 30.610
+Exploitable for: 0.169
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\7s5h2s.cfr
+SOLVER: started
+SOLVER:
+running time: 67.781
+EV OOP: 8.360
+EV IP: 38.352
+OOP's MES: 117.299
+IP's MES: 71.297
+Exploitable for: 70.942
+SOLVER:
+running time: 133.243
+EV OOP: 15.299
+EV IP: 31.339
+OOP's MES: 49.846
+IP's MES: 46.901
+Exploitable for: 25.055
+SOLVER:
+running time: 197.876
+EV OOP: 15.402
+EV IP: 31.171
+OOP's MES: 47.947
+IP's MES: 46.179
+Exploitable for: 23.777
+SOLVER:
+running time: 262.158
+EV OOP: 15.630
+EV IP: 30.916
+OOP's MES: 35.317
+IP's MES: 42.003
+Exploitable for: 15.387
+SOLVER:
+running time: 326.032
+EV OOP: 16.237
+EV IP: 30.301
+OOP's MES: 29.629
+IP's MES: 38.834
+Exploitable for: 10.963
+SOLVER:
+running time: 389.202
+EV OOP: 16.458
+EV IP: 30.081
+OOP's MES: 25.409
+IP's MES: 35.435
+Exploitable for: 7.152
+SOLVER:
+running time: 452.464
+EV OOP: 16.297
+EV IP: 30.248
+OOP's MES: 30.551
+IP's MES: 39.627
+Exploitable for: 11.816
+SOLVER:
+running time: 515.985
+EV OOP: 16.410
+EV IP: 30.118
+OOP's MES: 28.694
+IP's MES: 36.160
+Exploitable for: 9.163
+SOLVER:
+running time: 578.575
+EV OOP: 16.829
+EV IP: 29.719
+OOP's MES: 21.264
+IP's MES: 33.421
+Exploitable for: 4.069
+SOLVER:
+running time: 640.518
+EV OOP: 16.939
+EV IP: 29.621
+OOP's MES: 19.763
+IP's MES: 32.285
+Exploitable for: 2.744
+SOLVER:
+running time: 701.866
+EV OOP: 16.973
+EV IP: 29.586
+OOP's MES: 19.397
+IP's MES: 31.946
+Exploitable for: 2.392
+SOLVER:
+running time: 762.123
+EV OOP: 16.964
+EV IP: 29.593
+OOP's MES: 20.247
+IP's MES: 31.351
+Exploitable for: 2.520
+SOLVER:
+running time: 822.549
+EV OOP: 16.686
+EV IP: 29.865
+OOP's MES: 25.661
+IP's MES: 38.716
+Exploitable for: 8.913
+SOLVER:
+running time: 883.749
+EV OOP: 16.933
+EV IP: 29.614
+OOP's MES: 22.568
+IP's MES: 32.947
+Exploitable for: 4.484
+SOLVER:
+running time: 940.068
+EV OOP: 17.051
+EV IP: 29.496
+OOP's MES: 18.617
+IP's MES: 30.263
+Exploitable for: 1.167
+SOLVER:
+running time: 996.989
+EV OOP: 17.066
+EV IP: 29.479
+OOP's MES: 18.026
+IP's MES: 29.947
+Exploitable for: 0.714
+SOLVER:
+running time: 1052.425
+EV OOP: 17.065
+EV IP: 29.476
+OOP's MES: 17.774
+IP's MES: 29.841
+Exploitable for: 0.537
+SOLVER:
+running time: 1108.354
+EV OOP: 17.063
+EV IP: 29.475
+OOP's MES: 18.121
+IP's MES: 29.891
+Exploitable for: 0.737
+SOLVER:
+running time: 1162.099
+EV OOP: 17.078
+EV IP: 29.458
+OOP's MES: 17.667
+IP's MES: 29.737
+Exploitable for: 0.434
+SOLVER:
+running time: 1216.816
+EV OOP: 17.053
+EV IP: 29.482
+OOP's MES: 18.198
+IP's MES: 30.003
+Exploitable for: 0.833
+SOLVER:
+running time: 1271.481
+EV OOP: 17.062
+EV IP: 29.475
+OOP's MES: 18.683
+IP's MES: 30.017
+Exploitable for: 1.081
+SOLVER:
+running time: 1321.924
+EV OOP: 17.069
+EV IP: 29.464
+OOP's MES: 17.900
+IP's MES: 29.929
+Exploitable for: 0.648
+SOLVER:
+running time: 1373.839
+EV OOP: 17.021
+EV IP: 29.512
+OOP's MES: 18.670
+IP's MES: 30.277
+Exploitable for: 1.207
+SOLVER:
+running time: 1425.797
+EV OOP: 17.072
+EV IP: 29.462
+OOP's MES: 18.854
+IP's MES: 30.033
+Exploitable for: 1.176
+SOLVER:
+running time: 1474.703
+EV OOP: 17.080
+EV IP: 29.451
+OOP's MES: 18.645
+IP's MES: 29.803
+Exploitable for: 0.959
+SOLVER:
+running time: 1526.041
+EV OOP: 17.041
+EV IP: 29.487
+OOP's MES: 18.890
+IP's MES: 30.205
+Exploitable for: 1.283
+SOLVER:
+running time: 1577.521
+EV OOP: 17.045
+EV IP: 29.484
+OOP's MES: 18.467
+IP's MES: 30.344
+Exploitable for: 1.141
+SOLVER:
+running time: 1626.699
+EV OOP: 17.088
+EV IP: 29.439
+OOP's MES: 17.616
+IP's MES: 29.751
+Exploitable for: 0.420
+SOLVER:
+running time: 1677.165
+EV OOP: 17.088
+EV IP: 29.438
+OOP's MES: 17.557
+IP's MES: 29.710
+Exploitable for: 0.371
+SOLVER:
+running time: 1729.807
+EV OOP: 17.091
+EV IP: 29.436
+OOP's MES: 17.594
+IP's MES: 29.687
+Exploitable for: 0.377
+SOLVER:
+running time: 1782.370
+EV OOP: 17.093
+EV IP: 29.433
+OOP's MES: 17.480
+IP's MES: 29.621
+Exploitable for: 0.288
+SOLVER:
+running time: 1834.602
+EV OOP: 17.092
+EV IP: 29.432
+OOP's MES: 17.455
+IP's MES: 29.624
+Exploitable for: 0.277
+SOLVER:
+running time: 1885.894
+EV OOP: 17.079
+EV IP: 29.446
+OOP's MES: 17.770
+IP's MES: 29.925
+Exploitable for: 0.585
+SOLVER:
+running time: 1934.694
+EV OOP: 17.093
+EV IP: 29.430
+OOP's MES: 17.463
+IP's MES: 29.659
+Exploitable for: 0.299
+SOLVER:
+running time: 1983.068
+EV OOP: 17.092
+EV IP: 29.429
+OOP's MES: 17.405
+IP's MES: 29.747
+Exploitable for: 0.316
+SOLVER:
+running time: 2032.656
+EV OOP: 17.094
+EV IP: 29.428
+OOP's MES: 17.332
+IP's MES: 29.584
+Exploitable for: 0.197
+SOLVER:
+running time: 2083.720
+EV OOP: 16.959
+EV IP: 29.567
+OOP's MES: 23.755
+IP's MES: 31.282
+Exploitable for: 4.255
+SOLVER:
+running time: 2146.071
+EV OOP: 16.983
+EV IP: 29.547
+OOP's MES: 21.275
+IP's MES: 34.347
+Exploitable for: 4.546
+SOLVER:
+running time: 2206.077
+EV OOP: 17.082
+EV IP: 29.445
+OOP's MES: 18.672
+IP's MES: 30.275
+Exploitable for: 1.210
+SOLVER:
+running time: 2265.830
+EV OOP: 17.094
+EV IP: 29.434
+OOP's MES: 17.799
+IP's MES: 29.839
+Exploitable for: 0.555
+SOLVER:
+running time: 2324.691
+EV OOP: 17.096
+EV IP: 29.429
+OOP's MES: 17.613
+IP's MES: 29.708
+Exploitable for: 0.397
+SOLVER:
+running time: 2382.873
+EV OOP: 17.097
+EV IP: 29.428
+OOP's MES: 17.472
+IP's MES: 29.635
+Exploitable for: 0.291
+SOLVER:
+running time: 2440.664
+EV OOP: 17.098
+EV IP: 29.426
+OOP's MES: 17.421
+IP's MES: 29.594
+Exploitable for: 0.246
+SOLVER:
+running time: 2497.836
+EV OOP: 17.097
+EV IP: 29.425
+OOP's MES: 17.352
+IP's MES: 29.567
+Exploitable for: 0.198
+SOLVER:
+running time: 2554.624
+EV OOP: 17.098
+EV IP: 29.424
+OOP's MES: 17.340
+IP's MES: 29.548
+Exploitable for: 0.183
+SOLVER:
+running time: 2610.728
+EV OOP: 17.098
+EV IP: 29.424
+OOP's MES: 17.294
+IP's MES: 29.536
+Exploitable for: 0.154
+SOLVER:
+running time: 2666.409
+EV OOP: 17.098
+EV IP: 29.423
+OOP's MES: 17.292
+IP's MES: 29.525
+Exploitable for: 0.148
+SOLVER:
+running time: 2721.918
+EV OOP: 17.098
+EV IP: 29.423
+OOP's MES: 17.363
+IP's MES: 29.534
+Exploitable for: 0.188
+SOLVER:
+running time: 2777.090
+EV OOP: 17.074
+EV IP: 29.451
+OOP's MES: 19.597
+IP's MES: 30.187
+Exploitable for: 1.629
+SOLVER:
+running time: 2829.035
+EV OOP: 17.097
+EV IP: 29.428
+OOP's MES: 17.601
+IP's MES: 29.750
+Exploitable for: 0.413
+SOLVER:
+running time: 2879.589
+EV OOP: 17.099
+EV IP: 29.424
+OOP's MES: 17.396
+IP's MES: 29.609
+Exploitable for: 0.241
+SOLVER:
+running time: 2931.583
+EV OOP: 17.099
+EV IP: 29.422
+OOP's MES: 17.298
+IP's MES: 29.520
+Exploitable for: 0.148
+SOLVER:
+running time: 2985.172
+EV OOP: 17.099
+EV IP: 29.422
+OOP's MES: 17.255
+IP's MES: 29.495
+Exploitable for: 0.114
+SOLVER: stopped (timeout reached)
+EV OOP: 17.099
+EV IP: 29.422
+OOP's MES: 17.247
+IP's MES: 29.492
+Exploitable for: 0.109
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Js5h2d.cfr
+SOLVER: started
+SOLVER:
+running time: 104.567
+EV OOP: 8.374
+EV IP: 38.390
+OOP's MES: 93.520
+IP's MES: 68.820
+Exploitable for: 57.788
+SOLVER:
+running time: 205.348
+EV OOP: 12.097
+EV IP: 34.663
+OOP's MES: 57.980
+IP's MES: 59.350
+Exploitable for: 35.286
+SOLVER:
+running time: 305.314
+EV OOP: 13.077
+EV IP: 33.625
+OOP's MES: 44.953
+IP's MES: 47.182
+Exploitable for: 22.716
+SOLVER:
+running time: 404.263
+EV OOP: 13.338
+EV IP: 33.324
+OOP's MES: 34.046
+IP's MES: 43.130
+Exploitable for: 15.257
+SOLVER:
+running time: 501.726
+EV OOP: 13.796
+EV IP: 32.863
+OOP's MES: 30.878
+IP's MES: 39.925
+Exploitable for: 12.072
+SOLVER:
+running time: 599.242
+EV OOP: 13.896
+EV IP: 32.753
+OOP's MES: 29.114
+IP's MES: 38.451
+Exploitable for: 10.458
+SOLVER:
+running time: 697.093
+EV OOP: 14.162
+EV IP: 32.479
+OOP's MES: 25.449
+IP's MES: 39.906
+Exploitable for: 9.356
+SOLVER:
+running time: 793.151
+EV OOP: 14.381
+EV IP: 32.264
+OOP's MES: 21.913
+IP's MES: 35.080
+Exploitable for: 5.174
+SOLVER:
+running time: 886.507
+EV OOP: 14.473
+EV IP: 32.160
+OOP's MES: 19.180
+IP's MES: 34.566
+Exploitable for: 3.556
+SOLVER:
+running time: 984.590
+EV OOP: 13.965
+EV IP: 32.667
+OOP's MES: 30.559
+IP's MES: 40.730
+Exploitable for: 12.328
+SOLVER:
+running time: 1077.165
+EV OOP: 14.594
+EV IP: 32.025
+OOP's MES: 17.411
+IP's MES: 33.342
+Exploitable for: 2.067
+SOLVER:
+running time: 1165.166
+EV OOP: 14.608
+EV IP: 32.002
+OOP's MES: 16.584
+IP's MES: 32.931
+Exploitable for: 1.453
+SOLVER:
+running time: 1250.493
+EV OOP: 14.602
+EV IP: 32.004
+OOP's MES: 16.755
+IP's MES: 33.009
+Exploitable for: 1.579
+SOLVER:
+running time: 1334.126
+EV OOP: 14.629
+EV IP: 31.974
+OOP's MES: 16.048
+IP's MES: 32.755
+Exploitable for: 1.100
+SOLVER:
+running time: 1416.226
+EV OOP: 14.609
+EV IP: 31.996
+OOP's MES: 16.939
+IP's MES: 33.278
+Exploitable for: 1.805
+SOLVER:
+running time: 1496.466
+EV OOP: 14.620
+EV IP: 31.984
+OOP's MES: 16.694
+IP's MES: 33.010
+Exploitable for: 1.550
+SOLVER:
+running time: 1575.119
+EV OOP: 14.638
+EV IP: 31.962
+OOP's MES: 16.134
+IP's MES: 32.869
+Exploitable for: 1.201
+SOLVER:
+running time: 1654.069
+EV OOP: 14.605
+EV IP: 31.994
+OOP's MES: 16.260
+IP's MES: 32.986
+Exploitable for: 1.323
+SOLVER:
+running time: 1730.977
+EV OOP: 14.639
+EV IP: 31.957
+OOP's MES: 16.109
+IP's MES: 32.703
+Exploitable for: 1.108
+SOLVER:
+running time: 1807.726
+EV OOP: 14.643
+EV IP: 31.951
+OOP's MES: 15.760
+IP's MES: 32.574
+Exploitable for: 0.870
+SOLVER:
+running time: 1884.870
+EV OOP: 14.645
+EV IP: 31.948
+OOP's MES: 15.710
+IP's MES: 32.567
+Exploitable for: 0.842
+SOLVER:
+running time: 1964.776
+EV OOP: 14.641
+EV IP: 31.954
+OOP's MES: 15.930
+IP's MES: 32.674
+Exploitable for: 1.004
+SOLVER:
+running time: 2040.447
+EV OOP: 14.656
+EV IP: 31.936
+OOP's MES: 15.647
+IP's MES: 32.510
+Exploitable for: 0.782
+SOLVER:
+running time: 2116.873
+EV OOP: 14.645
+EV IP: 31.948
+OOP's MES: 15.590
+IP's MES: 32.538
+Exploitable for: 0.768
+SOLVER:
+running time: 2192.202
+EV OOP: 14.655
+EV IP: 31.934
+OOP's MES: 15.426
+IP's MES: 32.375
+Exploitable for: 0.606
+SOLVER:
+running time: 2267.584
+EV OOP: 14.672
+EV IP: 31.917
+OOP's MES: 15.229
+IP's MES: 32.230
+Exploitable for: 0.435
+SOLVER:
+running time: 2342.931
+EV OOP: 14.649
+EV IP: 31.940
+OOP's MES: 15.689
+IP's MES: 32.533
+Exploitable for: 0.816
+SOLVER:
+running time: 2416.969
+EV OOP: 14.664
+EV IP: 31.926
+OOP's MES: 15.560
+IP's MES: 32.297
+Exploitable for: 0.634
+SOLVER:
+running time: 2491.227
+EV OOP: 14.673
+EV IP: 31.916
+OOP's MES: 15.255
+IP's MES: 32.174
+Exploitable for: 0.421
+SOLVER:
+running time: 2570.435
+EV OOP: 14.667
+EV IP: 31.925
+OOP's MES: 15.723
+IP's MES: 32.440
+Exploitable for: 0.786
+SOLVER:
+running time: 2644.712
+EV OOP: 14.655
+EV IP: 31.933
+OOP's MES: 15.657
+IP's MES: 32.411
+Exploitable for: 0.740
+SOLVER:
+running time: 2718.511
+EV OOP: 14.673
+EV IP: 31.914
+OOP's MES: 15.195
+IP's MES: 32.210
+Exploitable for: 0.409
+SOLVER:
+running time: 2792.241
+EV OOP: 14.676
+EV IP: 31.908
+OOP's MES: 15.059
+IP's MES: 32.105
+Exploitable for: 0.289
+SOLVER:
+running time: 2867.727
+EV OOP: 14.670
+EV IP: 31.914
+OOP's MES: 15.013
+IP's MES: 32.141
+Exploitable for: 0.285
+SOLVER:
+running time: 2941.204
+EV OOP: 14.673
+EV IP: 31.910
+OOP's MES: 14.948
+IP's MES: 32.080
+Exploitable for: 0.222
+SOLVER: stopped (timeout reached)
+EV OOP: 14.676
+EV IP: 31.908
+OOP's MES: 14.960
+IP's MES: 32.059
+Exploitable for: 0.217
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\9s6h2h.cfr
+SOLVER: started
+SOLVER:
+running time: 66.894
+EV OOP: 9.082
+EV IP: 37.631
+OOP's MES: 107.904
+IP's MES: 66.700
+Exploitable for: 63.945
+SOLVER:
+running time: 131.484
+EV OOP: 13.821
+EV IP: 32.774
+OOP's MES: 54.378
+IP's MES: 51.018
+Exploitable for: 29.400
+SOLVER:
+running time: 195.494
+EV OOP: 14.868
+EV IP: 31.684
+OOP's MES: 49.217
+IP's MES: 50.107
+Exploitable for: 26.386
+SOLVER:
+running time: 258.987
+EV OOP: 15.727
+EV IP: 30.801
+OOP's MES: 33.888
+IP's MES: 40.076
+Exploitable for: 13.718
+SOLVER:
+running time: 321.966
+EV OOP: 16.065
+EV IP: 30.448
+OOP's MES: 27.403
+IP's MES: 37.213
+Exploitable for: 9.052
+SOLVER:
+running time: 384.632
+EV OOP: 15.887
+EV IP: 30.616
+OOP's MES: 30.056
+IP's MES: 37.922
+Exploitable for: 10.737
+SOLVER:
+running time: 447.393
+EV OOP: 16.169
+EV IP: 30.339
+OOP's MES: 28.341
+IP's MES: 39.170
+Exploitable for: 10.502
+SOLVER:
+running time: 509.363
+EV OOP: 16.537
+EV IP: 29.971
+OOP's MES: 20.321
+IP's MES: 32.508
+Exploitable for: 3.161
+SOLVER:
+running time: 570.925
+EV OOP: 16.637
+EV IP: 29.880
+OOP's MES: 19.478
+IP's MES: 32.333
+Exploitable for: 2.647
+SOLVER:
+running time: 632.175
+EV OOP: 16.643
+EV IP: 29.873
+OOP's MES: 20.344
+IP's MES: 32.058
+Exploitable for: 2.943
+SOLVER:
+running time: 694.510
+EV OOP: 15.869
+EV IP: 30.640
+OOP's MES: 37.836
+IP's MES: 38.907
+Exploitable for: 15.117
+SOLVER:
+running time: 757.399
+EV OOP: 16.491
+EV IP: 30.022
+OOP's MES: 25.167
+IP's MES: 38.854
+Exploitable for: 8.754
+SOLVER:
+running time: 817.041
+EV OOP: 16.758
+EV IP: 29.751
+OOP's MES: 18.167
+IP's MES: 30.639
+Exploitable for: 1.149
+SOLVER:
+running time: 874.865
+EV OOP: 16.776
+EV IP: 29.729
+OOP's MES: 17.655
+IP's MES: 30.234
+Exploitable for: 0.692
+SOLVER:
+running time: 930.249
+EV OOP: 16.778
+EV IP: 29.723
+OOP's MES: 17.501
+IP's MES: 30.109
+Exploitable for: 0.555
+SOLVER:
+running time: 984.220
+EV OOP: 16.782
+EV IP: 29.714
+OOP's MES: 17.377
+IP's MES: 30.039
+Exploitable for: 0.460
+SOLVER:
+running time: 1038.035
+EV OOP: 16.768
+EV IP: 29.725
+OOP's MES: 17.922
+IP's MES: 30.276
+Exploitable for: 0.852
+SOLVER:
+running time: 1090.306
+EV OOP: 16.761
+EV IP: 29.733
+OOP's MES: 18.105
+IP's MES: 30.628
+Exploitable for: 1.120
+SOLVER:
+running time: 1141.671
+EV OOP: 16.789
+EV IP: 29.707
+OOP's MES: 18.049
+IP's MES: 30.262
+Exploitable for: 0.908
+SOLVER:
+running time: 1190.497
+EV OOP: 16.795
+EV IP: 29.696
+OOP's MES: 17.388
+IP's MES: 30.033
+Exploitable for: 0.465
+SOLVER:
+running time: 1244.986
+EV OOP: 16.751
+EV IP: 29.754
+OOP's MES: 19.340
+IP's MES: 31.214
+Exploitable for: 2.025
+SOLVER:
+running time: 1296.366
+EV OOP: 16.797
+EV IP: 29.697
+OOP's MES: 17.768
+IP's MES: 30.187
+Exploitable for: 0.730
+SOLVER:
+running time: 1347.870
+EV OOP: 16.778
+EV IP: 29.711
+OOP's MES: 17.797
+IP's MES: 30.319
+Exploitable for: 0.813
+SOLVER:
+running time: 1398.559
+EV OOP: 16.788
+EV IP: 29.701
+OOP's MES: 17.993
+IP's MES: 30.264
+Exploitable for: 0.884
+SOLVER:
+running time: 1448.273
+EV OOP: 16.782
+EV IP: 29.708
+OOP's MES: 19.466
+IP's MES: 30.411
+Exploitable for: 1.694
+SOLVER:
+running time: 1499.280
+EV OOP: 16.754
+EV IP: 29.738
+OOP's MES: 18.920
+IP's MES: 30.836
+Exploitable for: 1.632
+SOLVER:
+running time: 1547.183
+EV OOP: 16.806
+EV IP: 29.682
+OOP's MES: 17.458
+IP's MES: 29.968
+Exploitable for: 0.469
+SOLVER:
+running time: 1595.814
+EV OOP: 16.803
+EV IP: 29.681
+OOP's MES: 17.265
+IP's MES: 29.922
+Exploitable for: 0.352
+SOLVER:
+running time: 1644.749
+EV OOP: 16.806
+EV IP: 29.677
+OOP's MES: 17.163
+IP's MES: 29.861
+Exploitable for: 0.271
+SOLVER:
+running time: 1694.376
+EV OOP: 16.806
+EV IP: 29.676
+OOP's MES: 17.078
+IP's MES: 29.817
+Exploitable for: 0.207
+SOLVER:
+running time: 1744.868
+EV OOP: 16.808
+EV IP: 29.673
+OOP's MES: 17.019
+IP's MES: 29.781
+Exploitable for: 0.160
+SOLVER:
+running time: 1795.499
+EV OOP: 16.808
+EV IP: 29.673
+OOP's MES: 17.002
+IP's MES: 29.770
+Exploitable for: 0.146
+SOLVER:
+running time: 1846.743
+EV OOP: 16.809
+EV IP: 29.672
+OOP's MES: 17.007
+IP's MES: 29.780
+Exploitable for: 0.153
+SOLVER:
+running time: 1897.429
+EV OOP: 16.809
+EV IP: 29.671
+OOP's MES: 16.995
+IP's MES: 29.767
+Exploitable for: 0.141
+SOLVER:
+running time: 1947.808
+EV OOP: 16.810
+EV IP: 29.670
+OOP's MES: 16.963
+IP's MES: 29.754
+Exploitable for: 0.118
+SOLVER:
+running time: 1998.272
+EV OOP: 16.810
+EV IP: 29.670
+OOP's MES: 16.967
+IP's MES: 29.763
+Exploitable for: 0.125
+SOLVER:
+running time: 2047.891
+EV OOP: 16.809
+EV IP: 29.671
+OOP's MES: 16.961
+IP's MES: 29.775
+Exploitable for: 0.128
+SOLVER:
+running time: 2096.285
+EV OOP: 16.811
+EV IP: 29.669
+OOP's MES: 16.941
+IP's MES: 29.743
+Exploitable for: 0.102
+SOLVER:
+running time: 2146.153
+EV OOP: 16.812
+EV IP: 29.668
+OOP's MES: 16.926
+IP's MES: 29.735
+Exploitable for: 0.090
+SOLVER:
+running time: 2196.268
+EV OOP: 16.811
+EV IP: 29.669
+OOP's MES: 16.954
+IP's MES: 29.747
+Exploitable for: 0.111
+SOLVER:
+running time: 2244.715
+EV OOP: 16.812
+EV IP: 29.668
+OOP's MES: 16.930
+IP's MES: 29.735
+Exploitable for: 0.093
+SOLVER:
+running time: 2293.150
+EV OOP: 16.811
+EV IP: 29.668
+OOP's MES: 16.980
+IP's MES: 29.761
+Exploitable for: 0.131
+SOLVER:
+running time: 2341.138
+EV OOP: 16.812
+EV IP: 29.667
+OOP's MES: 16.928
+IP's MES: 29.736
+Exploitable for: 0.092
+SOLVER:
+running time: 2388.587
+EV OOP: 16.813
+EV IP: 29.666
+OOP's MES: 16.909
+IP's MES: 29.729
+Exploitable for: 0.079
+SOLVER:
+running time: 2437.447
+EV OOP: 16.807
+EV IP: 29.672
+OOP's MES: 17.305
+IP's MES: 29.876
+Exploitable for: 0.351
+SOLVER:
+running time: 2484.404
+EV OOP: 16.811
+EV IP: 29.668
+OOP's MES: 17.020
+IP's MES: 29.760
+Exploitable for: 0.150
+SOLVER:
+running time: 2531.845
+EV OOP: 16.813
+EV IP: 29.666
+OOP's MES: 16.976
+IP's MES: 29.743
+Exploitable for: 0.120
+SOLVER:
+running time: 2579.433
+EV OOP: 16.813
+EV IP: 29.666
+OOP's MES: 16.948
+IP's MES: 29.725
+Exploitable for: 0.097
+SOLVER:
+running time: 2627.230
+EV OOP: 16.813
+EV IP: 29.665
+OOP's MES: 16.935
+IP's MES: 29.723
+Exploitable for: 0.090
+SOLVER:
+running time: 2674.808
+EV OOP: 16.813
+EV IP: 29.665
+OOP's MES: 16.928
+IP's MES: 29.716
+Exploitable for: 0.083
+SOLVER:
+running time: 2723.145
+EV OOP: 16.814
+EV IP: 29.665
+OOP's MES: 16.913
+IP's MES: 29.712
+Exploitable for: 0.073
+SOLVER: stopped (required accuracy reached)
+EV OOP: 16.814
+EV IP: 29.665
+OOP's MES: 16.913
+IP's MES: 29.712
+Exploitable for: 0.073
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\AsKs2h.cfr
+SOLVER: started
+SOLVER:
+running time: 66.200
+EV OOP: 5.657
+EV IP: 41.211
+OOP's MES: 85.378
+IP's MES: 65.472
+Exploitable for: 51.991
+SOLVER:
+running time: 130.067
+EV OOP: 9.498
+EV IP: 37.347
+OOP's MES: 40.027
+IP's MES: 52.066
+Exploitable for: 22.624
+SOLVER:
+running time: 193.012
+EV OOP: 9.738
+EV IP: 37.019
+OOP's MES: 35.547
+IP's MES: 48.691
+Exploitable for: 18.740
+SOLVER:
+running time: 255.278
+EV OOP: 10.499
+EV IP: 36.231
+OOP's MES: 27.734
+IP's MES: 55.192
+Exploitable for: 18.098
+SOLVER:
+running time: 316.486
+EV OOP: 11.517
+EV IP: 35.206
+OOP's MES: 18.938
+IP's MES: 40.141
+Exploitable for: 6.178
+SOLVER:
+running time: 377.385
+EV OOP: 11.608
+EV IP: 35.120
+OOP's MES: 18.926
+IP's MES: 40.676
+Exploitable for: 6.437
+SOLVER:
+running time: 437.934
+EV OOP: 11.752
+EV IP: 34.970
+OOP's MES: 17.324
+IP's MES: 39.053
+Exploitable for: 4.828
+SOLVER:
+running time: 494.591
+EV OOP: 11.903
+EV IP: 34.816
+OOP's MES: 16.363
+IP's MES: 37.720
+Exploitable for: 3.682
+SOLVER:
+running time: 544.628
+EV OOP: 11.991
+EV IP: 34.726
+OOP's MES: 13.601
+IP's MES: 35.795
+Exploitable for: 1.340
+SOLVER:
+running time: 596.377
+EV OOP: 12.002
+EV IP: 34.712
+OOP's MES: 13.624
+IP's MES: 35.733
+Exploitable for: 1.322
+SOLVER:
+running time: 647.196
+EV OOP: 11.963
+EV IP: 34.751
+OOP's MES: 14.217
+IP's MES: 35.962
+Exploitable for: 1.732
+SOLVER:
+running time: 693.373
+EV OOP: 11.999
+EV IP: 34.712
+OOP's MES: 13.683
+IP's MES: 35.775
+Exploitable for: 1.373
+SOLVER:
+running time: 739.697
+EV OOP: 12.039
+EV IP: 34.668
+OOP's MES: 13.046
+IP's MES: 35.232
+Exploitable for: 0.786
+SOLVER:
+running time: 785.928
+EV OOP: 12.027
+EV IP: 34.678
+OOP's MES: 13.218
+IP's MES: 35.403
+Exploitable for: 0.958
+SOLVER:
+running time: 832.179
+EV OOP: 12.044
+EV IP: 34.660
+OOP's MES: 12.898
+IP's MES: 35.177
+Exploitable for: 0.685
+SOLVER:
+running time: 878.817
+EV OOP: 12.033
+EV IP: 34.670
+OOP's MES: 13.050
+IP's MES: 35.326
+Exploitable for: 0.836
+SOLVER:
+running time: 923.426
+EV OOP: 12.044
+EV IP: 34.660
+OOP's MES: 12.875
+IP's MES: 35.135
+Exploitable for: 0.653
+SOLVER:
+running time: 968.914
+EV OOP: 12.051
+EV IP: 34.650
+OOP's MES: 12.766
+IP's MES: 35.076
+Exploitable for: 0.570
+SOLVER:
+running time: 1015.941
+EV OOP: 12.052
+EV IP: 34.648
+OOP's MES: 12.565
+IP's MES: 34.988
+Exploitable for: 0.426
+SOLVER:
+running time: 1062.656
+EV OOP: 12.008
+EV IP: 34.692
+OOP's MES: 13.944
+IP's MES: 35.869
+Exploitable for: 1.556
+SOLVER:
+running time: 1108.141
+EV OOP: 12.050
+EV IP: 34.652
+OOP's MES: 13.081
+IP's MES: 35.286
+Exploitable for: 0.832
+SOLVER:
+running time: 1152.755
+EV OOP: 12.058
+EV IP: 34.642
+OOP's MES: 12.583
+IP's MES: 34.974
+Exploitable for: 0.429
+SOLVER:
+running time: 1197.544
+EV OOP: 12.061
+EV IP: 34.640
+OOP's MES: 12.574
+IP's MES: 34.955
+Exploitable for: 0.414
+SOLVER:
+running time: 1241.275
+EV OOP: 12.027
+EV IP: 34.672
+OOP's MES: 12.674
+IP's MES: 35.170
+Exploitable for: 0.572
+SOLVER:
+running time: 1284.062
+EV OOP: 12.063
+EV IP: 34.636
+OOP's MES: 12.366
+IP's MES: 34.821
+Exploitable for: 0.244
+SOLVER:
+running time: 1327.360
+EV OOP: 12.063
+EV IP: 34.636
+OOP's MES: 12.352
+IP's MES: 34.808
+Exploitable for: 0.231
+SOLVER:
+running time: 1372.088
+EV OOP: 12.057
+EV IP: 34.645
+OOP's MES: 12.673
+IP's MES: 35.039
+Exploitable for: 0.505
+SOLVER:
+running time: 1416.975
+EV OOP: 12.064
+EV IP: 34.636
+OOP's MES: 12.491
+IP's MES: 34.888
+Exploitable for: 0.340
+SOLVER:
+running time: 1462.624
+EV OOP: 12.065
+EV IP: 34.635
+OOP's MES: 12.454
+IP's MES: 34.866
+Exploitable for: 0.310
+SOLVER:
+running time: 1507.214
+EV OOP: 12.063
+EV IP: 34.636
+OOP's MES: 12.488
+IP's MES: 34.874
+Exploitable for: 0.331
+SOLVER:
+running time: 1552.290
+EV OOP: 12.066
+EV IP: 34.633
+OOP's MES: 12.326
+IP's MES: 34.824
+Exploitable for: 0.226
+SOLVER:
+running time: 1596.975
+EV OOP: 12.067
+EV IP: 34.632
+OOP's MES: 12.302
+IP's MES: 34.767
+Exploitable for: 0.185
+SOLVER:
+running time: 1642.253
+EV OOP: 12.068
+EV IP: 34.632
+OOP's MES: 12.309
+IP's MES: 34.755
+Exploitable for: 0.182
+SOLVER:
+running time: 1687.299
+EV OOP: 12.067
+EV IP: 34.632
+OOP's MES: 12.300
+IP's MES: 34.761
+Exploitable for: 0.181
+SOLVER:
+running time: 1732.615
+EV OOP: 12.056
+EV IP: 34.643
+OOP's MES: 13.183
+IP's MES: 35.011
+Exploitable for: 0.748
+SOLVER:
+running time: 1780.412
+EV OOP: 11.527
+EV IP: 35.173
+OOP's MES: 17.725
+IP's MES: 38.978
+Exploitable for: 5.001
+SOLVER:
+running time: 1841.440
+EV OOP: 12.053
+EV IP: 34.648
+OOP's MES: 13.806
+IP's MES: 36.054
+Exploitable for: 1.579
+SOLVER:
+running time: 1901.824
+EV OOP: 12.066
+EV IP: 34.633
+OOP's MES: 12.881
+IP's MES: 35.132
+Exploitable for: 0.658
+SOLVER:
+running time: 1960.776
+EV OOP: 12.068
+EV IP: 34.629
+OOP's MES: 12.577
+IP's MES: 34.931
+Exploitable for: 0.405
+SOLVER:
+running time: 2018.620
+EV OOP: 12.069
+EV IP: 34.629
+OOP's MES: 12.430
+IP's MES: 34.832
+Exploitable for: 0.282
+SOLVER:
+running time: 2076.057
+EV OOP: 12.069
+EV IP: 34.628
+OOP's MES: 12.343
+IP's MES: 34.798
+Exploitable for: 0.221
+SOLVER:
+running time: 2133.539
+EV OOP: 12.069
+EV IP: 34.628
+OOP's MES: 12.287
+IP's MES: 34.771
+Exploitable for: 0.180
+SOLVER:
+running time: 2190.606
+EV OOP: 12.070
+EV IP: 34.628
+OOP's MES: 12.255
+IP's MES: 34.763
+Exploitable for: 0.160
+SOLVER:
+running time: 2247.130
+EV OOP: 12.070
+EV IP: 34.628
+OOP's MES: 12.226
+IP's MES: 34.735
+Exploitable for: 0.132
+SOLVER:
+running time: 2303.553
+EV OOP: 12.070
+EV IP: 34.628
+OOP's MES: 12.205
+IP's MES: 34.718
+Exploitable for: 0.113
+SOLVER:
+running time: 2359.332
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.190
+IP's MES: 34.713
+Exploitable for: 0.103
+SOLVER:
+running time: 2414.370
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.177
+IP's MES: 34.699
+Exploitable for: 0.089
+SOLVER:
+running time: 2468.862
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.167
+IP's MES: 34.696
+Exploitable for: 0.083
+SOLVER:
+running time: 2523.486
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.161
+IP's MES: 34.697
+Exploitable for: 0.080
+SOLVER:
+running time: 2577.381
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.153
+IP's MES: 34.688
+Exploitable for: 0.072
+SOLVER: stopped (required accuracy reached)
+EV OOP: 12.071
+EV IP: 34.627
+OOP's MES: 12.153
+IP's MES: 34.688
+Exploitable for: 0.072
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\Js4s3h.cfr
+SOLVER: started
+SOLVER:
+running time: 71.665
+EV OOP: 10.245
+EV IP: 36.432
+OOP's MES: 101.645
+IP's MES: 72.435
+Exploitable for: 63.702
+SOLVER:
+running time: 140.811
+EV OOP: 14.880
+EV IP: 31.797
+OOP's MES: 47.112
+IP's MES: 47.432
+Exploitable for: 23.934
+SOLVER:
+running time: 209.880
+EV OOP: 15.262
+EV IP: 31.375
+OOP's MES: 45.891
+IP's MES: 49.455
+Exploitable for: 24.355
+SOLVER:
+running time: 277.955
+EV OOP: 15.647
+EV IP: 30.963
+OOP's MES: 33.171
+IP's MES: 40.549
+Exploitable for: 13.556
+SOLVER:
+running time: 345.768
+EV OOP: 16.312
+EV IP: 30.303
+OOP's MES: 25.132
+IP's MES: 35.702
+Exploitable for: 7.109
+SOLVER:
+running time: 412.239
+EV OOP: 16.479
+EV IP: 30.157
+OOP's MES: 23.418
+IP's MES: 35.683
+Exploitable for: 6.232
+SOLVER:
+running time: 478.168
+EV OOP: 16.484
+EV IP: 30.161
+OOP's MES: 25.719
+IP's MES: 37.008
+Exploitable for: 8.041
+SOLVER:
+running time: 544.650
+EV OOP: 16.569
+EV IP: 30.077
+OOP's MES: 24.857
+IP's MES: 35.599
+Exploitable for: 6.905
+SOLVER:
+running time: 610.412
+EV OOP: 16.818
+EV IP: 29.847
+OOP's MES: 20.301
+IP's MES: 33.740
+Exploitable for: 3.688
+SOLVER:
+running time: 675.936
+EV OOP: 16.850
+EV IP: 29.820
+OOP's MES: 19.675
+IP's MES: 33.877
+Exploitable for: 3.440
+SOLVER:
+running time: 740.474
+EV OOP: 16.905
+EV IP: 29.774
+OOP's MES: 19.183
+IP's MES: 32.565
+Exploitable for: 2.535
+SOLVER:
+running time: 805.687
+EV OOP: 16.914
+EV IP: 29.769
+OOP's MES: 19.326
+IP's MES: 32.035
+Exploitable for: 2.339
+SOLVER:
+running time: 870.555
+EV OOP: 16.931
+EV IP: 29.751
+OOP's MES: 19.587
+IP's MES: 32.113
+Exploitable for: 2.509
+SOLVER:
+running time: 935.786
+EV OOP: 16.961
+EV IP: 29.724
+OOP's MES: 19.170
+IP's MES: 31.469
+Exploitable for: 1.977
+SOLVER:
+running time: 1001.168
+EV OOP: 16.969
+EV IP: 29.718
+OOP's MES: 18.765
+IP's MES: 31.433
+Exploitable for: 1.755
+SOLVER:
+running time: 1065.130
+EV OOP: 16.934
+EV IP: 29.753
+OOP's MES: 19.320
+IP's MES: 31.835
+Exploitable for: 2.234
+SOLVER:
+running time: 1127.345
+EV OOP: 16.988
+EV IP: 29.695
+OOP's MES: 18.127
+IP's MES: 30.998
+Exploitable for: 1.221
+SOLVER:
+running time: 1189.296
+EV OOP: 16.979
+EV IP: 29.708
+OOP's MES: 18.575
+IP's MES: 31.512
+Exploitable for: 1.700
+SOLVER:
+running time: 1250.038
+EV OOP: 16.998
+EV IP: 29.690
+OOP's MES: 18.248
+IP's MES: 30.848
+Exploitable for: 1.204
+SOLVER:
+running time: 1311.184
+EV OOP: 17.011
+EV IP: 29.678
+OOP's MES: 17.870
+IP's MES: 30.736
+Exploitable for: 0.958
+SOLVER:
+running time: 1372.916
+EV OOP: 17.005
+EV IP: 29.685
+OOP's MES: 18.027
+IP's MES: 30.647
+Exploitable for: 0.992
+SOLVER:
+running time: 1431.688
+EV OOP: 17.018
+EV IP: 29.672
+OOP's MES: 17.791
+IP's MES: 30.415
+Exploitable for: 0.758
+SOLVER:
+running time: 1492.163
+EV OOP: 17.026
+EV IP: 29.667
+OOP's MES: 17.475
+IP's MES: 30.158
+Exploitable for: 0.470
+SOLVER:
+running time: 1554.874
+EV OOP: 16.971
+EV IP: 29.726
+OOP's MES: 19.044
+IP's MES: 30.735
+Exploitable for: 1.541
+SOLVER:
+running time: 1616.414
+EV OOP: 17.001
+EV IP: 29.691
+OOP's MES: 18.413
+IP's MES: 30.940
+Exploitable for: 1.331
+SOLVER:
+running time: 1672.059
+EV OOP: 17.021
+EV IP: 29.670
+OOP's MES: 17.830
+IP's MES: 30.527
+Exploitable for: 0.833
+SOLVER:
+running time: 1725.952
+EV OOP: 17.030
+EV IP: 29.662
+OOP's MES: 17.521
+IP's MES: 30.151
+Exploitable for: 0.490
+SOLVER:
+running time: 1785.009
+EV OOP: 17.034
+EV IP: 29.659
+OOP's MES: 17.346
+IP's MES: 29.947
+Exploitable for: 0.299
+SOLVER:
+running time: 1845.103
+EV OOP: 17.034
+EV IP: 29.660
+OOP's MES: 17.287
+IP's MES: 29.957
+Exploitable for: 0.275
+SOLVER:
+running time: 1901.177
+EV OOP: 17.030
+EV IP: 29.662
+OOP's MES: 17.487
+IP's MES: 30.181
+Exploitable for: 0.488
+SOLVER:
+running time: 1955.451
+EV OOP: 17.034
+EV IP: 29.659
+OOP's MES: 17.312
+IP's MES: 30.040
+Exploitable for: 0.330
+SOLVER:
+running time: 2013.042
+EV OOP: 17.036
+EV IP: 29.657
+OOP's MES: 17.253
+IP's MES: 29.944
+Exploitable for: 0.252
+SOLVER:
+running time: 2071.123
+EV OOP: 17.036
+EV IP: 29.657
+OOP's MES: 17.248
+IP's MES: 29.904
+Exploitable for: 0.229
+SOLVER:
+running time: 2128.347
+EV OOP: 17.038
+EV IP: 29.656
+OOP's MES: 17.233
+IP's MES: 29.882
+Exploitable for: 0.211
+SOLVER:
+running time: 2185.374
+EV OOP: 17.038
+EV IP: 29.656
+OOP's MES: 17.239
+IP's MES: 29.824
+Exploitable for: 0.185
+SOLVER:
+running time: 2241.799
+EV OOP: 17.034
+EV IP: 29.659
+OOP's MES: 17.302
+IP's MES: 30.011
+Exploitable for: 0.310
+SOLVER:
+running time: 2295.078
+EV OOP: 17.037
+EV IP: 29.655
+OOP's MES: 17.225
+IP's MES: 29.892
+Exploitable for: 0.212
+SOLVER:
+running time: 2350.162
+EV OOP: 17.039
+EV IP: 29.654
+OOP's MES: 17.211
+IP's MES: 29.838
+Exploitable for: 0.178
+SOLVER:
+running time: 2405.384
+EV OOP: 17.035
+EV IP: 29.657
+OOP's MES: 17.269
+IP's MES: 30.000
+Exploitable for: 0.288
+SOLVER:
+running time: 2458.053
+EV OOP: 17.036
+EV IP: 29.655
+OOP's MES: 17.243
+IP's MES: 29.928
+Exploitable for: 0.240
+SOLVER:
+running time: 2512.139
+EV OOP: 17.036
+EV IP: 29.656
+OOP's MES: 17.321
+IP's MES: 29.866
+Exploitable for: 0.247
+SOLVER:
+running time: 2565.638
+EV OOP: 17.039
+EV IP: 29.654
+OOP's MES: 17.227
+IP's MES: 29.840
+Exploitable for: 0.187
+SOLVER:
+running time: 2618.035
+EV OOP: 17.038
+EV IP: 29.654
+OOP's MES: 17.325
+IP's MES: 29.874
+Exploitable for: 0.253
+SOLVER:
+running time: 2673.057
+EV OOP: 17.034
+EV IP: 29.659
+OOP's MES: 17.457
+IP's MES: 30.002
+Exploitable for: 0.383
+SOLVER:
+running time: 2721.181
+EV OOP: 17.032
+EV IP: 29.660
+OOP's MES: 17.346
+IP's MES: 30.184
+Exploitable for: 0.419
+SOLVER:
+running time: 2771.154
+EV OOP: 17.037
+EV IP: 29.654
+OOP's MES: 17.264
+IP's MES: 29.973
+Exploitable for: 0.273
+SOLVER:
+running time: 2819.703
+EV OOP: 17.038
+EV IP: 29.653
+OOP's MES: 17.240
+IP's MES: 29.912
+Exploitable for: 0.230
+SOLVER:
+running time: 2870.711
+EV OOP: 17.040
+EV IP: 29.652
+OOP's MES: 17.193
+IP's MES: 29.806
+Exploitable for: 0.154
+SOLVER:
+running time: 2925.630
+EV OOP: 17.041
+EV IP: 29.652
+OOP's MES: 17.156
+IP's MES: 29.777
+Exploitable for: 0.121
+SOLVER:
+running time: 2981.386
+EV OOP: 17.041
+EV IP: 29.651
+OOP's MES: 17.135
+IP's MES: 29.755
+Exploitable for: 0.099
+SOLVER: stopped (timeout reached)
+EV OOP: 17.041
+EV IP: 29.651
+OOP's MES: 17.131
+IP's MES: 29.744
+Exploitable for: 0.091
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\6s5h3s.cfr
+SOLVER: started
+SOLVER:
+running time: 71.796
+EV OOP: 15.729
+EV IP: 30.793
+OOP's MES: 104.484
+IP's MES: 76.001
+Exploitable for: 66.982
+SOLVER:
+running time: 140.417
+EV OOP: 20.990
+EV IP: 25.523
+OOP's MES: 45.136
+IP's MES: 46.161
+Exploitable for: 22.392
+SOLVER:
+running time: 207.945
+EV OOP: 20.792
+EV IP: 25.712
+OOP's MES: 44.387
+IP's MES: 43.085
+Exploitable for: 20.484
+SOLVER:
+running time: 274.268
+EV OOP: 21.363
+EV IP: 25.136
+OOP's MES: 31.470
+IP's MES: 34.112
+Exploitable for: 9.541
+SOLVER:
+running time: 339.482
+EV OOP: 21.526
+EV IP: 24.990
+OOP's MES: 26.993
+IP's MES: 30.308
+Exploitable for: 5.392
+SOLVER:
+running time: 404.160
+EV OOP: 21.524
+EV IP: 25.001
+OOP's MES: 27.990
+IP's MES: 29.651
+Exploitable for: 5.558
+SOLVER:
+running time: 469.614
+EV OOP: 21.562
+EV IP: 24.966
+OOP's MES: 27.140
+IP's MES: 29.456
+Exploitable for: 5.034
+SOLVER:
+running time: 535.109
+EV OOP: 21.422
+EV IP: 25.102
+OOP's MES: 31.610
+IP's MES: 30.966
+Exploitable for: 8.026
+SOLVER:
+running time: 600.911
+EV OOP: 21.536
+EV IP: 24.986
+OOP's MES: 27.487
+IP's MES: 31.103
+Exploitable for: 6.034
+SOLVER:
+running time: 665.488
+EV OOP: 21.684
+EV IP: 24.850
+OOP's MES: 23.952
+IP's MES: 26.946
+Exploitable for: 2.182
+SOLVER:
+running time: 729.187
+EV OOP: 21.702
+EV IP: 24.839
+OOP's MES: 23.717
+IP's MES: 26.381
+Exploitable for: 1.778
+SOLVER:
+running time: 792.950
+EV OOP: 21.696
+EV IP: 24.849
+OOP's MES: 23.838
+IP's MES: 26.368
+Exploitable for: 1.830
+SOLVER:
+running time: 856.756
+EV OOP: 21.678
+EV IP: 24.871
+OOP's MES: 24.859
+IP's MES: 26.348
+Exploitable for: 2.330
+SOLVER:
+running time: 920.134
+EV OOP: 21.702
+EV IP: 24.847
+OOP's MES: 24.426
+IP's MES: 26.285
+Exploitable for: 2.081
+SOLVER:
+running time: 983.640
+EV OOP: 21.699
+EV IP: 24.849
+OOP's MES: 23.844
+IP's MES: 26.468
+Exploitable for: 1.882
+SOLVER:
+running time: 1046.941
+EV OOP: 21.703
+EV IP: 24.849
+OOP's MES: 24.438
+IP's MES: 26.456
+Exploitable for: 2.171
+SOLVER:
+running time: 1110.063
+EV OOP: 21.720
+EV IP: 24.832
+OOP's MES: 24.067
+IP's MES: 26.245
+Exploitable for: 1.880
+SOLVER:
+running time: 1173.238
+EV OOP: 21.732
+EV IP: 24.822
+OOP's MES: 23.588
+IP's MES: 25.911
+Exploitable for: 1.473
+SOLVER:
+running time: 1236.685
+EV OOP: 21.730
+EV IP: 24.826
+OOP's MES: 24.094
+IP's MES: 26.074
+Exploitable for: 1.806
+SOLVER:
+running time: 1300.315
+EV OOP: 21.739
+EV IP: 24.816
+OOP's MES: 23.609
+IP's MES: 25.762
+Exploitable for: 1.408
+SOLVER:
+running time: 1363.300
+EV OOP: 21.740
+EV IP: 24.817
+OOP's MES: 23.396
+IP's MES: 25.813
+Exploitable for: 1.326
+SOLVER:
+running time: 1426.069
+EV OOP: 21.727
+EV IP: 24.829
+OOP's MES: 24.157
+IP's MES: 25.891
+Exploitable for: 1.746
+SOLVER:
+running time: 1488.349
+EV OOP: 21.751
+EV IP: 24.807
+OOP's MES: 23.179
+IP's MES: 25.556
+Exploitable for: 1.088
+SOLVER:
+running time: 1550.495
+EV OOP: 21.727
+EV IP: 24.832
+OOP's MES: 24.229
+IP's MES: 25.865
+Exploitable for: 1.767
+SOLVER:
+running time: 1613.213
+EV OOP: 21.684
+EV IP: 24.875
+OOP's MES: 26.728
+IP's MES: 27.270
+Exploitable for: 3.719
+SOLVER:
+running time: 1676.821
+EV OOP: 21.636
+EV IP: 24.918
+OOP's MES: 26.260
+IP's MES: 28.159
+Exploitable for: 3.933
+SOLVER:
+running time: 1740.194
+EV OOP: 21.547
+EV IP: 25.005
+OOP's MES: 27.987
+IP's MES: 29.939
+Exploitable for: 5.687
+SOLVER:
+running time: 1803.815
+EV OOP: 21.701
+EV IP: 24.849
+OOP's MES: 24.308
+IP's MES: 27.845
+Exploitable for: 2.801
+SOLVER:
+running time: 1866.096
+EV OOP: 21.759
+EV IP: 24.795
+OOP's MES: 22.751
+IP's MES: 25.782
+Exploitable for: 0.989
+SOLVER:
+running time: 1927.417
+EV OOP: 21.764
+EV IP: 24.794
+OOP's MES: 22.445
+IP's MES: 25.422
+Exploitable for: 0.654
+SOLVER:
+running time: 1988.506
+EV OOP: 21.771
+EV IP: 24.790
+OOP's MES: 22.314
+IP's MES: 25.371
+Exploitable for: 0.563
+SOLVER:
+running time: 2049.247
+EV OOP: 21.772
+EV IP: 24.791
+OOP's MES: 22.131
+IP's MES: 25.179
+Exploitable for: 0.374
+SOLVER:
+running time: 2110.070
+EV OOP: 21.775
+EV IP: 24.789
+OOP's MES: 22.236
+IP's MES: 25.227
+Exploitable for: 0.450
+SOLVER:
+running time: 2170.604
+EV OOP: 21.762
+EV IP: 24.804
+OOP's MES: 22.593
+IP's MES: 25.262
+Exploitable for: 0.645
+SOLVER:
+running time: 2230.896
+EV OOP: 21.777
+EV IP: 24.790
+OOP's MES: 22.276
+IP's MES: 25.253
+Exploitable for: 0.481
+SOLVER:
+running time: 2291.161
+EV OOP: 21.775
+EV IP: 24.793
+OOP's MES: 22.160
+IP's MES: 25.145
+Exploitable for: 0.369
+SOLVER:
+running time: 2351.208
+EV OOP: 21.761
+EV IP: 24.808
+OOP's MES: 22.587
+IP's MES: 25.337
+Exploitable for: 0.677
+SOLVER:
+running time: 2411.078
+EV OOP: 21.776
+EV IP: 24.793
+OOP's MES: 22.208
+IP's MES: 25.229
+Exploitable for: 0.434
+SOLVER:
+running time: 2470.374
+EV OOP: 21.776
+EV IP: 24.793
+OOP's MES: 22.314
+IP's MES: 25.241
+Exploitable for: 0.492
+SOLVER:
+running time: 2529.637
+EV OOP: 21.779
+EV IP: 24.792
+OOP's MES: 22.112
+IP's MES: 25.117
+Exploitable for: 0.330
+SOLVER:
+running time: 2589.010
+EV OOP: 21.774
+EV IP: 24.797
+OOP's MES: 22.318
+IP's MES: 25.209
+Exploitable for: 0.478
+SOLVER:
+running time: 2648.408
+EV OOP: 21.775
+EV IP: 24.796
+OOP's MES: 22.265
+IP's MES: 25.201
+Exploitable for: 0.448
+SOLVER:
+running time: 2707.711
+EV OOP: 21.780
+EV IP: 24.792
+OOP's MES: 22.176
+IP's MES: 25.142
+Exploitable for: 0.373
+SOLVER:
+running time: 2767.080
+EV OOP: 21.779
+EV IP: 24.792
+OOP's MES: 22.107
+IP's MES: 25.072
+Exploitable for: 0.303
+SOLVER:
+running time: 2826.096
+EV OOP: 21.779
+EV IP: 24.793
+OOP's MES: 22.140
+IP's MES: 25.144
+Exploitable for: 0.356
+SOLVER:
+running time: 2885.496
+EV OOP: 21.771
+EV IP: 24.802
+OOP's MES: 22.431
+IP's MES: 25.237
+Exploitable for: 0.548
+SOLVER:
+running time: 2944.976
+EV OOP: 21.776
+EV IP: 24.798
+OOP's MES: 22.321
+IP's MES: 25.302
+Exploitable for: 0.525
+SOLVER:
+running time: 3004.260
+EV OOP: 21.778
+EV IP: 24.794
+OOP's MES: 22.181
+IP's MES: 25.142
+Exploitable for: 0.376
+SOLVER: stopped (timeout reached)
+EV OOP: 21.778
+EV IP: 24.794
+OOP's MES: 22.181
+IP's MES: 25.142
+Exploitable for: 0.376
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\8s5h3d.cfr
+SOLVER: started
+SOLVER:
+running time: 106.116
+EV OOP: 10.810
+EV IP: 35.887
+OOP's MES: 107.958
+IP's MES: 67.957
+Exploitable for: 64.609
+SOLVER:
+running time: 208.742
+EV OOP: 15.792
+EV IP: 30.776
+OOP's MES: 50.640
+IP's MES: 48.547
+Exploitable for: 26.309
+SOLVER:
+running time: 310.369
+EV OOP: 16.335
+EV IP: 30.202
+OOP's MES: 46.297
+IP's MES: 46.314
+Exploitable for: 23.037
+SOLVER:
+running time: 411.166
+EV OOP: 16.815
+EV IP: 29.693
+OOP's MES: 36.303
+IP's MES: 40.861
+Exploitable for: 15.328
+SOLVER:
+running time: 510.825
+EV OOP: 17.218
+EV IP: 29.293
+OOP's MES: 28.959
+IP's MES: 36.488
+Exploitable for: 9.468
+SOLVER:
+running time: 610.112
+EV OOP: 16.987
+EV IP: 29.514
+OOP's MES: 33.828
+IP's MES: 38.096
+Exploitable for: 12.712
+SOLVER:
+running time: 709.135
+EV OOP: 17.180
+EV IP: 29.330
+OOP's MES: 34.484
+IP's MES: 41.356
+Exploitable for: 14.665
+SOLVER:
+running time: 807.745
+EV OOP: 17.419
+EV IP: 29.103
+OOP's MES: 27.195
+IP's MES: 35.348
+Exploitable for: 8.011
+SOLVER:
+running time: 906.119
+EV OOP: 17.508
+EV IP: 29.019
+OOP's MES: 28.802
+IP's MES: 38.868
+Exploitable for: 10.572
+SOLVER:
+running time: 1004.340
+EV OOP: 17.661
+EV IP: 28.876
+OOP's MES: 25.653
+IP's MES: 34.643
+Exploitable for: 6.880
+SOLVER:
+running time: 1101.001
+EV OOP: 17.797
+EV IP: 28.742
+OOP's MES: 22.103
+IP's MES: 33.992
+Exploitable for: 4.778
+SOLVER:
+running time: 1196.787
+EV OOP: 17.878
+EV IP: 28.665
+OOP's MES: 20.093
+IP's MES: 30.821
+Exploitable for: 2.185
+SOLVER:
+running time: 1292.551
+EV OOP: 17.898
+EV IP: 28.643
+OOP's MES: 19.735
+IP's MES: 30.313
+Exploitable for: 1.753
+SOLVER:
+running time: 1387.592
+EV OOP: 17.908
+EV IP: 28.632
+OOP's MES: 20.005
+IP's MES: 29.911
+Exploitable for: 1.688
+SOLVER:
+running time: 1482.792
+EV OOP: 17.907
+EV IP: 28.633
+OOP's MES: 20.182
+IP's MES: 29.770
+Exploitable for: 1.706
+SOLVER:
+running time: 1575.570
+EV OOP: 17.924
+EV IP: 28.615
+OOP's MES: 19.938
+IP's MES: 29.613
+Exploitable for: 1.506
+SOLVER:
+running time: 1662.579
+EV OOP: 17.937
+EV IP: 28.598
+OOP's MES: 19.504
+IP's MES: 29.493
+Exploitable for: 1.231
+SOLVER:
+running time: 1747.304
+EV OOP: 17.941
+EV IP: 28.591
+OOP's MES: 19.537
+IP's MES: 29.303
+Exploitable for: 1.154
+SOLVER:
+running time: 1831.033
+EV OOP: 17.946
+EV IP: 28.585
+OOP's MES: 19.104
+IP's MES: 29.143
+Exploitable for: 0.858
+SOLVER:
+running time: 1917.261
+EV OOP: 17.946
+EV IP: 28.584
+OOP's MES: 19.042
+IP's MES: 29.198
+Exploitable for: 0.855
+SOLVER:
+running time: 2003.971
+EV OOP: 17.941
+EV IP: 28.589
+OOP's MES: 19.245
+IP's MES: 29.240
+Exploitable for: 0.977
+SOLVER:
+running time: 2086.627
+EV OOP: 17.943
+EV IP: 28.586
+OOP's MES: 19.084
+IP's MES: 29.230
+Exploitable for: 0.893
+SOLVER:
+running time: 2169.033
+EV OOP: 17.936
+EV IP: 28.591
+OOP's MES: 19.451
+IP's MES: 29.239
+Exploitable for: 1.082
+SOLVER:
+running time: 2254.738
+EV OOP: 17.943
+EV IP: 28.583
+OOP's MES: 19.651
+IP's MES: 29.287
+Exploitable for: 1.207
+SOLVER:
+running time: 2335.164
+EV OOP: 17.957
+EV IP: 28.567
+OOP's MES: 19.205
+IP's MES: 29.186
+Exploitable for: 0.933
+SOLVER:
+running time: 2413.784
+EV OOP: 17.965
+EV IP: 28.561
+OOP's MES: 18.814
+IP's MES: 29.055
+Exploitable for: 0.672
+SOLVER:
+running time: 2489.884
+EV OOP: 17.967
+EV IP: 28.558
+OOP's MES: 18.663
+IP's MES: 29.003
+Exploitable for: 0.571
+SOLVER:
+running time: 2568.813
+EV OOP: 17.968
+EV IP: 28.555
+OOP's MES: 18.589
+IP's MES: 28.959
+Exploitable for: 0.513
+SOLVER:
+running time: 2647.345
+EV OOP: 17.970
+EV IP: 28.554
+OOP's MES: 18.692
+IP's MES: 28.901
+Exploitable for: 0.535
+SOLVER:
+running time: 2723.583
+EV OOP: 17.966
+EV IP: 28.557
+OOP's MES: 18.612
+IP's MES: 28.946
+Exploitable for: 0.517
+SOLVER:
+running time: 2802.018
+EV OOP: 17.968
+EV IP: 28.554
+OOP's MES: 18.664
+IP's MES: 29.108
+Exploitable for: 0.625
+SOLVER:
+running time: 2878.231
+EV OOP: 17.971
+EV IP: 28.549
+OOP's MES: 18.447
+IP's MES: 29.010
+Exploitable for: 0.468
+SOLVER:
+running time: 2956.323
+EV OOP: 17.970
+EV IP: 28.553
+OOP's MES: 18.799
+IP's MES: 28.894
+Exploitable for: 0.585
+SOLVER: stopped (timeout reached)
+EV OOP: 17.962
+EV IP: 28.561
+OOP's MES: 19.061
+IP's MES: 29.232
+Exploitable for: 0.885
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\9s5s3s.cfr
+SOLVER: started
+SOLVER:
+running time: 34.558
+EV OOP: 7.414
+EV IP: 39.295
+OOP's MES: 107.387
+IP's MES: 87.289
+Exploitable for: 73.984
+SOLVER:
+running time: 67.683
+EV OOP: 14.833
+EV IP: 31.819
+OOP's MES: 42.579
+IP's MES: 47.940
+Exploitable for: 21.933
+SOLVER:
+running time: 100.219
+EV OOP: 15.453
+EV IP: 31.168
+OOP's MES: 51.457
+IP's MES: 44.935
+Exploitable for: 24.886
+SOLVER:
+running time: 132.275
+EV OOP: 16.265
+EV IP: 30.353
+OOP's MES: 35.457
+IP's MES: 37.908
+Exploitable for: 13.373
+SOLVER:
+running time: 163.927
+EV OOP: 16.562
+EV IP: 30.046
+OOP's MES: 32.228
+IP's MES: 35.103
+Exploitable for: 10.361
+SOLVER:
+running time: 195.291
+EV OOP: 16.737
+EV IP: 29.850
+OOP's MES: 31.193
+IP's MES: 38.807
+Exploitable for: 11.707
+SOLVER:
+running time: 226.424
+EV OOP: 16.898
+EV IP: 29.689
+OOP's MES: 29.241
+IP's MES: 33.935
+Exploitable for: 8.294
+SOLVER:
+running time: 257.376
+EV OOP: 17.041
+EV IP: 29.539
+OOP's MES: 27.148
+IP's MES: 36.483
+Exploitable for: 8.526
+SOLVER:
+running time: 288.112
+EV OOP: 17.230
+EV IP: 29.346
+OOP's MES: 23.070
+IP's MES: 31.585
+Exploitable for: 4.040
+SOLVER:
+running time: 318.914
+EV OOP: 17.254
+EV IP: 29.329
+OOP's MES: 25.220
+IP's MES: 32.483
+Exploitable for: 5.560
+SOLVER:
+running time: 349.625
+EV OOP: 17.378
+EV IP: 29.193
+OOP's MES: 21.626
+IP's MES: 31.268
+Exploitable for: 3.162
+SOLVER:
+running time: 380.244
+EV OOP: 17.380
+EV IP: 29.197
+OOP's MES: 22.078
+IP's MES: 31.609
+Exploitable for: 3.555
+SOLVER:
+running time: 412.234
+EV OOP: 17.392
+EV IP: 29.190
+OOP's MES: 22.557
+IP's MES: 33.608
+Exploitable for: 4.791
+SOLVER:
+running time: 443.544
+EV OOP: 17.507
+EV IP: 29.062
+OOP's MES: 19.246
+IP's MES: 30.517
+Exploitable for: 1.597
+SOLVER:
+running time: 474.653
+EV OOP: 17.533
+EV IP: 29.039
+OOP's MES: 18.657
+IP's MES: 29.795
+Exploitable for: 0.940
+SOLVER:
+running time: 505.343
+EV OOP: 17.551
+EV IP: 29.022
+OOP's MES: 18.555
+IP's MES: 29.571
+Exploitable for: 0.776
+SOLVER:
+running time: 536.116
+EV OOP: 17.554
+EV IP: 29.019
+OOP's MES: 18.947
+IP's MES: 29.787
+Exploitable for: 1.081
+SOLVER:
+running time: 566.720
+EV OOP: 17.560
+EV IP: 29.011
+OOP's MES: 18.686
+IP's MES: 29.487
+Exploitable for: 0.801
+SOLVER:
+running time: 597.165
+EV OOP: 17.568
+EV IP: 29.000
+OOP's MES: 18.412
+IP's MES: 29.431
+Exploitable for: 0.638
+SOLVER:
+running time: 627.404
+EV OOP: 17.570
+EV IP: 28.996
+OOP's MES: 18.431
+IP's MES: 29.436
+Exploitable for: 0.651
+SOLVER:
+running time: 657.310
+EV OOP: 17.560
+EV IP: 29.003
+OOP's MES: 19.704
+IP's MES: 29.851
+Exploitable for: 1.496
+SOLVER:
+running time: 686.614
+EV OOP: 17.574
+EV IP: 28.989
+OOP's MES: 18.411
+IP's MES: 29.447
+Exploitable for: 0.648
+SOLVER:
+running time: 715.141
+EV OOP: 17.572
+EV IP: 28.987
+OOP's MES: 18.473
+IP's MES: 29.449
+Exploitable for: 0.681
+SOLVER:
+running time: 744.580
+EV OOP: 17.559
+EV IP: 29.004
+OOP's MES: 19.640
+IP's MES: 29.926
+Exploitable for: 1.502
+SOLVER:
+running time: 773.932
+EV OOP: 17.580
+EV IP: 28.981
+OOP's MES: 18.747
+IP's MES: 29.559
+Exploitable for: 0.873
+SOLVER:
+running time: 801.958
+EV OOP: 17.586
+EV IP: 28.970
+OOP's MES: 18.295
+IP's MES: 29.344
+Exploitable for: 0.542
+SOLVER:
+running time: 829.986
+EV OOP: 17.588
+EV IP: 28.966
+OOP's MES: 18.109
+IP's MES: 29.263
+Exploitable for: 0.409
+SOLVER:
+running time: 858.009
+EV OOP: 17.585
+EV IP: 28.967
+OOP's MES: 18.352
+IP's MES: 29.362
+Exploitable for: 0.581
+SOLVER:
+running time: 885.875
+EV OOP: 17.584
+EV IP: 28.966
+OOP's MES: 18.339
+IP's MES: 29.420
+Exploitable for: 0.604
+SOLVER:
+running time: 912.958
+EV OOP: 17.574
+EV IP: 28.976
+OOP's MES: 18.369
+IP's MES: 29.569
+Exploitable for: 0.694
+SOLVER:
+running time: 940.740
+EV OOP: 17.593
+EV IP: 28.959
+OOP's MES: 18.141
+IP's MES: 29.268
+Exploitable for: 0.428
+SOLVER:
+running time: 968.866
+EV OOP: 17.483
+EV IP: 29.067
+OOP's MES: 19.637
+IP's MES: 29.995
+Exploitable for: 1.541
+SOLVER:
+running time: 997.179
+EV OOP: 17.589
+EV IP: 28.961
+OOP's MES: 18.395
+IP's MES: 29.448
+Exploitable for: 0.647
+SOLVER:
+running time: 1025.255
+EV OOP: 17.586
+EV IP: 28.962
+OOP's MES: 18.608
+IP's MES: 29.614
+Exploitable for: 0.837
+SOLVER:
+running time: 1054.518
+EV OOP: 17.336
+EV IP: 29.222
+OOP's MES: 25.819
+IP's MES: 33.910
+Exploitable for: 6.586
+SOLVER:
+running time: 1085.782
+EV OOP: 17.578
+EV IP: 28.979
+OOP's MES: 20.170
+IP's MES: 30.798
+Exploitable for: 2.205
+SOLVER:
+running time: 1116.379
+EV OOP: 17.596
+EV IP: 28.956
+OOP's MES: 18.728
+IP's MES: 29.543
+Exploitable for: 0.859
+SOLVER:
+running time: 1146.654
+EV OOP: 17.599
+EV IP: 28.950
+OOP's MES: 18.469
+IP's MES: 29.272
+Exploitable for: 0.596
+SOLVER:
+running time: 1176.740
+EV OOP: 17.600
+EV IP: 28.947
+OOP's MES: 18.288
+IP's MES: 29.171
+Exploitable for: 0.455
+SOLVER:
+running time: 1206.567
+EV OOP: 17.601
+EV IP: 28.946
+OOP's MES: 18.178
+IP's MES: 29.131
+Exploitable for: 0.381
+SOLVER:
+running time: 1236.360
+EV OOP: 17.601
+EV IP: 28.945
+OOP's MES: 18.074
+IP's MES: 29.089
+Exploitable for: 0.308
+SOLVER:
+running time: 1265.957
+EV OOP: 17.602
+EV IP: 28.944
+OOP's MES: 17.992
+IP's MES: 29.068
+Exploitable for: 0.257
+SOLVER:
+running time: 1295.552
+EV OOP: 17.602
+EV IP: 28.943
+OOP's MES: 17.927
+IP's MES: 29.062
+Exploitable for: 0.222
+SOLVER:
+running time: 1324.830
+EV OOP: 17.602
+EV IP: 28.944
+OOP's MES: 17.936
+IP's MES: 29.119
+Exploitable for: 0.255
+SOLVER:
+running time: 1353.543
+EV OOP: 17.603
+EV IP: 28.942
+OOP's MES: 17.879
+IP's MES: 29.078
+Exploitable for: 0.206
+SOLVER:
+running time: 1382.351
+EV OOP: 17.603
+EV IP: 28.942
+OOP's MES: 17.830
+IP's MES: 29.073
+Exploitable for: 0.179
+SOLVER:
+running time: 1410.895
+EV OOP: 17.604
+EV IP: 28.941
+OOP's MES: 17.817
+IP's MES: 29.063
+Exploitable for: 0.168
+SOLVER:
+running time: 1439.654
+EV OOP: 17.604
+EV IP: 28.941
+OOP's MES: 17.793
+IP's MES: 29.049
+Exploitable for: 0.149
+SOLVER:
+running time: 1468.287
+EV OOP: 17.604
+EV IP: 28.940
+OOP's MES: 17.797
+IP's MES: 29.049
+Exploitable for: 0.151
+SOLVER:
+running time: 1496.655
+EV OOP: 17.604
+EV IP: 28.940
+OOP's MES: 17.791
+IP's MES: 29.059
+Exploitable for: 0.153
+SOLVER:
+running time: 1524.766
+EV OOP: 17.605
+EV IP: 28.939
+OOP's MES: 17.784
+IP's MES: 29.042
+Exploitable for: 0.141
+SOLVER:
+running time: 1553.027
+EV OOP: 17.603
+EV IP: 28.941
+OOP's MES: 17.774
+IP's MES: 29.057
+Exploitable for: 0.143
+SOLVER:
+running time: 1581.174
+EV OOP: 17.605
+EV IP: 28.938
+OOP's MES: 17.752
+IP's MES: 29.035
+Exploitable for: 0.122
+SOLVER:
+running time: 1609.454
+EV OOP: 17.605
+EV IP: 28.939
+OOP's MES: 17.848
+IP's MES: 29.046
+Exploitable for: 0.175
+SOLVER:
+running time: 1636.701
+EV OOP: 17.606
+EV IP: 28.938
+OOP's MES: 17.783
+IP's MES: 29.033
+Exploitable for: 0.136
+SOLVER:
+running time: 1663.673
+EV OOP: 17.604
+EV IP: 28.940
+OOP's MES: 17.903
+IP's MES: 29.116
+Exploitable for: 0.238
+SOLVER:
+running time: 1690.428
+EV OOP: 17.597
+EV IP: 28.947
+OOP's MES: 18.124
+IP's MES: 29.445
+Exploitable for: 0.513
+SOLVER:
+running time: 1717.689
+EV OOP: 17.605
+EV IP: 28.938
+OOP's MES: 17.864
+IP's MES: 29.114
+Exploitable for: 0.217
+SOLVER:
+running time: 1743.753
+EV OOP: 17.605
+EV IP: 28.938
+OOP's MES: 17.889
+IP's MES: 29.100
+Exploitable for: 0.222
+SOLVER:
+running time: 1768.714
+EV OOP: 17.607
+EV IP: 28.937
+OOP's MES: 17.797
+IP's MES: 29.045
+Exploitable for: 0.149
+SOLVER:
+running time: 1794.373
+EV OOP: 17.607
+EV IP: 28.936
+OOP's MES: 17.745
+IP's MES: 29.009
+Exploitable for: 0.105
+SOLVER:
+running time: 1820.616
+EV OOP: 17.607
+EV IP: 28.936
+OOP's MES: 17.729
+IP's MES: 28.997
+Exploitable for: 0.092
+SOLVER:
+running time: 1847.602
+EV OOP: 17.607
+EV IP: 28.936
+OOP's MES: 17.714
+IP's MES: 28.992
+Exploitable for: 0.081
+SOLVER:
+running time: 1874.707
+EV OOP: 17.607
+EV IP: 28.936
+OOP's MES: 17.707
+IP's MES: 28.986
+Exploitable for: 0.075
+SOLVER:
+running time: 1901.887
+EV OOP: 17.607
+EV IP: 28.936
+OOP's MES: 17.711
+IP's MES: 28.997
+Exploitable for: 0.083
+SOLVER:
+running time: 1928.719
+EV OOP: 17.607
+EV IP: 28.935
+OOP's MES: 17.703
+IP's MES: 28.988
+Exploitable for: 0.074
+SOLVER: stopped (required accuracy reached)
+EV OOP: 17.607
+EV IP: 28.935
+OOP's MES: 17.703
+IP's MES: 28.988
+Exploitable for: 0.074
+Solving C:\PioSOLVER\Saves\6max\SRP\lj-v-bb-small-cbet\7s6s3h.cfr
+SOLVER: started
+SOLVER:
+running time: 68.767
+EV OOP: 13.669
+EV IP: 32.901
+OOP's MES: 102.521
+IP's MES: 75.823
+Exploitable for: 65.886
+SOLVER:
+running time: 135.128
+EV OOP: 18.768
+EV IP: 27.758
+OOP's MES: 49.844
+IP's MES: 48.291
+Exploitable for: 25.805
