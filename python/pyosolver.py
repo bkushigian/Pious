@@ -37,6 +37,18 @@ class PYOSolver(object):
         self._run("set_always_recalc", "0 60000")
         self._run("is_ready")
 
+    def reset(self):
+        self.fw.truncate(0)
+        self.process = subprocess.Popen(
+            [os.path.join(self.solver_path, self.executable_name)],
+            cwd=self.solver_path,
+            stdout=self.fw,
+            stdin=subprocess.PIPE,
+            stderr=self.fw,
+            bufsize=1,
+            encoding="utf8",
+        )
+
     def load_tree(self, cfr_file_path):
         self.cfr_file_path = cfr_file_path
         self._run("load_tree", cfr_file_path)
@@ -69,10 +81,13 @@ class PYOSolver(object):
 
     def show_children(self, node_id):
         data = self._run("show_children", node_id).split("\n")
+        if len(data) == 1 and data[0].startswith("ERROR"):
+            return []
         i = 0
         nodes = []
+        data = [d for d in data if d != ""]
         while i < len(data):
-            assert "child" in data[i]
+            assert "child" in data[i], print(f"Invalid data: {data[i]}")
             # Can add more data here (same format as show_node)
             nodes.append(
                 {
@@ -104,7 +119,7 @@ class PYOSolver(object):
             data[key] = guess_type(key, value)
         return data
 
-    def show_all_lines(self):
+    def show_all_lines(self, street=None):
         return self._run("show_all_lines").split("\n")
 
     def show_effective_stack(self):
