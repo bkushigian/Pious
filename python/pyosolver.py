@@ -17,15 +17,12 @@ class PYOSolver(object):
         self.cfr_file_path = None
         self.solver_path = path
         self.executable_name = executable_name
-        rand_name = str(uuid4())
-        self.fw = open("tmpout" + rand_name, "wb")
-        self.fr = open("tmpout" + rand_name, "r")
         self.process = subprocess.Popen(
             [os.path.join(self.solver_path, self.executable_name)],
             cwd=self.solver_path,
-            stdout=self.fw,
+            stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
-            stderr=self.fw,
+            stderr=subprocess.PIPE,
             bufsize=1,
             encoding="utf8",
         )
@@ -119,7 +116,7 @@ class PYOSolver(object):
             data[key] = guess_type(key, value)
         return data
 
-    def show_all_lines(self, street=None):
+    def show_all_lines(self):
         return self._run("show_all_lines").split("\n")
 
     def show_effective_stack(self):
@@ -140,14 +137,14 @@ class PYOSolver(object):
         results = self._run("calc_ev_pp", position, node)
         for r in results.split("\n"):
             if "EV: " in r:
-                return Decimal(r.split(": ")[1])
+                return float(r.split(": ")[1])
         return None
 
     def solve_partial(self, node_id):
         return self._run("solve_partial", node_id)
 
     def show_range(self, position, node_id):
-        return [Decimal(a) for a in self._run("show_range", position, node_id).split()]
+        return [float(a) for a in self._run("show_range", position, node_id).split()]
 
     def set_range(self, position, *values):
         values = [str(a) for a in values]
@@ -176,7 +173,8 @@ class PYOSolver(object):
         return self._run("set_strategy", node_id, *values)
 
     def show_strategy(self, node_id):
-        return self._run("show_strategy", node_id).split("\n")
+        strats = self._run("show_strategy", node_id).split("\n")
+        return [[float(s) for s in strat.split()] for strat in strats]
 
     def _parse_data(self, data, *name_to_parser):
         parsed_data = {}
@@ -235,7 +233,7 @@ class PYOSolver(object):
             trigger_word = "END\n"
         output = ""
         while trigger_word not in output:
-            output += self.fr.read()
+            output += self.process.stdout.readline()
         if DEBUG:
             print(output)
         return output.replace("END\n", "").strip()
@@ -302,8 +300,8 @@ def guess_type(key, data_string):
     except ValueError:
         pass
     try:
-        return Decimal(data_string)
-    except InvalidOperation:
+        return float(data_string)
+    except ValueError:
         pass
     return data_string
 
