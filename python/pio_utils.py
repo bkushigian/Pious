@@ -283,6 +283,12 @@ class Line:
         """
         return len(self.streets_as_lines) - 1
 
+    def __str__(self):
+        return self.line_str
+
+    def __repr__(self):
+        return f"Line({self.line_str})"
+
 
 def make_solver(
     install_path=PATH,
@@ -310,20 +316,26 @@ def make_solver(
     )
 
 
-def get_all_n_street_lines(lines: List[Line], n: int) -> List[str]:
+def get_all_n_street_lines(lines: List[Line], n: int) -> List[Line]:
     return [line for line in lines if line.n_streets() == n]
 
 
-def get_flop_lines(lines: List[Line], current_street=FLOP) -> List[str]:
-    return get_all_n_street_lines(lines, FLOP - current_street + 1)
+def get_flop_lines(lines: List[Line]) -> List[Line]:
+    return [
+        line for line in lines if line.n_streets() == FLOP - line._starting_street + 1
+    ]
 
 
-def get_turn_lines(lines: List[Line], current_street=FLOP) -> List[str]:
-    return get_all_n_street_lines(lines, TURN - current_street + 1)
+def get_turn_lines(lines: List[Line]) -> List[Line]:
+    return [
+        line for line in lines if line.n_streets() == TURN - line._starting_street + 1
+    ]
 
 
-def get_river_lines(lines: List[Line], current_street=FLOP) -> List[str]:
-    return get_all_n_street_lines(lines, RIVER - current_street + 1)
+def get_river_lines(lines: List[Line]) -> List[Line]:
+    return [
+        line for line in lines if line.n_streets() == RIVER - line._starting_street + 1
+    ]
 
 
 def lock_overfold(lines: List[Line], overfold_freq=0.01, position="OOP"):

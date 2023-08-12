@@ -268,33 +268,6 @@ class PYOSolver(object):
                 f.write("\n".join(self.commands))
 
 
-def node_to_line(node_string):
-    line = []
-    last_seen_action = None
-    for elem in node_string.split(":"):
-        if not elem or elem == "r" or elem == "0":
-            continue
-        if last_seen_action == "b" and elem == "c":
-            line.append(line[-1])
-        elif elem[0] == "b":
-            # Bet
-            line.append(int(elem[1:]))
-        elif elem == "c":
-            if len(line) == 0:  # Check
-                line.append(0)
-            else:
-                line.append(line[-1])
-        else:
-            # Don't update last_seen_action
-            continue
-        last_seen_action = elem[0]
-
-    # remove duplicates from the end
-    while len(line) > 1 and line[-1] == line[-2]:
-        line.pop(len(line) - 1)
-    return line
-
-
 def typed_list(data, t):
     return [t(a) for a in data.split()]
 
@@ -304,10 +277,6 @@ def first_int(to_parse):
 
 
 def guess_type(key, data_string):
-    if data_string == "True":
-        return True
-    if data_string == "False":
-        return False
     if "Config" in key and "Size" in key:
         if data_string.find(","):
             try:
@@ -324,6 +293,14 @@ def guess_type(key, data_string):
         return data_string.split(",")
     if "Board" == key:
         return data_string.split(" ")
+    return try_value_as_literal(data_string)
+
+
+def try_value_as_literal(data_string):
+    try:
+        return bool(data_string)
+    except ValueError:
+        pass
     try:
         return int(data_string)
     except ValueError:
