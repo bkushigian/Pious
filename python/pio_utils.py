@@ -1,26 +1,207 @@
 """
-A collection of utility functions
+A collection of PioSOLVER utility functions
 """
 
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from pyosolver import PYOSolver
+from itertools import permutations
 
-CARDS = tuple(f"{r}{s}" for r in "23456789TJQKA" for s in "shdc")
+CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
 PATH = r"C:\\PioSOLVER"
 EXECUTABLE = r"PioSOLVER2-edge"
 
+FLOP = 1
+TURN = 2
+RIVER = 3
+
+
+def actions_to_streets(
+    actions: List[str], starting_street=FLOP, is_terminal=False
+) -> List[List[str]]:
+    """
+    Given a line in the gametree, break the line into a list
+    of lines, one per street.
+
+    :param line: A line in the gametree
+    :returns: a list of actions broken up by street. The zeroth element is the
+       root of the tree, which defaults to '' if no root is present
+
+    # Example
+    >>> actions_to_streets(["r","0","b125","b313","b501","c","c","c","c"])
+    [['r', '0'], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
+    >>> actions_to_streets(["b125","b313","b501","c","c","c","c"])
+    [[''], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
+    >>> actions_to_streets(["b125","b313","b501","c"])
+    [[''], ['b125', 'b313', 'b501', 'c'], []]
+    """
+    streets = []
+    if actions[0] == "r":
+        streets.append(actions[:2])
+        actions = actions[2:]
+    else:
+        streets.append([""])
+
+    current_street = []
+    for action in actions:
+        current_street.append(action)
+        if action.startswith("c") and len(current_street) > 1:
+            streets.append(current_street)
+            current_street = []
+
+    if current_street:
+        streets.append(current_street)
+
+    elif (not is_terminal) and (
+        len(streets) + starting_street < 5 and streets[-1][-1] != "f"
+    ):
+        # Should we add a final street empty street?
+        #
+        # This depends on whether there are any more player actions to come.
+        # There are player actions when we have not reached the river, and when
+        # the last action wasn't a fold.
+        #
+        # To tell if we add our starting street (1 for flop, 2 for turn, etc)
+        # to the number of streets. `streets` has an entry for root, so
+        # the maximal length of streets is 4.
+        #
+        # Consider if `streets = [['r', '0'], ['c', 'b120', 'c']]`. If this line starts on the
+        #
+        # then we need to add a street (FLOP + 2 = 3 < 4)
+        streets.append([])
+
+    return streets
+
 
 class Line:
-    def __init__(self, line: str):
-        self.line = line
-        self.root, self.streets = line_to_streets(line)
+    """
+    A line in the gametree.
+
+    A `Line` is created from a line string provided from PioSOLVER:
+    >>> line = Line("r:0:c:b30:c:c")
+
+    # Different Views of the Line
+
+    The `Line` class offers several views of a line:
+
+    * The raw string:
+
+      >>> line.line_str
+      'r:0:c:b30:c:c'
+
+    * The line as a list of actions:
+
+      >>> line.actions
+      ['r', '0', 'c', 'b30', 'c', 'c']
+
+    * The line as a list of streets of actions:
+
+      >>> line.streets_as_actions
+      [['r', '0'], ['c', 'b30', 'c'], ['c']]
+
+    * The line as a list of streets of lines:
+
+      >>> line.streets_as_lines
+      ['r:0', 'c:b30:c', 'c']
+
+    The street views (`Line.streets_as_lines` and `Line.streets_as_actions`) will
+    possibly have empty streets when the line is not complete. For example, if
+    the line is `r:0` then the associated street views will have an empty flop
+    street.
+
+    >>> root_line = Line("r:0")
+    >>> root_line.streets_as_lines
+    ['r:0', '']
+    >>> root_line.streets_as_actions
+    [['r', '0'], []]
+    >>> call_cbet_line = Line("r:0:c:b30:c")
+    >>> call_cbet_line.streets_as_lines
+    ['r:0', 'c:b30:c', '']
+    >>> call_cbet_line.streets_as_actions
+    [['r', '0'], ['c', 'b30', 'c'], []]
+
+    However, the `Line` class attempts to detect if a line is terminal
+    (e.g., there are no more possible actions). This happens when:
+
+    1. The line ends in a fold
+
+        >>> Line("r:0:c:b30:f").streets_as_lines
+        ['r:0', 'c:b30:f']
+        >>> Line("r:0:c:b30:b100:f").streets_as_lines
+        ['r:0', 'c:b30:b100:f']
+        >>> Line("r:0:c:b30:b100:c:b250:f").streets_as_lines
+        ['r:0', 'c:b30:b100:c', 'b250:f']
+
+    2. All streets are complete (this depends on the starting street, e.g., 3
+       complete streets for flop, 2 complete streets for turn, etc)
+
+        >>> Line("r:0:c:b30:c:b75:c:b100:b300:c").streets_as_lines
+        ['r:0', 'c:b30:c', 'b75:c', 'b100:b300:c']
+        >>> Line("r:0:c:c:c:c", starting_street=TURN).streets_as_lines
+        ['r:0', 'c:c', 'c:c']
+
+    3. Players are not all in. We cannot detect this condition without help, so
+       we provide the optional argument `is_terminal` to the `Line` constructor.
+
+       >>> Line("r:0:c:b30:b100:b900:c", is_terminal=False).streets_as_lines
+       ['r:0', 'c:b30:b100:b900:c', '']
+       >>> Line("r:0:c:b30:b100:b900:c", is_terminal=True).streets_as_lines
+       ['r:0', 'c:b30:b100:b900:c']
+
+    This class only checks the first two conditions. The third condition depends
+    on data that isn't available here, so we cannot account for it.
+
+
+    # Expanding a Line into nodes
+
+    In addition to offering several views of a line, the `Line` class
+    facilitates the expansion of a line into concrete nodes by interspersing
+    the line with all possible combinations of cards.
+
+    For example, if the line is: `r:0:c:b30:c:c:b100:c:c` and the possible
+    cards are `['As', 'Ks', 'Qs']`, then the nodes would be:
+
+    >>> available_cards = ['As', 'Ks', 'Qs']
+    >>> dead_cards = [card for card in CARDS if card not in available_cards]
+    >>> line.get_nodes(dead_cards=dead_cards)
+    ['r:0:c:b30:c:As:c', 'r:0:c:b30:c:Ks:c', 'r:0:c:b30:c:Qs:c']
+
+    """
+
+    def __init__(self, line: str, starting_street=FLOP, is_terminal=False):
+        self.line_str = line
+        self._starting_street = starting_street
+        self._is_terminal = is_terminal
+        self.actions: List[str] = []
+        self.streets_as_actions: List[List[str]] = []
+        self.streets_as_lines: List[str] = []
+        self.nodes: Dict[Tuple[str], List[List[str]]] = {}
+        self._setup(line)
+
+    def _setup(self, line):
+        """
+        Set up different views of this line by breaking it into actions and
+        grouping the actions by streets.
+        """
         self.actions = line.split(":")
-        self.nodes = {}
+        self.streets_as_actions = actions_to_streets(
+            self.actions,
+            starting_street=self._starting_street,
+            is_terminal=self._is_terminal,
+        )
+        self.streets_as_lines = [":".join(street) for street in self.streets_as_actions]
+
+    def _check_is_well_formed(self) -> bool:
+        """
+        Check if this line is well formed.
+
+        TODO: Implement this
+        """
+        return True
 
     def get_nodes(self, dead_cards=None):
         """
         Get the nodes associated with this line. If the nodes have not been
-        computed, compute them.
+        computed, compute and cache them.
         """
 
         if dead_cards is None:
@@ -28,8 +209,79 @@ class Line:
         # Make dead cards hashable
         dead_cards = tuple(sorted(dead_cards))
         if dead_cards not in self.nodes:
-            self.nodes[dead_cards] = lines_to_nodes([self.line], dead_cards=dead_cards)
+            nodes = self.streets_to_nodes(dead_cards=dead_cards)
+            self.nodes[dead_cards] = nodes
         return self.nodes[dead_cards]
+
+    def is_oop(self):
+        """
+        Return True if the player acting is out of position
+
+        >>> Line("r:0").is_oop()
+        True
+        >>> Line("r:0:c").is_oop()
+        False
+        >>> Line("r:0:c:b30").is_oop()
+        True
+        >>> Line("r:0:c:b30:c").is_oop()
+        True
+        >>> Line("r:0:c:b30:c:c").is_oop()
+        False
+        """
+        last_street = self.streets_as_actions[-1]
+        return len(last_street) % 2 == 0
+
+    def is_ip(self):
+        """
+        Return True if the player acting is in position
+        """
+        return not self.is_oop()
+
+    def streets_to_nodes(self, isomorphism: bool = False, dead_cards=None) -> List[str]:
+        """
+        Translate a list of streets representing a line to a list of nodes
+
+        :param streets: The streets of a line to translate
+        :param dead_cards: A list of cards that are not in the deck anymore (e.g., on the board)
+        :param isomorphism: Whether to use suit isomorphism or not (not implemented)
+        :returns: A list of all possible nodes that can be made from the line
+        :raises NotImplementedError: If isomorphism is True
+        :raises ValueError: If the line would contain more than 2 cards
+
+        >>> line = Line("r:0:c:b30:c:c")
+        >>> available_cards = ['As', 'Ks', 'Qs']
+        >>> dead_cards = [card for card in CARDS if card not in available_cards]
+        >>> line.streets_to_nodes(dead_cards=dead_cards)
+        ['r:0:c:b30:c:As:c', 'r:0:c:b30:c:Ks:c', 'r:0:c:b30:c:Qs:c']
+        >>> line = Line("r:0:c:b30:c:c:b100:c:c")
+        >>> line.streets_to_nodes(dead_cards=dead_cards)
+        ['r:0:c:b30:c:As:c:b100:c:Ks:c', 'r:0:c:b30:c:As:c:b100:c:Qs:c', 'r:0:c:b30:c:Ks:c:b100:c:As:c', 'r:0:c:b30:c:Ks:c:b100:c:Qs:c', 'r:0:c:b30:c:Qs:c:b100:c:As:c', 'r:0:c:b30:c:Qs:c:b100:c:Ks:c']
+        """
+        streets = self.streets_as_lines
+        if len(streets) > 4:
+            raise ValueError(f"Cannot expand line with more than 3 streets: {streets}")
+
+        if isomorphism:
+            raise NotImplementedError("Suit isomorphism not implemented yet")
+        available_cards = [c for c in CARDS if c not in dead_cards]
+        root = streets[0]
+        templated = ":{}:".join(streets[1:])
+        templated_line = f"{root}:{templated}"
+        num_cards = len(streets) - 2
+
+        nodes = []
+        if num_cards > 2:
+            raise ValueError(f"Cannot expand line with more than 2 cards: {streets}")
+        for cards in permutations(available_cards, num_cards):
+            nodes.append(templated_line.format(*cards))
+
+        return nodes
+
+    def n_streets(self) -> int:
+        """
+        Return the number of streets in this line, not including the root
+        """
+        return len(self.streets_as_lines) - 1
 
 
 def make_solver(
@@ -39,6 +291,16 @@ def make_solver(
     log_file=None,
     store_script=False,
 ) -> PYOSolver:
+    """
+    Create a new solver instance.
+
+    :param install_path: The path to the PioSOLVER installation
+    :param executable: The name of the executable
+    :param debug: Whether to run in debug mode (prints to stdout)
+    :param log_file: Store all solver communications to a log file (this can get big!)
+    :param store_script: Store all solver commands to a script file `script.txt`
+    :returns: A new solver instance
+    """
     return PYOSolver(
         install_path,
         executable,
@@ -48,160 +310,21 @@ def make_solver(
     )
 
 
-def oop(line: str) -> bool:
-    """
-    Given a line, return True if the player acting is out of position
-    >>> oop("r:0")
-    True
-    >>> oop("r:0:c")
-    False
-    >>> oop("r:0:c:c")
-    True
-    >>> oop("r:0")
-    """
-    last_street = line_to_streets(line)[-1]
-
-    if last_street.startswith("r"):
-        return last_street.count(":") % 2 == 1
-    else:
-        return last_street.count(":") % 2 == 0
+def get_all_n_street_lines(lines: List[Line], n: int) -> List[str]:
+    return [line for line in lines if line.n_streets() == n]
 
 
-def line_to_streets(line: str) -> List[str]:
-    """
-    Given a line in the gametree, break the line into a list
-    of lines, one per street.
-
-    :param line: A line in the gametree
-    :returns: A root node if present (e.g., 'r:0'), and a list of lines, one per
-        street
-
-    # Example
-    >>> line_to_streets("r:0:b125:b313:b501:c:c:c:c")
-    ('r:0', [['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
-    """
-    streets = []
-    current_street = []
-    split_line = line.split(":")
-    root = ""
-    if split_line[0] == "r":
-        root = split_line[:2]
-        split_line = split_line[2:]
-
-    for action in split_line:
-        current_street.append(action)
-        if action.startswith("c") and len(current_street) > 1:
-            streets.append(current_street)
-            current_street = []
-
-    if len(current_street) > 0:
-        streets.append(current_street)
-    return (root, streets)
-
-
-def add_card_templates_to_line(line):
-    """
-    Given a line in the gametree, add templates ('{}') to the line where a
-    chance node (e.g., a card), is expected. These templates can be used to
-    add cards to a line to make a node id.
-
-    :param line: A line in the gametree
-
-    # Example
-    >>> add_card_templates_to_line("r:0:b125:b313:b501:c:c:c:c")
-    'r:0:b125:b313:b501:c:{}:c:c:{}:c'
-    >>> add_card_templates_to_line("r:0:b125:b313:b501:c:c:c:c").format("Ks", "Qs")
-    'r:0:b125:b313:b501:c:Ks:c:c:Qs:c'
-    """
-    if "{}" in line:
-        return line
-
-    streets = line_to_streets(line)
-    return ":{}:".join(streets)
-
-
-def streets_to_nodes(
-    streets: List[str], dead_cards: List[str], isomorphism: bool = False
-) -> List[str]:
-    """
-    Translate a list of streets representing a line to a list of nodes
-
-    :param streets: The streets of a line to translate
-    :param dead_cards: A list of cards that are not in the deck anymore (e.g., on the board)
-    :param isomorphism: Whether to use suit isomorphism or not (not implemented)
-    :returns: A list of all possible nodes that can be made from the line
-    :raises NotImplementedError: If isomorphism is True
-    :raises ValueError: If the line would contain more than 2 cards
-    """
-    if len(streets) > 3:
-        raise ValueError(f"Cannot expand line with more than 3 streets: {streets}")
-    for street in streets[:-1]:
-        actions = street.split(":")
-        if len(actions) < 1 or actions[-1] != "c":
-            raise ValueError(f"All but last street must be complete: {streets}")
-    if isomorphism:
-        raise NotImplementedError("Suit isomorphism not implemented yet")
-    available_cards = [c for c in CARDS if c not in dead_cards]
-    templated_line = ":{}:".join(streets)
-    num_cards = len(streets) - 1
-
-    nodes = []
-    if num_cards == 0:
-        nodes.append(templated_line)
-    elif num_cards == 1:
-        for c in available_cards:
-            nodes.append(templated_line.format(c))
-    elif num_cards == 2:
-        for c1 in available_cards:
-            for c2 in available_cards:
-                if c1 is not c2:
-                    nodes.append(templated_line.format(c1, c2))
-    else:
-        raise ValueError(f"Cannot expand line with more than 2 cards: {streets}")
-    return nodes
-
-
-def lines_to_nodes(
-    lines: List[str], dead_cards: Tuple[str], isomorphism: bool = False
-) -> List[str]:
-    """
-    Expand a list of lines to all possible nodes associated with those lines.
-
-    :param lines: A list of lines to expand to nodes
-    :param dead_cards: A list of cards that are not in the deck anymore (e.g., on the board)
-    :param isomorphism: Whether to use suit isomorphism or not (not implemented)
-    :returns: A list of all possible nodes that can be made from the lines
-    :raises NotImplementedError: If isomorphism is True
-    :raises ValueError: If the line would contain more than 2 cards
-    """
-
-    nodes = []
-    for line in lines:
-        streets = line_to_streets(line)
-        nodes.append(streets_to_nodes(streets, dead_cards, isomorphism))
-    return nodes
-
-
-def get_all_n_street_lines(lines: List[str], n: int) -> List[str]:
-    return [line for line in lines if len(line_to_streets(line)) == n]
-
-
-FLOP = 1
-TURN = 2
-RIVER = 3
-
-
-def get_flop_lines(lines: List[str], current_street=FLOP) -> List[str]:
+def get_flop_lines(lines: List[Line], current_street=FLOP) -> List[str]:
     return get_all_n_street_lines(lines, FLOP - current_street + 1)
 
 
-def get_turn_lines(lines: List[str], current_street=FLOP) -> List[str]:
+def get_turn_lines(lines: List[Line], current_street=FLOP) -> List[str]:
     return get_all_n_street_lines(lines, TURN - current_street + 1)
 
 
-def get_river_lines(lines: List[str], current_street=FLOP) -> List[str]:
+def get_river_lines(lines: List[Line], current_street=FLOP) -> List[str]:
     return get_all_n_street_lines(lines, RIVER - current_street + 1)
 
 
-def lock_overfold(lines: List[str], overfold_freq=0.01, position="OOP"):
-    pass
+def lock_overfold(lines: List[Line], overfold_freq=0.01, position="OOP"):
+    raise NotImplementedError("Not implemented yet")
