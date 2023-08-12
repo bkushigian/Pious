@@ -6,6 +6,58 @@ from typing import List
 from pyosolver import PYOSolver
 
 CARDS = tuple(f"{r}{s}" for r in "23456789TJQKA" for s in "shdc")
+PATH = r"C:\\PioSOLVER"
+EXECUTABLE = r"PioSOLVER2-edge"
+
+
+def make_solver(
+    install_path=PATH,
+    executable=EXECUTABLE,
+    debug=False,
+    log_file=None,
+    store_script=False,
+) -> PYOSolver:
+    return PYOSolver(
+        install_path,
+        executable,
+        debug=debug,
+        log_file=log_file,
+        store_script=store_script,
+    )
+
+
+def line_to_streets(line: str) -> List[str]:
+    """
+    Given a line in the gametree, break the line into a list
+    of lines, one per street.
+
+    :param line: A line in the gametree
+    :returns: A root node if present (e.g., 'r:0'), and a list of lines, one per
+        street
+
+    # Example
+    >>> break_line_into_streets("r:0:b125:b313:b501:c:c:c:c")
+    ['r:0:b125:b313:b501:c', 'c:c', 'c']
+    """
+    streets = []
+    current_street = []
+    split_line = line.split(":")
+    root = None
+    if split_line[0] == "r":
+        root = split_line[:2]
+        split_line = split_line[2:]
+
+    for action in split_line:
+        current_street.append(action)
+        if action.startswith("c") and len(current_street) > 1:
+            if root is not None:
+                current_street = root + current_street
+            streets.append(":".join(current_street))
+            current_street = []
+
+    if len(current_street) > 0:
+        streets.append(":".join(current_street))
+    return streets
 
 
 def add_card_templates_to_line(line):
@@ -18,64 +70,59 @@ def add_card_templates_to_line(line):
 
     # Example
     >>> add_card_templates_to_line("r:0:b125:b313:b501:c:c:c:c")
-    "r:0:b125:b313:b501:c:{}:c:c:{}:c"
-    >>> add_card_templates_to_line("r:0:b125:b313:b501:c:c:c:c:c").format("Ks", "Qs")
-    "r:0:b125:b313:b501:c:Ks:c:c:Qs:c"
+    'r:0:b125:b313:b501:c:{}:c:c:{}:c'
+    >>> add_card_templates_to_line("r:0:b125:b313:b501:c:c:c:c").format("Ks", "Qs")
+    'r:0:b125:b313:b501:c:Ks:c:c:Qs:c'
     """
-    l = line.split(":")
-    i = 0
-    if l[0] == "r":
-        i = 2
-    # Invariant: the current node is not the last node in the street
-    while i < len(l) - 2:
-        if l[i + 1].startswith("c"):
-            # Call node
-            l.insert(i + 2, "{}")
-            i += 2
-        i += 1
-    return ":".join(l)
+    if "{}" in line:
+        return line
+
+    streets = line_to_streets(line)
+    return ":{}:".join(streets)
 
 
-def expand_line_to_nodes(
-    line: str, dead_cards: List[str], isomorphism: bool = False
+def streets_to_nodes(
+    streets: List[str], dead_cards: List[str], isomorphism: bool = False
 ) -> List[str]:
     """
-    Expand a line to all possible nodes
+    Translate a list of streets representing a line to a list of nodes
 
-    :param line: The line to expand to a node
+    :param streets: The streets of a line to translate
     :param dead_cards: A list of cards that are not in the deck anymore (e.g., on the board)
     :param isomorphism: Whether to use suit isomorphism or not (not implemented)
     :returns: A list of all possible nodes that can be made from the line
     :raises NotImplementedError: If isomorphism is True
     :raises ValueError: If the line would contain more than 2 cards
     """
+    if len(streets) > 3:
+        raise ValueError(f"Cannot expand line with more than 3 streets: {streets}")
+    for street in streets[:-1]:
+        actions = street.split(":")
+        if len(actions) < 1 or actions[-1] != "c":
+            raise ValueError(f"All but last street must be complete: {streets}")
     if isomorphism:
         raise NotImplementedError("Suit isomorphism not implemented yet")
     available_cards = [c for c in CARDS if c not in dead_cards]
-    templated_line = add_card_templates_to_line(line)
-    num_cards = templated_line.count("{}")
-    print(f"Templated line: {templated_line}")
-    print(f"Num cards: {num_cards}")
-    print(f"Available cards: {available_cards}")
+    templated_line = ":{}:".join(streets)
+    num_cards = len(streets) - 1
 
     nodes = []
     if num_cards == 0:
         nodes.append(templated_line)
-    if num_cards == 1:
+    elif num_cards == 1:
         for c in available_cards:
             nodes.append(templated_line.format(c))
-    if num_cards == 2:
+    elif num_cards == 2:
         for c1 in available_cards:
             for c2 in available_cards:
                 if c1 is not c2:
                     nodes.append(templated_line.format(c1, c2))
-    if num_cards >= 3:
-        raise ValueError(f"Cannot expand line with more than 2 cards to come: {line}")
-    print(f"Expanded to {len(nodes)} nodes")
+    else:
+        raise ValueError(f"Cannot expand line with more than 2 cards: {streets}")
     return nodes
 
 
-def expand_lines_to_nodes(
+def lines_to_nodes(
     lines: List[str], dead_cards: List[str], isomorphism: bool = False
 ) -> List[str]:
     """
@@ -91,5 +138,27 @@ def expand_lines_to_nodes(
 
     nodes = []
     for line in lines:
-        nodes.append(expand_line_to_nodes(line, dead_cards, isomorphism))
+        streets = line_to_streets(line)
+        nodes.append(streets_to_nodes(streets, dead_cards, isomorphism))
     return nodes
+
+
+def get_all_n_street_lines(lines: List[str], n: int) -> List[str]:
+    return [line for line in lines if len(line_to_streets(line)) == n]
+
+
+FLOP = 1
+TURN = 2
+RIVER = 3
+
+
+def get_flop_lines(lines: List[str], current_street=FLOP) -> List[str]:
+    return get_all_n_street_lines(lines, FLOP - current_street + 1)
+
+
+def get_turn_lines(lines: List[str], current_street=FLOP) -> List[str]:
+    return get_all_n_street_lines(lines, TURN - current_street + 1)
+
+
+def get_river_lines(lines: List[str], current_street=FLOP) -> List[str]:
+    return get_all_n_street_lines(lines, RIVER - current_street + 1)
