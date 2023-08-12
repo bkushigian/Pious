@@ -2,12 +2,34 @@
 A collection of utility functions
 """
 
-from typing import List
+from typing import List, Tuple
 from pyosolver import PYOSolver
 
 CARDS = tuple(f"{r}{s}" for r in "23456789TJQKA" for s in "shdc")
 PATH = r"C:\\PioSOLVER"
 EXECUTABLE = r"PioSOLVER2-edge"
+
+
+class Line:
+    def __init__(self, line: str):
+        self.line = line
+        self.root, self.streets = line_to_streets(line)
+        self.actions = line.split(":")
+        self.nodes = {}
+
+    def get_nodes(self, dead_cards=None):
+        """
+        Get the nodes associated with this line. If the nodes have not been
+        computed, compute them.
+        """
+
+        if dead_cards is None:
+            dead_cards = []
+        # Make dead cards hashable
+        dead_cards = tuple(sorted(dead_cards))
+        if dead_cards not in self.nodes:
+            self.nodes[dead_cards] = lines_to_nodes([self.line], dead_cards=dead_cards)
+        return self.nodes[dead_cards]
 
 
 def make_solver(
@@ -26,6 +48,25 @@ def make_solver(
     )
 
 
+def oop(line: str) -> bool:
+    """
+    Given a line, return True if the player acting is out of position
+    >>> oop("r:0")
+    True
+    >>> oop("r:0:c")
+    False
+    >>> oop("r:0:c:c")
+    True
+    >>> oop("r:0")
+    """
+    last_street = line_to_streets(line)[-1]
+
+    if last_street.startswith("r"):
+        return last_street.count(":") % 2 == 1
+    else:
+        return last_street.count(":") % 2 == 0
+
+
 def line_to_streets(line: str) -> List[str]:
     """
     Given a line in the gametree, break the line into a list
@@ -36,13 +77,13 @@ def line_to_streets(line: str) -> List[str]:
         street
 
     # Example
-    >>> break_line_into_streets("r:0:b125:b313:b501:c:c:c:c")
-    ['r:0:b125:b313:b501:c', 'c:c', 'c']
+    >>> line_to_streets("r:0:b125:b313:b501:c:c:c:c")
+    ('r:0', [['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
     """
     streets = []
     current_street = []
     split_line = line.split(":")
-    root = None
+    root = ""
     if split_line[0] == "r":
         root = split_line[:2]
         split_line = split_line[2:]
@@ -50,14 +91,12 @@ def line_to_streets(line: str) -> List[str]:
     for action in split_line:
         current_street.append(action)
         if action.startswith("c") and len(current_street) > 1:
-            if root is not None:
-                current_street = root + current_street
-            streets.append(":".join(current_street))
+            streets.append(current_street)
             current_street = []
 
     if len(current_street) > 0:
-        streets.append(":".join(current_street))
-    return streets
+        streets.append(current_street)
+    return (root, streets)
 
 
 def add_card_templates_to_line(line):
@@ -123,7 +162,7 @@ def streets_to_nodes(
 
 
 def lines_to_nodes(
-    lines: List[str], dead_cards: List[str], isomorphism: bool = False
+    lines: List[str], dead_cards: Tuple[str], isomorphism: bool = False
 ) -> List[str]:
     """
     Expand a list of lines to all possible nodes associated with those lines.
@@ -162,3 +201,7 @@ def get_turn_lines(lines: List[str], current_street=FLOP) -> List[str]:
 
 def get_river_lines(lines: List[str], current_street=FLOP) -> List[str]:
     return get_all_n_street_lines(lines, RIVER - current_street + 1)
+
+
+def lock_overfold(lines: List[str], overfold_freq=0.01, position="OOP"):
+    pass

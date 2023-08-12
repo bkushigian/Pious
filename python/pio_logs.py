@@ -153,6 +153,10 @@ def final_iterations_df(df: pd.DataFrame):
 
 def print_final_iterations(df: pd.DataFrame):
     df = final_iterations_df(df)
+    # Now, add a final row called 'Average'
+    averages = df.iloc[:, 1:-1].mean(axis=0)
+    average_row = ["Average"] + averages.tolist() + ["---"]
+    df.loc[len(df)] = average_row
     print(df.to_string(index=False))
 
 
