@@ -8,15 +8,29 @@ import os
 from decimal import Decimal, InvalidOperation
 from functools import partial
 from uuid import uuid4
-
-DEBUG = 0
+import time
 
 
 class PYOSolver(object):
-    def __init__(self, path, executable_name):
+    def __init__(
+        self,
+        path,
+        executable_name,
+        debug=False,
+        log_file=None,
+        store_script=False,
+        end_string="END",
+    ):
+        self.log_file = log_file
+        if log_file is not None:
+            self.log_file = open(log_file, "w")
+        self.store_script = store_script
+        self.commands = []
+        self.debug = debug
         self.cfr_file_path = None
         self.solver_path = path
         self.executable_name = executable_name
+        self.end_string = end_string
         self.process = subprocess.Popen(
             [os.path.join(self.solver_path, self.executable_name)],
             cwd=self.solver_path,
@@ -26,8 +40,8 @@ class PYOSolver(object):
             bufsize=1,
             encoding="utf8",
         )
-        self._run("is_ready")
-        self._run("set_end_string", "END")
+
+        self._run("set_end_string", self.end_string)
         self._run("set_threads", "0")
         self._run("set_recalc_accuracy", "0.0025 0.001 0.005")
         self._run("set_accuracy", "20")
@@ -35,13 +49,12 @@ class PYOSolver(object):
         self._run("is_ready")
 
     def reset(self):
-        self.fw.truncate(0)
         self.process = subprocess.Popen(
             [os.path.join(self.solver_path, self.executable_name)],
             cwd=self.solver_path,
-            stdout=self.fw,
+            stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
-            stderr=self.fw,
+            stderr=subprocess.PIPE,
             bufsize=1,
             encoding="utf8",
         )
@@ -49,23 +62,26 @@ class PYOSolver(object):
     def load_tree(self, cfr_file_path):
         self.cfr_file_path = cfr_file_path
         self._run("load_tree", cfr_file_path)
-        root_node_info = self.show_node("r")
-        self.set_eff_stack(self.show_effective_stack())
+        root_node_info = self.show_node("r:0")
+        if self.debug:
+            print(f"root_node_info: {root_node_info}\n")
+        # # self.set_eff_stack(self.show_effective_stack())
         self._run("set_isomorphism", "1 0")
         self.set_pot(*root_node_info["pot"])
-        self.set_board(root_node_info["board"])
+        # self.set_board(root_node_info["board"])
         self.clear_lines()
-        for line in self.show_all_lines():
-            self.add_line(node_to_line(line))
-        hand_order = self.show_hand_order()
+        # for line in self.show_all_lines():
+        #     self.add_line(node_to_line(line))
+        # hand_order = self.show_hand_order()
 
-        tree_info = self.show_tree_info()
-        oop_range = info_range_to_pio_range(hand_order, tree_info["Range0"])
-        ip_range = info_range_to_pio_range(hand_order, tree_info["Range1"])
-        self.set_range("OOP", *oop_range)
-        self.set_range("IP", *ip_range)
+        # tree_info = self.show_tree_info()
+        # oop_range = info_range_to_pio_range(hand_order, tree_info["Range0"])
+        # ip_range = info_range_to_pio_range(hand_order, tree_info["Range1"])
+        # self.set_range("OOP", *oop_range)
+        # self.set_range("IP", *ip_range)
 
     def show_node(self, node_id):
+        self._run("show_node", node_id)
         return self._parse_data(
             self._run("show_node", node_id),
             ("nodeID", str),
@@ -109,6 +125,7 @@ class PYOSolver(object):
 
     def show_tree_info(self):
         data = {}
+        self._run("show_tree_info")
         for line in self._run("show_tree_info").split("\n"):
             _, key, value = line.split("#")
             # We don't know what order these will be in, so
@@ -185,8 +202,16 @@ class PYOSolver(object):
         return parsed_data
 
     def _run(self, *commands):
-        if DEBUG:
-            print(commands)
+        command = " ".join(commands)
+        if self.store_script:
+            self.commands.append(command)
+
+        if self.debug:
+            print(command)
+        if self.log_file:
+            self.log_file.write(f"[>] {command}\n")
+            self.log_file.flush()
+
         self.process.stdin.write(" ".join(commands) + "\n")
         no_output_commands = [
             "is_ready",
@@ -227,16 +252,31 @@ class PYOSolver(object):
             "set_mes",
             "free_tree",
         ]
-        if commands[0] in no_output_commands:
-            trigger_word = "ok!\n"
-        else:
-            trigger_word = "END\n"
-        output = ""
-        while trigger_word not in output:
-            output += self.process.stdout.readline()
-        if DEBUG:
+        trigger_word = f"{self.end_string}\n"
+        lines = []
+
+        while True:
+            lines.append(self.process.stdout.readline())
+            if trigger_word in lines[-1]:
+                break
+
+        output = "".join(lines)
+
+        if self.debug:
             print(output)
+        if self.log_file:
+            self.log_file.write(f"[<] {output}\n")
+            self.log_file.flush()
         return output.replace("END\n", "").strip()
+
+    def __del__(self):
+        if self.log_file:
+            self.log_file.close()
+        if self.process:
+            self.process.kill()
+        if self.store_script:
+            with open("script.txt", "w") as f:
+                f.write("\n".join(self.commands))
 
 
 def node_to_line(node_string):
