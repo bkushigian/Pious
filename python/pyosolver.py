@@ -65,20 +65,9 @@ class PYOSolver(object):
         root_node_info = self.show_node("r:0")
         if self.debug:
             print(f"root_node_info: {root_node_info}\n")
-        # # self.set_eff_stack(self.show_effective_stack())
         self._run("set_isomorphism", "1 0")
         self.set_pot(*root_node_info["pot"])
-        # self.set_board(root_node_info["board"])
         self.clear_lines()
-        # for line in self.show_all_lines():
-        #     self.add_line(node_to_line(line))
-        # hand_order = self.show_hand_order()
-
-        # tree_info = self.show_tree_info()
-        # oop_range = info_range_to_pio_range(hand_order, tree_info["Range0"])
-        # ip_range = info_range_to_pio_range(hand_order, tree_info["Range1"])
-        # self.set_range("OOP", *oop_range)
-        # self.set_range("IP", *ip_range)
 
     def show_node(self, node_id):
         self._run("show_node", node_id)
