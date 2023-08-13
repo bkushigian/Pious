@@ -243,30 +243,6 @@ class Line:
             self.nodes[dead_cards] = nodes
         return self.nodes[dead_cards]
 
-    def is_oop(self):
-        """
-        Return True if the player acting is out of position
-
-        >>> Line("r:0").is_oop()
-        True
-        >>> Line("r:0:c").is_oop()
-        False
-        >>> Line("r:0:c:b30").is_oop()
-        True
-        >>> Line("r:0:c:b30:c").is_oop()
-        True
-        >>> Line("r:0:c:b30:c:c").is_oop()
-        False
-        """
-        last_street = self.streets_as_actions[-1]
-        return len(last_street) % 2 == 0
-
-    def is_ip(self):
-        """
-        Return True if the player acting is in position
-        """
-        return not self.is_oop()
-
     def streets_to_nodes(self, isomorphism: bool = False, dead_cards=None) -> List[str]:
         """
         Translate a list of streets representing a line to a list of nodes
@@ -312,6 +288,30 @@ class Line:
         Return the number of streets in this line, not including the root
         """
         return len(self.streets_as_lines) - 1
+
+    def is_oop(self):
+        """
+        Return True if the player acting is out of position
+
+        >>> Line("r:0").is_oop()
+        True
+        >>> Line("r:0:c").is_oop()
+        False
+        >>> Line("r:0:c:b30").is_oop()
+        True
+        >>> Line("r:0:c:b30:c").is_oop()
+        True
+        >>> Line("r:0:c:b30:c:c").is_oop()
+        False
+        """
+        last_street = self.streets_as_actions[-1]
+        return len(last_street) % 2 == 0
+
+    def is_ip(self):
+        """
+        Return True if the player acting is in position
+        """
+        return not self.is_oop()
 
     def __str__(self):
         return self.line_str
