@@ -330,20 +330,64 @@ class Line:
     def is_flop(self):
         """
         Return True if the current street is the flop
+
+        >>> Line("r:0").is_flop()
+        True
+        >>> Line("r:0:c").is_flop()
+        True
+        >>> Line("r:0:c:b30").is_flop()
+        True
+        >>> Line("r:0:c:b30:c").is_flop()
+        False
         """
         return self.current_street() == FLOP
 
     def is_turn(self):
         """
         Return True if the current street is the turn
+
+        >>> Line("r:0").is_turn()
+        False
+        >>> Line("r:0:c:c").is_turn()
+        True
+        >>> Line("r:0:c:b30:c").is_turn()
+        True
+        >>> Line("r:0:c:b30:c:c").is_turn()
+        True
+        >>> Line("r:0:c:b30:c:c:c").is_turn()
+        False
         """
         return self.current_street() == TURN
 
     def is_river(self):
         """
         Return True if the current street is the river
+
+        >>> Line("r:0").is_river()
+        False
+        >>> Line("r:0:c:c:c:c").is_river()
+        True
+        >>> Line("r:0:c:b1000:c", effective_stacks=1000).is_river()
+        False
         """
         return self.current_street() == RIVER
+
+    def is_facing_bet(self):
+        """
+        Return True if the player is facing a bet
+
+        >>> Line("r:0").is_facing_bet()
+        False
+        >>> Line("r:0:c").is_facing_bet()
+        False
+        >>> Line("r:0:c:b30").is_facing_bet()
+        True
+        >>> Line("r:0:c:b30:c").is_facing_bet()
+        False
+        >>> Line("r:0:c:b30:f").is_facing_bet()
+        False
+        """
+        return self.actions[-1].startswith("b")
 
     def __str__(self):
         return self.line_str
