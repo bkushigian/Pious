@@ -195,7 +195,7 @@ class Line:
 
     >>> available_cards = ['As', 'Ks', 'Qs']
     >>> dead_cards = [card for card in CARDS if card not in available_cards]
-    >>> line.get_nodes(dead_cards=dead_cards)
+    >>> line.get_node_ids(dead_cards=dead_cards)
     ['r:0:c:b30:c:As:c', 'r:0:c:b30:c:Ks:c', 'r:0:c:b30:c:Qs:c']
 
     """
