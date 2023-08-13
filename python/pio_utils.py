@@ -15,8 +15,18 @@ TURN = 2
 RIVER = 3
 
 
+def money_in_per_street(streets_as_actions: List[List[str]]) -> List[int]:
+    money_per_street = [0, 0, 0, 0]
+    for street, actions in enumerate(streets_as_actions):
+        for action in reversed(actions):
+            if action.startswith("b"):
+                money_per_street[street] = int(action[1:])
+                break
+    return money_per_street
+
+
 def actions_to_streets(
-    actions: List[str], starting_street=FLOP, is_terminal=False
+    actions: List[str], starting_street=FLOP, effective_stacks=None
 ) -> List[List[str]]:
     """
     Given a line in the gametree, break the line into a list
@@ -51,23 +61,29 @@ def actions_to_streets(
     if current_street:
         streets.append(current_street)
 
-    elif (not is_terminal) and (
-        len(streets) + starting_street < 5 and streets[-1][-1] != "f"
-    ):
-        # Should we add a final street empty street?
-        #
-        # This depends on whether there are any more player actions to come.
-        # There are player actions when we have not reached the river, and when
-        # the last action wasn't a fold.
-        #
-        # To tell if we add our starting street (1 for flop, 2 for turn, etc)
-        # to the number of streets. `streets` has an entry for root, so
-        # the maximal length of streets is 4.
-        #
-        # Consider if `streets = [['r', '0'], ['c', 'b120', 'c']]`. If this line starts on the
-        #
-        # then we need to add a street (FLOP + 2 = 3 < 4)
-        streets.append([])
+    else:
+        all_in = (
+            effective_stacks is not None
+            and streets[-1][-1] == "c"
+            and effective_stacks == sum(money_in_per_street(streets))
+        )
+        if not all_in and (
+            len(streets) + starting_street < 5 and streets[-1][-1] != "f"
+        ):
+            # Should we add a final street empty street?
+            #
+            # This depends on whether there are any more player actions to come.
+            # There are player actions when we have not reached the river, and when
+            # the last action wasn't a fold.
+            #
+            # To tell if we add our starting street (1 for flop, 2 for turn, etc)
+            # to the number of streets. `streets` has an entry for root, so
+            # the maximal length of streets is 4.
+            #
+            # Consider if `streets = [['r', '0'], ['c', 'b120', 'c']]`. If this line starts on the
+            #
+            # then we need to add a street (FLOP + 2 = 3 < 4)
+            streets.append([])
 
     return streets
 
@@ -139,13 +155,15 @@ class Line:
         >>> Line("r:0:c:c:c:c", starting_street=TURN).streets_as_lines
         ['r:0', 'c:c', 'c:c']
 
-    3. Players are not all in. We cannot detect this condition without help, so
+    3. Players are all in. To determine this we need `effective_stacks` We cannot detect this condition without help, so
        we provide the optional argument `is_terminal` to the `Line` constructor.
 
-       >>> Line("r:0:c:b30:b100:b900:c", is_terminal=False).streets_as_lines
+       >>> Line("r:0:c:b30:b100:b900:c", effective_stacks=1000).streets_as_lines
        ['r:0', 'c:b30:b100:b900:c', '']
-       >>> Line("r:0:c:b30:b100:b900:c", is_terminal=True).streets_as_lines
-       ['r:0', 'c:b30:b100:b900:c']
+       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stacks=1000).streets_as_lines
+       ['r:0', 'c:b30:b100:b900:c', 'b100:c']
+       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stacks=2000).streets_as_lines
+       ['r:0', 'c:b30:b100:b900:c', 'b100:c', '']
 
     This class only checks the first two conditions. The third condition depends
     on data that isn't available here, so we cannot account for it.
@@ -167,10 +185,14 @@ class Line:
 
     """
 
-    def __init__(self, line: str, starting_street=FLOP, is_terminal=False):
+    def __init__(
+        self, line: str, starting_street=FLOP, is_terminal=False, effective_stacks=None
+    ):
         self.line_str = line
         self._starting_street = starting_street
         self._is_terminal = is_terminal
+        self._effective_stacks = effective_stacks
+        self._money_in_per_street = [0, 0, 0, 0]
         self.actions: List[str] = []
         self.streets_as_actions: List[List[str]] = []
         self.streets_as_lines: List[str] = []
@@ -186,9 +208,17 @@ class Line:
         self.streets_as_actions = actions_to_streets(
             self.actions,
             starting_street=self._starting_street,
-            is_terminal=self._is_terminal,
+            effective_stacks=self._effective_stacks,
         )
         self.streets_as_lines = [":".join(street) for street in self.streets_as_actions]
+
+        # Update money in per street
+        for street, actions in enumerate(self.streets_as_actions):
+            # find last bet action
+            for action in reversed(actions):
+                if action[0] == "b":
+                    self._money_in_per_street[street] = int(action[1:])
+                    break
 
     def _check_is_well_formed(self) -> bool:
         """
