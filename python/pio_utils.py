@@ -15,6 +15,15 @@ TURN = 2
 RIVER = 3
 
 
+def get_all_lines(solver: PYOSolver) -> List[str]:
+    """
+    Given a node in the tree, return a list of all the lines in the tree.
+    """
+    lines = solver.show_all_lines
+    effective_stacks = solver.show_effective_stacks()
+    return [Line(line, effective_stacks=effective_stacks) for line in lines]
+
+
 def money_in_per_street(streets_as_actions: List[List[str]]) -> List[int]:
     money_per_street = [0, 0, 0, 0]
     for street, actions in enumerate(streets_as_actions):
