@@ -7,8 +7,36 @@ import subprocess
 import os
 from decimal import Decimal, InvalidOperation
 from functools import partial
+from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 import time
+
+
+class Node:
+    def __init__(self, raw_node_data: str):
+        self._raw_node_data = raw_node_data
+
+        items = raw_node_data.strip().split("\n")
+        self.node_id = items[0].strip()
+        self.last_action = self.node_id.split(":")[-1]
+        self.node_type = items[1].strip().split(" ")[0]
+        self.board = tuple(items[2].strip().split(" "))
+        self.pot = tuple([int(x) for x in items[3].strip().split(" ")])
+        self.num_children = int(items[4].strip().split(" ")[0])
+        self.flags = tuple(items[5].split(":")[1].strip().split(" "))
+
+    def __repr__(self):
+        return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
+
+    def __str__(self):
+        return self._raw_node_data
+
+    def get_position(self):
+        if self.node_type == "OOP_DEC":
+            return "OOP"
+        elif self.node_type == "IP_DEC":
+            return "IP"
+        return None
 
 
 class PYOSolver(object):
@@ -62,42 +90,48 @@ class PYOSolver(object):
     def load_tree(self, cfr_file_path):
         self.cfr_file_path = cfr_file_path
         self._run("load_tree", cfr_file_path)
-        root_node_info = self.show_node("r:0")
+        self.root_node_info = self.show_node("r:0")
         if self.debug:
-            print(f"root_node_info: {root_node_info}\n")
-        self._run("set_isomorphism", "1 0")
-        self.clear_lines()
+            print(f"root_node_info: {self.root_node_info}\n")
 
-    def show_node(self, node_id):
-        self._run("show_node", node_id)
-        return self._parse_data(
-            self._run("show_node", node_id),
-            ("nodeID", str),
-            ("NODE_TYPE", str),
-            ("board", partial(typed_list, t=str)),
-            ("pot", partial(typed_list, t=int)),
-            ("children_no", first_int),
-            ("flags", str),
-        )
+    def show_node(self, node_id) -> Optional[Node]:
+        data = self._run("show_node", node_id)
+        if "ERROR" in data:
+            return None
+        return Node(data)
 
-    def show_children(self, node_id):
-        data = self._run("show_children", node_id).split("\n")
-        if len(data) == 1 and data[0].startswith("ERROR"):
+    def show_children(self, node_id) -> List[Node]:
+        """
+        Return a list of children of the given specified node.
+        """
+        data = self._run("show_children", node_id)
+        if "ERROR" in data:
             return []
-        i = 0
-        nodes = []
-        data = [d for d in data if d != ""]
-        while i < len(data):
-            assert "child" in data[i], print(f"Invalid data: {data[i]}")
-            # Can add more data here (same format as show_node)
-            nodes.append(
-                {
-                    "nodeID": data[i + 1],
-                    "last_action": data[i + 1].split(":")[-1],
-                }
-            )
-            i += 8
-        return nodes
+        if data.strip() == "":
+            return []
+        children_lines = data.split("\n\n")
+        children = []
+        """
+        From the docs, each child entry is of the form:
+        'child n:' nodeID NODE_TYPE board pot children_no 'flags: f1 f2'
+
+        """
+        for child_line in children_lines:
+            items = child_line.split("\n")
+            node_data = items[1:]
+            child_node = Node("\n".join(node_data))
+            children.append(child_node)
+
+        return children
+
+    def show_children_actions(self, node_id) -> Optional[List[str]]:
+        data = self._run("show_children", node_id)
+        if "ERROR" in data:
+            return []
+        if data.strip() == "":
+            return []
+        children_lines = data.split("\n\n")
+        return [child.split("\n")[1].strip().split(":")[-1] for child in children_lines]
 
     def show_hand_order(self):
         return self._run("show_hand_order").split(" ")
@@ -139,17 +173,22 @@ class PYOSolver(object):
         return self._run("clear_lines")
 
     def calc_ev(self, position, node):
-        results = self._run("calc_ev_pp", position, node)
-        for r in results.split("\n"):
-            if "EV: " in r:
-                return float(r.split(": ")[1])
-        return None
+        results = self._run("calc_ev", position, node)
+        evs, matchups = results.split("\n")
+        evs = tuple(float(ev) for ev in evs.split())
+        matchups = tuple(float(matchup) for matchup in matchups.split())
+        return evs, matchups
 
     def solve_partial(self, node_id):
         return self._run("solve_partial", node_id)
 
-    def show_range(self, position, node_id):
-        return [float(a) for a in self._run("show_range", position, node_id).split()]
+    def show_range(self, position, node_id) -> List[float]:
+        range = self._run("show_range", position, node_id)
+        if "ERROR" in range:
+            print(f"Error in range at {position} {node_id}")
+            print(f"{range}")
+            return None
+        return [float(freq) for freq in range.split()]
 
     def set_range(self, position, *values):
         values = [str(a) for a in values]
@@ -255,6 +294,7 @@ class PYOSolver(object):
         if self.log_file:
             self.log_file.write(f"[<] {output}\n")
             self.log_file.flush()
+
         return output.replace("END\n", "").strip()
 
     def __del__(self):

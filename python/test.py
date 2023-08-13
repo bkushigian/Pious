@@ -1,4 +1,5 @@
 import pio_utils
+import nodelock_utils
 import pyosolver
 from argparse import ArgumentParser
 import time
@@ -24,8 +25,9 @@ solver.load_tree(f'"{args.path}"')
 t_load_tree = time.time()
 print(f"Loaded tree in {t_load_tree - t0:.2f} seconds")
 
+
 root_node_info = solver.show_node("r:0")
-board = root_node_info["board"]
+board = root_node_info.board
 print("Board:", board)
 
 t_0 = time.time()
@@ -80,10 +82,16 @@ print(f"Total: {len(flop_lines) + len(turn_lines) + len(river_lines)}")
 print(f"Expected: {len(all_lines)}")
 print()
 
+print("Locking overfolds...")
+nodelock_utils.lock_overfolds(solver, flop_lines, amount=0.01)
+
+import sys
+
+sys.exit(0)
 
 print("Expanding all lines to nodes...")
 t_0 = time.time()
-nodes_per_line = [line.get_nodes(dead_cards=board) for line in all_lines]
+nodes_per_line = [line.get_node_ids(dead_cards=board) for line in all_lines]
 t_expand_all_nodes = time.time()
 
 total_nodes = sum([len(nodes) for nodes in nodes_per_line])

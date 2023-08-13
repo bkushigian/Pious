@@ -241,7 +241,7 @@ class Line:
         """
         return True
 
-    def get_nodes(self, dead_cards=None):
+    def get_node_ids(self, dead_cards=None):
         """
         Get the nodes associated with this line. If the nodes have not been
         computed, compute and cache them.
