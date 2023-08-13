@@ -66,7 +66,6 @@ class PYOSolver(object):
         if self.debug:
             print(f"root_node_info: {root_node_info}\n")
         self._run("set_isomorphism", "1 0")
-        self.set_pot(*root_node_info["pot"])
         self.clear_lines()
 
     def show_node(self, node_id):

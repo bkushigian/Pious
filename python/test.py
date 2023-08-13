@@ -20,7 +20,7 @@ t0 = time.time()
 solver = pio_utils.make_solver(
     debug=args.debug, log_file=args.log_file, store_script=args.store_script
 )
-solver.load_tree(args.path)
+solver.load_tree(f'"{args.path}"')
 t_load_tree = time.time()
 print(f"Loaded tree in {t_load_tree - t0:.2f} seconds")
 
