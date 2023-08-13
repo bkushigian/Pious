@@ -27,7 +27,7 @@ def money_in_per_street(streets_as_actions: List[List[str]]) -> List[int]:
 
 def actions_to_streets(
     actions: List[str], starting_street=FLOP, effective_stacks=None
-) -> List[List[str]]:
+) -> Tuple[bool, List[List[str]]]:
     """
     Given a line in the gametree, break the line into a list
     of lines, one per street.
@@ -38,13 +38,17 @@ def actions_to_streets(
 
     # Example
     >>> actions_to_streets(["r","0","b125","b313","b501","c","c","c","c"])
-    [['r', '0'], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
+    (False, [['r', '0'], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']])
     >>> actions_to_streets(["b125","b313","b501","c","c","c","c"])
-    [[''], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']]
+    (False, [[''], ['b125', 'b313', 'b501', 'c'], ['c', 'c'], ['c']])
     >>> actions_to_streets(["b125","b313","b501","c"])
-    [[''], ['b125', 'b313', 'b501', 'c'], []]
+    (False, [[''], ['b125', 'b313', 'b501', 'c'], []])
+    >>> actions_to_streets(["r", "0", "b100", "b300", "c", "c", "b700", "c"], effective_stacks = 1000)
+    (True, [['r', '0'], ['b100', 'b300', 'c'], ['c', 'b700', 'c']])
+
     """
     streets = []
+    is_terminal = False
     if actions[0] == "r":
         streets.append(actions[:2])
         actions = actions[2:]
@@ -84,8 +88,10 @@ def actions_to_streets(
             #
             # then we need to add a street (FLOP + 2 = 3 < 4)
             streets.append([])
+        else:
+            is_terminal = True
 
-    return streets
+    return is_terminal, streets
 
 
 class Line:
@@ -185,12 +191,10 @@ class Line:
 
     """
 
-    def __init__(
-        self, line: str, starting_street=FLOP, is_terminal=False, effective_stacks=None
-    ):
+    def __init__(self, line: str, starting_street=FLOP, effective_stacks=None):
         self.line_str = line
         self._starting_street = starting_street
-        self._is_terminal = is_terminal
+        self._is_terminal = None
         self._effective_stacks = effective_stacks
         self._money_in_per_street = [0, 0, 0, 0]
         self.actions: List[str] = []
@@ -205,7 +209,7 @@ class Line:
         grouping the actions by streets.
         """
         self.actions = line.split(":")
-        self.streets_as_actions = actions_to_streets(
+        self.is_terminal, self.streets_as_actions = actions_to_streets(
             self.actions,
             starting_street=self._starting_street,
             effective_stacks=self._effective_stacks,
@@ -312,6 +316,34 @@ class Line:
         Return True if the player acting is in position
         """
         return not self.is_oop()
+
+    def current_street(self) -> int:
+        """
+        Return True if the current street is the given street
+
+        :param street: The street to check
+        :returns: True if the current street is the given street
+        """
+
+        return self._starting_street + self.n_streets() - 1
+
+    def is_flop(self):
+        """
+        Return True if the current street is the flop
+        """
+        return self.current_street() == FLOP
+
+    def is_turn(self):
+        """
+        Return True if the current street is the turn
+        """
+        return self.current_street() == TURN
+
+    def is_river(self):
+        """
+        Return True if the current street is the river
+        """
+        return self.current_street() == RIVER
 
     def __str__(self):
         return self.line_str
