@@ -83,7 +83,7 @@ print(f"Expected: {len(all_lines)}")
 print()
 
 print("Locking overfolds...")
-nodelock_utils.lock_overfolds(solver, flop_lines, amount=0.01)
+nodelock_utils.lock_overfolds(solver, flop_lines, amount=0.05)
 
 import sys
 

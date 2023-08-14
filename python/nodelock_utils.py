@@ -41,27 +41,37 @@ def filter_lines(lines: List[Line], filters=None):
     return [line for line in lines if filter(line)]
 
 
-def lock_overfolds(solver: PYOSolver, lines: List[Line], amount=0.01, filters=None):
+def lock_overfolds(
+    solver: PYOSolver,
+    lines: List[Line],
+    amount=0.01,
+    filters=None,
+    max_ev_threshold=0.01,
+):
     board = solver.show_node("r:0").board
     print("Board:", board)
     lines = filter_lines(lines, filters=filters)
     print("filtered lines: ", lines)
-    node_ids = [line.get_node_ids(dead_cards=board) for line in lines]
     for line in lines:
         node_ids = line.get_node_ids(dead_cards=board)
         for node_id in node_ids:
-            lock_overfold(solver, node_id, amount=amount)
+            lock_overfold(
+                solver, node_id, amount=amount, max_ev_threshold=max_ev_threshold
+            )
 
     return filters
 
 
-def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01):
+def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01, max_ev_threshold=0.01):
     print("=========================")
     print(node_id)
     node: Node = solver.show_node(node_id)
+    pot = node.pot[2]
+    max_ev_to_fold = max_ev_threshold * pot
     pos = node.get_position()
-    range = solver.show_range(pos, node_id)
-    combos_in_range = sum(range)
+    player_range = solver.show_range(pos, node_id)
+    combos_in_range = sum(player_range)
+    print(f"Max EV to fold: {max_ev_to_fold}")
 
     strategy = solver.show_strategy(node_id)
     children_actions = solver.show_children_actions(node_id)
@@ -69,12 +79,18 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01):
     fold_freqs = strategy[fold_idx]
 
     evs, _ = solver.calc_ev(pos, node_id)
+    evs = [ev for ev in evs]
 
     sorted_indexed_evs = sorted(
-        [(i, e) for (i, e) in enumerate(evs) if range[i] > 0], key=lambda x: x[1]
+        [
+            (i, e)
+            for (i, e) in enumerate(evs)
+            if player_range[i] > 0 and fold_freqs[i] < 1.0
+        ],
+        key=lambda x: x[1],
     )
 
-    folded_combos = sum(a * b for (a, b) in zip(range, fold_freqs))
+    folded_combos = sum(a * b for (a, b) in zip(player_range, fold_freqs))
     fold_freq = folded_combos / combos_in_range
 
     target_fold_freq = fold_freq + amount
@@ -93,8 +109,6 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01):
         f"Target fold {target_num_combos:.1f} / {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
     )
     hand_order = solver.show_hand_order()
-    for idx, ev in sorted_indexed_evs:
-        print(f"{hand_order[idx]}: {ev:.2f}")
 
     # Now we need to iterate through the combos with lowest ev and add their
     # indices to the following list
@@ -104,9 +118,14 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01):
     for idx, ev in sorted_indexed_evs:
         if num_new_combos_to_fold <= 0:
             break
-        if range[idx] == 0:
+        if player_range[idx] == 0:
             continue
-        num_combos_at_idx = range[idx]
+        if ev >= max_ev_to_fold:
+            print(
+                f"Warning: Current hand {hand_order[idx]} has ev {ev} >= max ev to fold {max_ev_to_fold}"
+            )
+            break
+        num_combos_at_idx = player_range[idx]
         folded_combos_at_idx = fold_freqs[idx] * num_combos_at_idx
         combos_to_fold_at_idx = num_combos_at_idx - folded_combos_at_idx
 
@@ -115,9 +134,10 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01):
         num_new_combos_to_fold -= combos_to_fold_at_idx
         print(f"{hand_order[idx]}: ev: {ev:.2f}")
         print(
-            f"    freq: {num_combos_at_idx:.3f}, fold_freq: {fold_freqs[idx]}, folded: {folded_combos_at_idx:.3f} combos"
+            f"    #combos: {num_combos_at_idx:3.3f}\t  fold_freq: {fold_freqs[idx]:3.3f}\t  folded: {folded_combos_at_idx:.3f}\t  unfolded: {num_combos_at_idx  - folded_combos_at_idx:3.3f}"
         )
         print(
-            f"    fold {combos_to_fold_at_idx:.3f} combos, {num_new_combos_to_fold:.5f} remaining"
+            f"    #fold:   {combos_to_fold_at_idx:3.3f}\t  reamining: {num_new_combos_to_fold:3.3f}"
         )
         indices_and_amounts_of_combos_to_fold.append((idx, combos_to_fold_at_idx))
+    print(indices_and_amounts_of_combos_to_fold)
