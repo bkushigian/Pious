@@ -47,6 +47,7 @@ class PYOSolver(object):
         debug=False,
         log_file=None,
         store_script=False,
+        simulate=False,
         end_string="END",
     ):
         self.log_file = log_file
@@ -59,6 +60,7 @@ class PYOSolver(object):
         self.solver_path = path
         self.executable_name = executable_name
         self.end_string = end_string
+        self.simulate = simulate
         self.process = subprocess.Popen(
             [os.path.join(self.solver_path, self.executable_name)],
             cwd=self.solver_path,
@@ -268,6 +270,8 @@ class PYOSolver(object):
             self.log_file.write(f"[>] {command_with_args}\n")
             self.log_file.flush()
 
+        if self.simulate:
+            return
         self.process.stdin.write(" ".join(commands) + "\n")
         end_string = f"{self.end_string}\n"
         lines = []

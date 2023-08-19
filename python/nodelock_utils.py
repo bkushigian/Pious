@@ -33,7 +33,7 @@ def lock_overfolds(
             locked_node_ids.append(node_id)
         if (i + 1) % 100 == 0:
             print(f"\r{i+1}/{num_node_ids}", end="")
-        print()
+    print()
 
     return node_ids
 
