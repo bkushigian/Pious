@@ -87,6 +87,9 @@ class PYOSolver(object):
             encoding="utf8",
         )
 
+    def is_ready(self):
+        return self._run("is_ready")
+
     def load_tree(self, cfr_file_path):
         self.cfr_file_path = cfr_file_path
         self._run("load_tree", cfr_file_path)
@@ -136,8 +139,17 @@ class PYOSolver(object):
     def show_hand_order(self):
         return self._run("show_hand_order").split(" ")
 
+    def set_accuracy(self, accuracy: float, accuracy_type: str = "chips"):
+        if accuracy_type != "fraction":
+            accuracy_type = "chips"
+
+        self._run("set_accuracy", str(accuracy), accuracy_type)
+
     def go(self):
         return self._run("go")
+
+    def stop(self):
+        return self._run("stop")
 
     def wait_for_solver(self):
         return self._run("wait_for_solver")
@@ -206,19 +218,28 @@ class PYOSolver(object):
     def build_tree(self):
         return self._run("build_tree")
 
-    def dump_tree(self, filename):
-        return self._run("dump_tree", filename)
+    def dump_tree(self, filename, save_type=None):
+        if save_type is None:
+            return self._run("dump_tree", filename)
+        return self._run("dump_tree", filename, save_type)
 
     def lock_node(self, node_id):
-        return self._run("lock_node", node_id)
+        response = self._run("lock_node", node_id)
+        print(f"lock_node response: {response}")
+        return response
 
     def set_strategy(self, node_id, *values):
         values = [str(v) for v in values]
-        return self._run("set_strategy", node_id, *values)
+        response = self._run("set_strategy", node_id, *values)
+        print(f"set_strategy response: {response}")
+        return response
 
     def show_strategy(self, node_id):
         strats = self._run("show_strategy", node_id).split("\n")
         return [[float(s) for s in strat.split()] for strat in strats]
+
+    def calc_global_freq(self, node_id: str) -> float:
+        return float(self._run("calc_global_freq", node_id))
 
     def _parse_data(self, data, *name_to_parser):
         parsed_data = {}
