@@ -66,6 +66,12 @@ def main():
     parser.add_argument("--unlock_parent_nodes", action="store_true")
     parser.add_argument("--lock_future_nodes", action="store_true")
     parser.add_argument(
+        "--output",
+        "-o",
+        default=None,
+        help="where to write to file (default is change 'X.cfr' to 'X_overfolded.cfr' to the end of the original filename)",
+    )
+    parser.add_argument(
         "--save_type", default="small", help="normal, small, or very_small"
     )
     # Filters
@@ -130,6 +136,11 @@ def main():
                 parent_nodes.add
 
         pass
+
+    output = args.output
+    if output is None:
+        output = args.path.strip(".cfr") + "_overfolded.cfr"
+    solver.dump_tree(filename=output, save_type=args.save_type)
 
 
 if __name__ == "__main__":

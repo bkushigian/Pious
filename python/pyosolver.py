@@ -223,8 +223,10 @@ class PYOSolver(object):
     def build_tree(self):
         return self._run("build_tree")
 
-    def dump_tree(self, filename, save_type=None):
-        if save_type is None:
+    def dump_tree(self, filename, save_type="small"):
+        if save_type not in ["full", "small", "very_small"]:
+            return self._run("dump_tree", filename, "small")
+        if save_type is "full":
             return self._run("dump_tree", filename)
         return self._run("dump_tree", filename, save_type)
 
