@@ -1,4 +1,4 @@
-from pio_utils import Line
+from pio_utils import Line, filter_lines
 from pyosolver import PYOSolver, Node
 from typing import List
 from os import path as osp
@@ -11,81 +11,53 @@ def get_strategy_at_node(solver, node):
     return children, strat
 
 
-def is_flop(line: Line) -> bool:
-    return line.is_flop()
-
-
-def is_river(line: Line) -> bool:
-    return line.is_river()
-
-
-def is_facing_bet(line: Line) -> bool:
-    return line.is_facing_bet()
-
-
-def is_oop(line: Line) -> bool:
-    return line.is_oop()
-
-
-def filter_lines(lines: List[Line], filters=None):
-    if filters is None:
-        filters = [is_flop, is_facing_bet, is_oop]
-
-    def filter(line):
-        return all((f(line) for f in filters))
-
-    filtered = []
-    for line in lines:
-        for f in filters:
-            if not f(line):
-                print(f"Line {line} failed filter {f}")
-
-    return [line for line in lines if filter(line)]
-
-
 def lock_overfolds(
     solver: PYOSolver,
-    lines: List[Line],
-    amount=0.01,
-    filters=None,
-    max_ev_threshold=0.01,
-):
-    board = solver.show_node("r:0").board
+    node_ids: List[str],
+    amount=0.05,
+    max_ev_threshold=0.05,
+) -> List[str]:
     solver.set_accuracy(10.0)
-    print("Board:", board)
-    lines = filter_lines(lines, filters=filters)
-    print("filtered lines: ", lines)
-    print("Rebuilding forgotten streets...")
-    print(solver.rebuild_forgotten_streets())
-    print("Rebuilding forgotten streets... done")
-    for line in lines:
-        node_ids = line.get_node_ids(dead_cards=board)
-        for node_id in node_ids:
-            lock_overfold(
-                solver, node_id, amount=amount, max_ev_threshold=max_ev_threshold
-            )
 
-    print("Solving...")
-    solver.debug = True
-    solver.go()
-    t = time.time()
-    time.sleep(30)
-    solver.stop()
-    time.sleep(30)
+    locked_node_ids = []
 
-    filename = osp.abspath("overfolded.cfr")
-    print(f"Saving {filename}...")
-    solver.dump_tree(filename)
-    return filters
+    num_node_ids = len(node_ids)
+    for i, node_id in enumerate(node_ids):
+        if lock_overfold_at_node_id(
+            solver,
+            node_id,
+            amount=amount,
+            max_ev_threshold=max_ev_threshold,
+            min_global_freq=0.000001,
+        ):
+            locked_node_ids.append(node_id)
+        if (i + 1) % 100 == 0:
+            print(f"\r{i+1}/{num_node_ids}", end="")
+        print()
+
+    return node_ids
 
 
-def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01, max_ev_threshold=0.01):
-    global_freq = solver.calc_global_freq(node_id)
-    if global_freq < 0.001:
-        # print(f"Skipping Node with low global frequency {global_freq}")
-        return
+def lock_overfold_at_node_id(
+    solver: PYOSolver,
+    node_id: str,
+    amount=0.01,
+    max_ev_threshold=0.01,
+    min_global_freq=0.001,
+) -> bool:
+    """
+    Lock a given node to overfold by specified amount. Return `True` if the lock
+    succeeds (i.e., the node occurs enough) and `False` otherwise.
+    """
     node: Node = solver.show_node(node_id)
+    if node is None:
+        return False
+    global_freq = solver.calc_global_freq(node_id)
+    if global_freq < min_global_freq:
+        return False
     pos = node.get_position()
+    if pos is None:
+        return False
     pot = node.pot[2]
 
     put_into_pot_by_player = node.pot[0] if pos == "OOP" else node.pot[1]
@@ -99,6 +71,8 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01, max_ev_threshold
 
     strategy = solver.show_strategy(node_id)
     children_actions = solver.show_children_actions(node_id)
+    if "f" not in children_actions:
+        return False
     fold_idx = children_actions.index("f")
     fold_freqs = strategy[fold_idx]
 
@@ -115,29 +89,28 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01, max_ev_threshold
     )
 
     folded_combos = sum(a * b for (a, b) in zip(player_range, fold_freqs))
-    print("=========================")
-    print(node_id)
-    print("Global freq:", global_freq)
-    print(f"Pot: {node.pot}")
-    print(f"Max EV to fold: {max_ev_to_fold}")
+    # print("=========================")
+    # print(node_id)
+    # print("Global freq:", global_freq)
+    # print(f"Pot: {node.pot}")
+    # print(f"Max EV to fold: {max_ev_to_fold}")
     fold_freq = folded_combos / combos_in_range
 
     target_fold_freq = fold_freq + amount
 
     if target_fold_freq > 1:
-        print("WARNING: target_fold_freq > 1")
+        # print("WARNING: target_fold_freq > 1")
         target_fold_freq = 1
     target_num_combos = target_fold_freq * combos_in_range
     num_new_combos_to_fold = target_num_combos - folded_combos
-    num_new_combos_to_fold_bkp = num_new_combos_to_fold
 
-    print("Range has", combos_in_range, "combos")
-    print(
-        f"Fold {folded_combos:.1f} / {combos_in_range:.1f} ({100 * fold_freq:.2f}%) combos"
-    )
-    print(
-        f"Target fold {target_num_combos:.1f} / {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
-    )
+    # print("Range has", combos_in_range, "combos")
+    # print(
+    #     f"Fold {folded_combos:.1f} / {combos_in_range:.1f} ({100 * fold_freq:.2f}%) combos"
+    # )
+    # print(
+    #     f"Target fold {target_num_combos:.1f} / {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
+    # )
     hand_order = solver.show_hand_order()
 
     # Now we need to iterate through the combos with lowest ev and add their
@@ -191,3 +164,5 @@ def lock_overfold(solver: PYOSolver, node_id: str, amount=0.01, max_ev_threshold
         flat_strat.extend(row)
     solver.set_strategy(node_id, flat_strat)
     solver.lock_node(node_id)
+
+    return True

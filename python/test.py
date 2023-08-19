@@ -6,7 +6,7 @@ import time
 
 from os import path as osp
 
-path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "7s5s3h_small.cfr")
+path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "Ks7h2c.cfr")
 
 parser = ArgumentParser()
 parser.add_argument("--path", "-p", type=str, default=path)
@@ -23,7 +23,8 @@ solver = pio_utils.make_solver(
 )
 solver.load_tree(f'"{args.path}"')
 t_load_tree = time.time()
-print(f"Loaded tree in {t_load_tree - t0:.2f} seconds")
+print(f"Loaded tree from {args.path} in {t_load_tree - t0:.2f} seconds")
+print(f"Board: {solver.show_node('r:0').board}")
 
 
 root_node_info = solver.show_node("r:0")
@@ -81,13 +82,6 @@ print(f"River: {len(river_lines)}")
 print(f"Total: {len(flop_lines) + len(turn_lines) + len(river_lines)}")
 print(f"Expected: {len(all_lines)}")
 print()
-
-print("Locking overfolds...")
-nodelock_utils.lock_overfolds(solver, flop_lines, amount=0.05)
-
-import sys
-
-sys.exit(0)
 
 print("Expanding all lines to nodes...")
 t_0 = time.time()

@@ -197,6 +197,8 @@ class Line:
     >>> dead_cards = [card for card in CARDS if card not in available_cards]
     >>> line.get_node_ids(dead_cards=dead_cards)
     ['r:0:c:b30:c:As:c', 'r:0:c:b30:c:Ks:c', 'r:0:c:b30:c:Qs:c']
+    >>> Line("r:0:c:c").get_node_ids(dead_cards=dead_cards)[0]
+    'r:0:c:c:As'
 
     """
 
@@ -285,7 +287,7 @@ class Line:
         available_cards = [c for c in CARDS if c not in dead_cards]
         root = streets[0]
         templated = ":{}:".join(streets[1:])
-        templated_line = f"{root}:{templated}"
+        templated_line = f"{root}:{templated}".strip(":")
         num_cards = len(streets) - 2
 
         nodes = []
@@ -431,27 +433,55 @@ def make_solver(
     )
 
 
+def is_flop(line: Line) -> bool:
+    return line.is_flop()
+
+
+def is_turn(line: Line) -> bool:
+    return line.is_turn()
+
+
+def is_river(line: Line) -> bool:
+    return line.is_river()
+
+
+def is_facing_bet(line: Line) -> bool:
+    return line.is_facing_bet()
+
+
+def is_ip(line: Line) -> bool:
+    return line.is_ip()
+
+
+def is_oop(line: Line) -> bool:
+    return line.is_oop()
+
+
+def is_facing_bet(line: Line) -> bool:
+    return line.is_facing_bet()
+
+
+def filter_lines(lines: List[Line], filters=None):
+    if filters is None:
+        return lines
+
+    def filt(line):
+        return all((f(line) for f in filters))
+
+    return [line for line in lines if filt(line)]
+
+
 def get_all_n_street_lines(lines: List[Line], n: int) -> List[Line]:
     return [line for line in lines if line.n_streets() == n]
 
 
 def get_flop_lines(lines: List[Line]) -> List[Line]:
-    return [
-        line for line in lines if line.n_streets() == FLOP - line._starting_street + 1
-    ]
+    return [line for line in lines if line.is_flop()]
 
 
 def get_turn_lines(lines: List[Line]) -> List[Line]:
-    return [
-        line for line in lines if line.n_streets() == TURN - line._starting_street + 1
-    ]
+    return [line for line in lines if line.is_turn()]
 
 
 def get_river_lines(lines: List[Line]) -> List[Line]:
-    return [
-        line for line in lines if line.n_streets() == RIVER - line._starting_street + 1
-    ]
-
-
-def lock_overfold(lines: List[Line], overfold_freq=0.01, position="OOP"):
-    raise NotImplementedError("Not implemented yet")
+    return [line for line in lines if line.is_river()]

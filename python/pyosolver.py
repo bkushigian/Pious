@@ -145,8 +145,13 @@ class PYOSolver(object):
 
         self._run("set_accuracy", str(accuracy), accuracy_type)
 
-    def go(self):
-        return self._run("go")
+    def go(self, steps=None, units="seconds"):
+        command = ["go"]
+        if steps is not None:
+            command += [str(steps), units]
+        response = self._run(*command)
+        output = self._get_solver_output(trigger_word="SOLVER: stopped (")
+        return response + "\n" + output
 
     def stop(self):
         return self._run("stop")
@@ -225,13 +230,11 @@ class PYOSolver(object):
 
     def lock_node(self, node_id):
         response = self._run("lock_node", node_id)
-        print(f"lock_node response: {response}")
         return response
 
     def set_strategy(self, node_id, *values):
         values = [str(v) for v in values]
         response = self._run("set_strategy", node_id, *values)
-        print(f"set_strategy response: {response}")
         return response
 
     def show_strategy(self, node_id):
@@ -250,64 +253,75 @@ class PYOSolver(object):
         return parsed_data
 
     def _run(self, *commands):
-        command = " ".join(commands)
+        if len(commands) == 0:
+            return None
+        command = commands[0]
+        command_with_args = " ".join(commands)
         if self.store_script:
-            self.commands.append(command)
+            self.commands.append(command_with_args)
 
         if self.debug:
-            print(command)
+            print(command_with_args)
         if self.log_file:
-            self.log_file.write(f"[>] {command}\n")
+            self.log_file.write(f"[>] {command_with_args}\n")
             self.log_file.flush()
 
         self.process.stdin.write(" ".join(commands) + "\n")
-        no_output_commands = [
-            "is_ready",
-            "set_end_string",
-            "load_tree",
-            "dump_tree",
-            "go",
-            "stop",
-            "wait_for_solver",
-            "take_a_break",
-            "set_threads",
-            "set_info_freq",
-            "set_accuracy",
-            "set_recalc_accuracy",
-            "set_always_recalc",
-            "set_isomorphism",
-            "set_first_iteration_player",
-            "add_preflop_line",
-            "remove_preflop_line",
-            "clear_preflop_lines",
-            "build_preflop_tree",
-            "add_to_subset",
-            "reset_subset",
-            "recover_subset",
-            "add_schematic_tree",
-            "add_all_flops",
-            "set_algorithm",
-            "small_strats",
-            "add_info_line",
-            "reset_tree_info",
-            "solve_partial",
-            "solve_all_splits",
-            "eliminate_path",
-            "lock_node",
-            "unlock_node",
-            "combo_lock_node",
-            "set_equal_strats",
-            "set_mes",
-            "free_tree",
-        ]
-        trigger_word = f"{self.end_string}\n"
+        end_string = f"{self.end_string}\n"
         lines = []
 
-        while True:
-            lines.append(self.process.stdout.readline())
-            if trigger_word in lines[-1]:
-                break
+        trigger_word = None
+        if command in NO_OUTPUT_COMMANDS:
+            # We need to use a trigger word to tell if we are done
+            trigger_word = f"{command} ok!\n"
 
+        if trigger_word:
+            found_tw = False
+            while True:
+                lines.append(self.process.stdout.readline())
+                if trigger_word in lines[-1]:
+                    found_tw = True
+                if found_tw and end_string in lines[-1]:
+                    break
+
+        else:
+            while True:
+                lines.append(self.process.stdout.readline())
+                if end_string in lines[-1]:
+                    break
+
+        output = "".join(lines)
+
+        if self.debug:
+            print(output)
+        if self.log_file:
+            self.log_file.write(f"[<] {output}\n")
+            self.log_file.flush()
+
+        return output.replace("END\n", "").strip()
+
+    def _get_solver_output(self, trigger_word):
+        end_string = f"{self.end_string}\n"
+        lines = []
+        if trigger_word:
+            found_tw = False
+            while True:
+                line = self.process.stdout.readline()
+                if self.debug:
+                    print(f"Found line: {line}")
+                lines.append(line)
+                if trigger_word in lines[-1]:
+                    print("Found Trigger word")
+                    break
+
+        else:
+            while True:
+                line = self.process.stdout.readline()
+                if self.debug:
+                    print(f"Found line: {line}")
+                lines.append(line)
+                if end_string in lines[-1]:
+                    break
         output = "".join(lines)
 
         if self.debug:
@@ -413,3 +427,44 @@ def is_member(hand, hand_class):
     else:
         assert hand_class[2] == "o"
         return ranks_match and hand[1] != hand[3]
+
+
+NO_OUTPUT_COMMANDS = [
+    "is_ready",
+    "set_end_string",
+    "load_tree",
+    "dump_tree",
+    "go",
+    "stop",
+    "wait_for_solver",
+    "take_a_break",
+    "set_threads",
+    "set_info_freq",
+    "set_accuracy",
+    "set_recalc_accuracy",
+    "set_always_recalc",
+    "set_isomorphism",
+    "set_first_iteration_player",
+    "add_preflop_line",
+    "remove_preflop_line",
+    "clear_preflop_lines",
+    "build_preflop_tree",
+    "add_to_subset",
+    "reset_subset",
+    "recover_subset",
+    "add_schematic_tree",
+    "add_all_flops",
+    "set_algorithm",
+    "small_strats",
+    "add_info_line",
+    "reset_tree_info",
+    "solve_partial",
+    "solve_all_splits",
+    "eliminate_path",
+    "lock_node",
+    "unlock_node",
+    "combo_lock_node",
+    "set_equal_strats",
+    "set_mes",
+    "free_tree",
+]
