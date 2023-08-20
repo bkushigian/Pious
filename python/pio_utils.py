@@ -2,7 +2,7 @@
 A collection of PioSOLVER utility functions
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Self, Tuple
 from pyosolver import PYOSolver
 from itertools import permutations
 
@@ -400,6 +400,67 @@ class Line:
         """
         return self.actions[-1].startswith("b")
 
+    def is_root(self):
+        """
+        Return True if this is the root line
+
+        >>> Line("r:0").is_root()
+        True
+        >>> Line("r:0:c").is_root()
+        False
+        >>> Line("r:0:c:b30").is_root()
+        False
+        >>> Line("r:0:c:b30:c").is_root()
+        False
+        >>> Line("r:0:c:b30:c:c").is_root()
+        False
+        """
+        return self.line_str == "r:0"
+
+    def get_parent(self) -> Optional[Self]:
+        """
+        Return the parent line
+
+        >>> Line("r:0").get_parent() is None
+        True
+        >>> Line("r:0:c").get_parent()
+        Line(r:0)
+        >>> Line("r:0:c:b30").get_parent()
+        Line(r:0:c)
+        >>> Line("r:0:c:b30:c").get_parent()
+        Line(r:0:c:b30)
+        >>> Line("r:0:c:b30:c:c").get_parent()
+        Line(r:0:c:b30:c)
+        """
+        if self.is_root():
+            return None
+        return Line(self.line_str.rsplit(":", 1)[0])
+
+    def get_current_player_previous_action(self) -> Optional[Self]:
+        """
+        Return the previous action of the current player, or None if this
+        is the current player's first action
+
+        >>> Line("r:0").get_current_player_previous_action() is None
+        True
+        >>> Line("r:0:c").get_current_player_previous_action() is None
+        True
+        >>> Line("r:0:c:b30").get_current_player_previous_action()
+        Line(r:0)
+        >>> Line("r:0:c:b30:c").get_current_player_previous_action()
+        Line(r:0:c:b30)
+        >>> Line("r:0:c:b30:c:c").get_current_player_previous_action()
+        Line(r:0:c)
+        >>> Line("r:0:c:b30:c:c:b100:b250:c:b500").get_current_player_previous_action()
+        Line(r:0:c:b30:c:c:b100:b250)
+        """
+        is_oop = self.is_oop()
+        p = self.get_parent()
+        while p is not None and p.is_oop() != is_oop:
+            p = p.get_parent()
+
+        return p
+
     def __str__(self):
         return self.line_str
 
@@ -485,3 +546,38 @@ def get_turn_lines(lines: List[Line]) -> List[Line]:
 
 def get_river_lines(lines: List[Line]) -> List[Line]:
     return [line for line in lines if line.is_river()]
+
+
+def node_id_to_line(node_id: str) -> Line:
+    """
+    Change a node_id to a Line
+
+    >>> node_id_to_line("r:0:c:b30:c:Ac").line_str
+    'r:0:c:b30:c'
+    >>> node_id_to_line("r:0:c:b30:c:Ac:c").line_str
+    'r:0:c:b30:c:c'
+    >>> node_id_to_line("r:0:c:b30:c:Ac:c:b30:c:Ad").line_str
+    'r:0:c:b30:c:c:b30:c'
+    """
+    return Line(":".join([a for a in node_id.split(":") if a not in CARDS]))
+
+
+def bets_per_street(line: Line) -> List[int]:
+    """
+    Return a list of the number of bets per street in the line
+
+    >>> bets_per_street(Line("r:0:c:b30:c:c:b30:c"))
+    [1, 1, 0]
+    """
+    return [street.count("b") for street in line.streets_as_lines]
+
+
+def num_bets(line: Line) -> int:
+    """
+    Return the number of bets in the line
+
+    >>> num_bets(Line("r:0:c:b30:c:c:b30:c"))
+    2
+    """
+
+    return line.line_str.count("b")

@@ -2,7 +2,6 @@ from pio_utils import Line, filter_lines
 from pyosolver import PYOSolver, Node
 from typing import List
 from os import path as osp
-import time
 
 
 def get_strategy_at_node(solver, node):
@@ -14,7 +13,7 @@ def get_strategy_at_node(solver, node):
 def lock_overfolds(
     solver: PYOSolver,
     node_ids: List[str],
-    amount=0.05,
+    overfold_amount=0.05,
     max_ev_threshold=0.05,
 ) -> List[str]:
     solver.set_accuracy(10.0)
@@ -26,14 +25,14 @@ def lock_overfolds(
         if lock_overfold_at_node_id(
             solver,
             node_id,
-            amount=amount,
+            amount=overfold_amount,
             max_ev_threshold=max_ev_threshold,
             min_global_freq=0.000001,
         ):
             locked_node_ids.append(node_id)
         if (i + 1) % 100 == 0:
-            print(f"\r{i+1}/{num_node_ids}", end="")
-    print()
+            print(f"\r{i+1}/{num_node_ids} ({100.0 * (i+1)/num_node_ids:.1f}%)", end="")
+    print(f"\r{num_node_ids}/{num_node_ids} (100.0%)")
 
     return node_ids
 
@@ -66,8 +65,7 @@ def lock_overfold_at_node_id(
     player_range = solver.show_range(pos, node_id)
     combos_in_range = sum(player_range)
     if combos_in_range <= 0.05:
-        print("Skipping Node with low combos in range")
-        return
+        return False
 
     strategy = solver.show_strategy(node_id)
     children_actions = solver.show_children_actions(node_id)

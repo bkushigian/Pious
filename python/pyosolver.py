@@ -225,9 +225,16 @@ class PYOSolver(object):
     def build_tree(self):
         return self._run("build_tree")
 
-    def dump_tree(self, filename, save_type="small"):
-        if save_type not in ["full", "small", "very_small"]:
-            return self._run("dump_tree", filename, "small")
+    def dump_tree(self, filename, save_type="no_rivers"):
+        save_type = save_type.lower().replace("-", "_")
+        if save_type in ("small", "no_rivers", None):
+            save_type = "no_rivers"
+        elif save_type in ("very_small", "no_turns"):
+            save_type = "no_turns"
+        elif save_type in ("normal", "full"):
+            save_type = "full"
+        if save_type not in ["no_turns", "no_rivers", "full"]:
+            return self._run("dump_tree", filename, "no_rivers")
         if save_type is "full":
             return self._run("dump_tree", filename)
         return self._run("dump_tree", filename, save_type)
@@ -314,7 +321,7 @@ class PYOSolver(object):
             while True:
                 line = self.process.stdout.readline()
                 if self.debug:
-                    print(f"Found line: {line}")
+                    print(f"Found line: {line}", end="")
                 lines.append(line)
                 if trigger_word in lines[-1]:
                     print("Found Trigger word")
@@ -324,7 +331,7 @@ class PYOSolver(object):
             while True:
                 line = self.process.stdout.readline()
                 if self.debug:
-                    print(f"Found line: {line}")
+                    print(f"Found line: {line}", end="")
                 lines.append(line)
                 if end_string in lines[-1]:
                     break
