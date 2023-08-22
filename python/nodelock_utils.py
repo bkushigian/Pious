@@ -3,6 +3,8 @@ from pyosolver import PYOSolver, Node
 from typing import List
 from os import path as osp
 
+from script_builder import ScriptBuilder
+
 
 def get_strategy_at_node(solver, node):
     children = solver.show_children(node)
@@ -15,6 +17,7 @@ def lock_overfolds(
     node_ids: List[str],
     overfold_amount=0.05,
     max_ev_threshold=0.05,
+    script_builder: ScriptBuilder = None,
 ) -> List[str]:
     solver.set_accuracy(10.0)
 
@@ -28,6 +31,7 @@ def lock_overfolds(
             amount=overfold_amount,
             max_ev_threshold=max_ev_threshold,
             min_global_freq=0.000001,
+            script_builder=script_builder,
         ):
             locked_node_ids.append(node_id)
         if (i + 1) % 100 == 0:
@@ -43,6 +47,7 @@ def lock_overfold_at_node_id(
     amount=0.01,
     max_ev_threshold=0.01,
     min_global_freq=0.001,
+    script_builder: ScriptBuilder = None,
 ) -> bool:
     """
     Lock a given node to overfold by specified amount. Return `True` if the lock
@@ -60,7 +65,7 @@ def lock_overfold_at_node_id(
     pot = node.pot[2]
 
     put_into_pot_by_player = node.pot[0] if pos == "OOP" else node.pot[1]
-    max_ev_to_fold = max_ev_threshold * pot
+    # max_ev_to_fold = max_ev_threshold * pot
 
     player_range = solver.show_range(pos, node_id)
     combos_in_range = sum(player_range)
@@ -109,7 +114,7 @@ def lock_overfold_at_node_id(
     # print(
     #     f"Target fold {target_num_combos:.1f} / {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
     # )
-    hand_order = solver.show_hand_order()
+    # hand_order = solver.show_hand_order()
 
     # Now we need to iterate through the combos with lowest ev and add their
     # indices to the following list
@@ -160,7 +165,13 @@ def lock_overfold_at_node_id(
     flat_strat = []
     for row in strategy:
         flat_strat.extend(row)
-    solver.set_strategy(node_id, flat_strat)
-    solver.lock_node(node_id)
+
+    if script_builder is not None:
+        script_builder.set_strategy(node_id, *flat_strat)
+        # script_builder.set_strategy(node_id, *flat_strat)
+        script_builder.lock_node(node_id)
+    else:
+        solver.set_strategy(node_id, flat_strat)
+        solver.lock_node(node_id)
 
     return True

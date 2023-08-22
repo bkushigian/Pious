@@ -235,13 +235,16 @@ class PYOSolver(object):
             save_type = "full"
         if save_type not in ["no_turns", "no_rivers", "full"]:
             return self._run("dump_tree", filename, "no_rivers")
-        if save_type is "full":
+        if save_type == "full":
             return self._run("dump_tree", filename)
         return self._run("dump_tree", filename, save_type)
 
     def lock_node(self, node_id):
         response = self._run("lock_node", node_id)
         return response
+
+    def load_script_silent(self, script_filepath):
+        return self._run("load_script_silent", script_filepath)
 
     def set_strategy(self, node_id, *values):
         values = [str(v) for v in values]

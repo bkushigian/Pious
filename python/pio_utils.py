@@ -2,7 +2,7 @@
 A collection of PioSOLVER utility functions
 """
 
-from typing import Dict, List, Optional, Self, Tuple
+from typing import Dict, List, Optional, Tuple
 from pyosolver import PYOSolver
 from itertools import permutations
 
@@ -417,7 +417,7 @@ class Line:
         """
         return self.line_str == "r:0"
 
-    def get_parent(self) -> Optional[Self]:
+    def get_parent(self) -> Optional["Line"]:
         """
         Return the parent line
 
@@ -436,7 +436,7 @@ class Line:
             return None
         return Line(self.line_str.rsplit(":", 1)[0])
 
-    def get_current_player_previous_action(self) -> Optional[Self]:
+    def get_current_player_previous_action(self) -> Optional["Line"]:
         """
         Return the previous action of the current player, or None if this
         is the current player's first action

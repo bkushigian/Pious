@@ -3,6 +3,7 @@ from pio_utils import Line, node_id_to_line
 import pio_utils
 import nodelock_utils
 import pyosolver
+from script_builder import ScriptBuilder
 from argparse import ArgumentParser, Namespace
 import time
 import sys
@@ -21,6 +22,7 @@ def parse_args() -> Namespace:
     parser.add_argument("--unlock_parent_nodes", action="store_true")
     parser.add_argument("--lock_future_nodes", action="store_true")
     parser.add_argument("--overfold_amount", "-A", type=float, default=0.05)
+    parser.add_argument("--disable_script_optimization", action="store_true")
     parser.add_argument(
         "--output",
         "-o",
@@ -161,13 +163,20 @@ def main():
     solver.rebuild_forgotten_streets()
     print("DONE")
 
+    if args.disable_script_optimization:
+        script_builder = None
+    else:
+        script_builder = ScriptBuilder()
     print("Locking overfolds...")
-    t = time.time()
+    t0 = time.time()
     locked_node_ids = nodelock_utils.lock_overfolds(
-        solver, node_ids, overfold_amount=args.overfold_amount
+        solver,
+        node_ids,
+        overfold_amount=args.overfold_amount,
+        script_builder=script_builder,
     )
-    t = time.time() - t
-    print(f"Finished in {t:1f} seconds")
+    t1 = time.time()
+    print(f"Finished in {t1-t0:1f} seconds")
 
     if not args.unlock_parent_nodes:
         # Now, add all parent nodes to be locked to ensure that the solver
@@ -186,7 +195,11 @@ def main():
         # then we could traverse the trie backwards
 
         # We use a set to deduplicate
-        t = time.time()
+
+        locker = solver
+        if script_builder is not None:
+            locker = script_builder
+
         lines_of_locked_nodes: Set[Line] = set()
         for node_id in locked_node_ids:
             lines_of_locked_nodes.add(node_id_to_line(node_id))
@@ -205,38 +218,27 @@ def main():
 
         num_node_ids = len(parent_node_ids)
 
-        print(f"Double checking {len(parent_node_ids):,} parent nodes")
-        errors = 0
-        for i, parent_id in enumerate(parent_node_ids):
-            found_locked = False
-            for locked_id in locked_node_ids:
-                if locked_id.startswith(parent_id):
-                    found_locked = True
-                    break
-            if not found_locked:
-                print(f"Error: parent node {parent_id} not locked")
-                error += 1
-            if (i + 1) % 100 == 0:
-                print(
-                    f"\r{i+1}/{num_node_ids} ({100.0 * (i+1)/num_node_ids:.1f}%)",
-                    end="",
-                )
-        print(f"\r{num_node_ids}/{num_node_ids} (100.0%)")
-
-        if errors > 0:
-            print(f"Found {errors} errors")
-            sys.exit(1)
-
+        t0 = time.time()
         print(f"Locking {len(parent_node_ids):,} parent nodes")
         for i, node_id in enumerate(parent_node_ids):
             if node_id not in locked_node_ids:
-                solver.lock_node(node_id)
+                locker.lock_node(node_id)
             if (i + 1) % 100 == 0:
                 print(
                     f"\r{i+1}/{num_node_ids} ({100.0 * (i+1)/num_node_ids:.1f}%)",
                     end="",
                 )
         print(f"\r{num_node_ids}/{num_node_ids} (100.0%)")
+
+        if script_builder is not None:
+            print("Writing and running locking scripts...")
+            script_builder.write_script(osp.abspath("locking_script.txt"))
+            t2 = time.time()
+            solver.load_script_silent(osp.abspath("locking_script.txt"))
+            t3 = time.time()
+            print(f"Ran script in {t3-t2:.1f} seconds")
+        t1 = time.time()
+        print(f"Finished locking parent nodes in {t1-t0:.1f} seconds")
     # Now, solve!
     print("Solving...")
     print(
