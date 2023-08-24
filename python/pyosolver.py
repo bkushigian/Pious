@@ -147,12 +147,12 @@ class PYOSolver(object):
 
         self._run("set_accuracy", str(accuracy), accuracy_type)
 
-    def go(self, steps=None, units="seconds"):
+    def go(self, steps=None, units="seconds", quiet=False):
         command = ["go"]
         if steps is not None:
             command += [str(steps), units]
         response = self._run(*command)
-        output = self._get_solver_output(trigger_word="SOLVER: stopped (")
+        output = self._get_solver_output(trigger_word="SOLVER: stopped (", quiet=quiet)
         return response + "\n" + output
 
     def stop(self):
@@ -163,6 +163,10 @@ class PYOSolver(object):
 
     def rebuild_forgotten_streets(self):
         return self._run("rebuild_forgotten_streets")
+
+    def estimate_rebuild_forgotten_streets(self):
+        response = self._run("estimate_rebuild_forgotten_streets")
+        return response
 
     def show_tree_info(self):
         data = {}
@@ -316,11 +320,10 @@ class PYOSolver(object):
 
         return output.replace("END\n", "").strip()
 
-    def _get_solver_output(self, trigger_word):
+    def _get_solver_output(self, trigger_word, quiet=False):
         end_string = f"{self.end_string}\n"
         lines = []
         if trigger_word:
-            found_tw = False
             while True:
                 line = self.process.stdout.readline()
                 if self.debug:
@@ -342,6 +345,9 @@ class PYOSolver(object):
 
         if self.debug:
             print(output)
+        elif not quiet:
+            print(output)
+
         if self.log_file:
             self.log_file.write(f"[<] {output}\n")
             self.log_file.flush()

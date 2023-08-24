@@ -136,7 +136,8 @@ def main():
     solver = pio_utils.make_solver(
         debug=args.debug, log_file=args.log_file, store_script=args.store_script
     )
-    solver.load_tree(f'"{args.path}"')
+    path = osp.abspath(args.path)
+    solver.load_tree(f'"{path}"')
 
     root_node_info = solver.show_node("r:0")
     board = root_node_info.board

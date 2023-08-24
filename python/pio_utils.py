@@ -2,7 +2,7 @@
 A collection of PioSOLVER utility functions
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Callable
 from pyosolver import PYOSolver
 from itertools import permutations
 
@@ -21,22 +21,22 @@ def get_all_lines(solver: PYOSolver) -> List[str]:
     """
     lines = solver.show_all_lines
     effective_stacks = solver.show_effective_stacks()
-    return [Line(line, effective_stacks=effective_stacks) for line in lines]
+    return [Line(line, effective_stack=effective_stacks) for line in lines]
 
 
-def money_in_per_street(streets_as_actions: List[List[str]]) -> List[int]:
+def money_in_per_street(streets_as_actions: List[List[str]]) -> Tuple[int]:
     money_per_street = [0, 0, 0, 0]
     for street, actions in enumerate(streets_as_actions):
         for action in reversed(actions):
             if action.startswith("b"):
                 money_per_street[street] = int(action[1:])
                 break
-    return money_per_street
+    return tuple(money_per_street)
 
 
 def actions_to_streets(
     actions: List[str], starting_street=FLOP, effective_stacks=None
-) -> Tuple[bool, List[List[str]]]:
+) -> Tuple[Tuple[int], bool, List[List[str]]]:
     """
     Given a line in the gametree, break the line into a list
     of lines, one per street.
@@ -71,14 +71,16 @@ def actions_to_streets(
             streets.append(current_street)
             current_street = []
 
+    # This is true only when there is incomplete action left to take
     if current_street:
         streets.append(current_street)
 
     else:
+        money_per_street = money_in_per_street(streets)
         all_in = (
             effective_stacks is not None
             and streets[-1][-1] == "c"
-            and effective_stacks == sum(money_in_per_street(streets))
+            and effective_stacks == sum(money_per_street)
         )
         if not all_in and (
             len(streets) + starting_street < 5 and streets[-1][-1] != "f"
@@ -179,6 +181,8 @@ class Line:
        ['r:0', 'c:b30:b100:b900:c', 'b100:c']
        >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stacks=2000).streets_as_lines
        ['r:0', 'c:b30:b100:b900:c', 'b100:c', '']
+       >>> Line("r:0:c:b30:c:c:b30:c").streets_as_lines
+       ['r:0', 'c:b30:c', 'c:b30:c', '']
 
     This class only checks the first two conditions. The third condition depends
     on data that isn't available here, so we cannot account for it.
@@ -202,11 +206,11 @@ class Line:
 
     """
 
-    def __init__(self, line: str, starting_street=FLOP, effective_stacks=None):
+    def __init__(self, line: str, starting_street=FLOP, effective_stack=None):
         self.line_str = line
         self._starting_street = starting_street
-        self._is_terminal = None
-        self._effective_stacks = effective_stacks
+        self._is_terminal = False
+        self._effective_stack = effective_stack
         self._money_in_per_street = [0, 0, 0, 0]
         self.actions: List[str] = []
         self.streets_as_actions: List[List[str]] = []
@@ -220,11 +224,12 @@ class Line:
         grouping the actions by streets.
         """
         self.actions = line.split(":")
-        self.is_terminal, self.streets_as_actions = actions_to_streets(
+        _, self.streets_as_actions = actions_to_streets(
             self.actions,
             starting_street=self._starting_street,
-            effective_stacks=self._effective_stacks,
+            effective_stacks=self._effective_stack,
         )
+
         self.streets_as_lines = [":".join(street) for street in self.streets_as_actions]
 
         # Update money in per street
@@ -234,6 +239,10 @@ class Line:
                 if action[0] == "b":
                     self._money_in_per_street[street] = int(action[1:])
                     break
+        self._is_terminal = line.endswith("f") or (
+            self._effective_stack
+            and sum(self._money_in_per_street) >= self._effective_stack
+        )
 
     def _check_is_well_formed(self) -> bool:
         """
@@ -461,6 +470,18 @@ class Line:
 
         return p
 
+    def __hash__(self):
+        return hash((self.line_str, self._starting_street, self._effective_stack))
+
+    def __eq__(self, other):
+        if not isinstance(other, Line):
+            return False
+        return (
+            self.line_str == other.line_str
+            and self._starting_street == other._starting_street
+            and self._effective_stack == other._effective_stack
+        )
+
     def __str__(self):
         return self.line_str
 
@@ -522,7 +543,17 @@ def is_facing_bet(line: Line) -> bool:
     return line.is_facing_bet()
 
 
-def filter_lines(lines: List[Line], filters=None):
+def is_terminal(line: Line) -> bool:
+    return line._is_terminal
+
+
+def is_nonterminal(line: Line) -> bool:
+    return not line._is_terminal
+
+
+def filter_lines(
+    lines: List[Line], filters: Optional[List[Callable[[Line], bool]]] = None
+):
     if filters is None:
         return lines
 
@@ -569,7 +600,7 @@ def bets_per_street(line: Line) -> List[int]:
     >>> bets_per_street(Line("r:0:c:b30:c:c:b30:c"))
     [1, 1, 0]
     """
-    return [street.count("b") for street in line.streets_as_lines]
+    return [street.count("b") for street in line.streets_as_lines[1:]]
 
 
 def num_bets(line: Line) -> int:
