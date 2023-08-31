@@ -20,4 +20,4 @@ jobs:
         pip install black
     - name: Format all the files with black
       run: |
-        black $(git ls-files '*.py')
+        black $(git ls-files '*.py') --preview
