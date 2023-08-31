@@ -95,7 +95,8 @@ def actions_to_streets(
             # to the number of streets. `streets` has an entry for root, so
             # the maximal length of streets is 4.
             #
-            # Consider if `streets = [['r', '0'], ['c', 'b120', 'c']]`. If this line starts on the
+            # Consider if `streets = [['r', '0'], ['c', 'b120', 'c']]`.
+            # If this line starts on the
             #
             # then we need to add a street (FLOP + 2 = 3 < 4)
             streets.append([])
@@ -537,10 +538,6 @@ def is_ip(line: Line) -> bool:
 
 def is_oop(line: Line) -> bool:
     return line.is_oop()
-
-
-def is_facing_bet(line: Line) -> bool:
-    return line.is_facing_bet()
 
 
 def is_terminal(line: Line) -> bool:

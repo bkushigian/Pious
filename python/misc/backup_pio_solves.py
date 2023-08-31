@@ -127,7 +127,8 @@ def backup_pio_solves(
                         num_overwritten += 1
                         if trial_run:
                             print(
-                                f"{OVERWRITE} {source_file} => {backup_file} (trial run)"
+                                f"{OVERWRITE} {source_file} => {backup_file} (trial"
+                                " run)"
                             )
                             pass
                         else:
@@ -176,14 +177,19 @@ def main():
     parser.add_argument(
         "--offset",
         default=None,
-        help="Common offset from the source and backup location to backup (this will ony backup files within this subdirectory)",
+        help=(
+            "Common offset from the source and backup location to backup (this will ony"
+            " backup files within this subdirectory)"
+        ),
     )
 
     parser.add_argument(
         "--skip",
         nargs="+",
         default=[],
-        help="Skip these subdirectories (listed as offsets from the `source` directory)",
+        help=(
+            "Skip these subdirectories (listed as offsets from the `source` directory)"
+        ),
     )
     parser.add_argument(
         "--extensions", nargs="+", default=[".cfr"], help="File extensions to backup"

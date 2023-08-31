@@ -26,7 +26,10 @@ class Node:
         self.flags = tuple(items[5].split(":")[1].strip().split(" "))
 
     def __repr__(self):
-        return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
+        return (
+            f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot},"
+            f" {self.num_children}, {self.flags})"
+        )
 
     def __str__(self):
         return self._raw_node_data

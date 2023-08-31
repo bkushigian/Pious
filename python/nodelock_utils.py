@@ -62,7 +62,7 @@ def lock_overfold_at_node_id(
     pos = node.get_position()
     if pos is None:
         return False
-    pot = node.pot[2]
+    # pot = node.pot[2]
 
     put_into_pot_by_player = node.pot[0] if pos == "OOP" else node.pot[1]
     # max_ev_to_fold = max_ev_threshold * pot
@@ -101,18 +101,18 @@ def lock_overfold_at_node_id(
 
     target_fold_freq = fold_freq + amount
 
-    if target_fold_freq > 1:
-        # print("WARNING: target_fold_freq > 1")
-        target_fold_freq = 1
+    target_fold_freq = min(target_fold_freq, 1)
     target_num_combos = target_fold_freq * combos_in_range
     num_new_combos_to_fold = target_num_combos - folded_combos
 
     # print("Range has", combos_in_range, "combos")
     # print(
-    #     f"Fold {folded_combos:.1f} / {combos_in_range:.1f} ({100 * fold_freq:.2f}%) combos"
+    #     f"Fold {folded_combos:.1f} / {combos_in_range:.1f} ({100 * fold_freq:.2f}%)"
+    #     " combos"
     # )
     # print(
-    #     f"Target fold {target_num_combos:.1f} / {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
+    #     f"Target fold {target_num_combos:.1f} /"
+    #     f" {combos_in_range:.1f} ({100 * target_fold_freq:.2f}%) combos"
     # )
     # hand_order = solver.show_hand_order()
 
@@ -134,17 +134,22 @@ def lock_overfold_at_node_id(
             combos_to_fold_at_idx = num_new_combos_to_fold
         num_new_combos_to_fold -= combos_to_fold_at_idx
         # print(
-        #     f"{hand_order[idx]}: ev: \033[32;1m{ev:.2f}\033[0m   pot: \033[32;1m{node.pot}\033[0m"
+        #     f"{hand_order[idx]}: ev: \033[32;1m{ev:.2f}\033[0m   pot:"
+        #     f" \033[32;1m{node.pot}\033[0m"
         # )
         # print(
-        #     f"    #combos: {num_combos_at_idx:3.3f}\t  fold_freq: {fold_freqs[idx]:3.3f}\t  folded: {folded_combos_at_idx:.3f}\t  unfolded: {num_combos_at_idx  - folded_combos_at_idx:3.3f}"
+        #     f"    #combos: {num_combos_at_idx:3.3f}\t  fold_freq:"
+        #     f" {fold_freqs[idx]:3.3f}\t  folded: {folded_combos_at_idx:.3f}\t "
+        #     f" unfolded: {num_combos_at_idx  - folded_combos_at_idx:3.3f}"
         # )
         # print(
-        #     f"    #fold:   {combos_to_fold_at_idx:3.3f}\t  reamining: {num_new_combos_to_fold:3.3f}\t  of: {num_new_combos_to_fold_bkp:3.3f}"
+        #     f"    #fold:   {combos_to_fold_at_idx:3.3f}\t  reamining:"
+        #     f" {num_new_combos_to_fold:3.3f}\t  of: {num_new_combos_to_fold_bkp:3.3f}"
         # )
         # if ev >= max_ev_to_fold:
         #     print(
-        #         f"Warning: Current hand {hand_order[idx]} has ev {ev} >= max ev to fold {max_ev_to_fold}"
+        #         f"Warning: Current hand {hand_order[idx]} has ev {ev} >= max ev to"
+        #         f" fold {max_ev_to_fold}"
         #     )
         #     break
         indices_and_amounts_of_combos_to_fold.append((idx, combos_to_fold_at_idx))

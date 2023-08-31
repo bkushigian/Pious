@@ -6,7 +6,7 @@ import time
 
 from os import path as osp
 
-path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "Ks7h2c.cfr")
+path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "3betpotFAST.cfr")
 
 parser = ArgumentParser()
 parser.add_argument("--path", "-p", type=str, default=path)
@@ -91,5 +91,6 @@ t_expand_all_nodes = time.time()
 total_nodes = sum([len(nodes) for nodes in nodes_per_line])
 
 print(
-    f"Expanded all lines to {total_nodes} nodes in {t_expand_all_nodes - t_0:.2f} seconds"
+    f"Expanded all lines to {total_nodes} nodes in"
+    f" {t_expand_all_nodes - t_0:.2f} seconds"
 )

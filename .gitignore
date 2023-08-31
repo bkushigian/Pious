@@ -2,4 +2,5 @@ python/__pycache__/
 run.log
 script.txt
 .vscode/
-/*.cfr
+*.cfr
+!3betpotFAST.cfr

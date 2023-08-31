@@ -27,7 +27,10 @@ def parse_args() -> Namespace:
         "--output",
         "-o",
         default=None,
-        help="where to write to file (default is change 'X.cfr' to 'X_overfolded.cfr' to the end of the original filename)",
+        help=(
+            "where to write to file (default is change 'X.cfr' to 'X_overfolded.cfr' to"
+            " the end of the original filename)"
+        ),
     )
     parser.add_argument(
         "--save_type", default="small", help="normal, small, or very_small"
@@ -164,10 +167,7 @@ def main():
     solver.rebuild_forgotten_streets()
     print("DONE")
 
-    if args.disable_script_optimization:
-        script_builder = None
-    else:
-        script_builder = ScriptBuilder()
+    script_builder = None if args.disable_script_optimization else ScriptBuilder()
     print("Locking overfolds...")
     t0 = time.time()
     locked_node_ids = nodelock_utils.lock_overfolds(
@@ -180,66 +180,7 @@ def main():
     print(f"Finished in {t1-t0:1f} seconds")
 
     if not args.unlock_parent_nodes:
-        # Now, add all parent nodes to be locked to ensure that the solver
-        # can't adjust its strategy on previous streets to avoid being
-        # exploited
-
-        # To do this we:
-        # 1. Get all the lines associated with the locked nodes
-        # 2. Get all the ancestor nodes of those lines that belong
-        #    to the locked player
-        # 3. Expand those to all nodes
-        # 4. Lock those nodes
-
-        # This is not quite correct, but it's good enough for now. The correct
-        # way to do this would be to use a trie and store all nodes in the trie.
-        # then we could traverse the trie backwards
-
-        # We use a set to deduplicate
-
-        locker = solver
-        if script_builder is not None:
-            locker = script_builder
-
-        lines_of_locked_nodes: Set[Line] = set()
-        for node_id in locked_node_ids:
-            lines_of_locked_nodes.add(node_id_to_line(node_id))
-
-        print("Gathering parent nodes...")
-        parent_lines = set()
-        for line in lines_of_locked_nodes:
-            p = line.get_current_player_previous_action()
-            while p is not None:
-                parent_lines.add(p)
-                p = p.get_current_player_previous_action()
-
-        parent_node_ids = []
-        for line in parent_lines:
-            parent_node_ids += line.get_node_ids(dead_cards=board)
-
-        num_node_ids = len(parent_node_ids)
-
-        t0 = time.time()
-        print(f"Locking {len(parent_node_ids):,} parent nodes")
-        for i, node_id in enumerate(parent_node_ids):
-            if node_id not in locked_node_ids:
-                locker.lock_node(node_id)
-            if (i + 1) % 100 == 0:
-                print(
-                    f"\r{i+1}/{num_node_ids} ({100.0 * (i+1)/num_node_ids:.1f}%)",
-                    end="",
-                )
-        print(f"\r{num_node_ids}/{num_node_ids} (100.0%)")
-
-        if script_builder is not None:
-            print("Writing and running locking scripts...")
-            script_builder.write_script(osp.abspath("locking_script.txt"))
-            t2 = time.time()
-            solver.load_script_silent(osp.abspath("locking_script.txt"))
-            t3 = time.time()
-            print(f"Ran script in {t3-t2:.1f} seconds")
-        t1 = time.time()
-        print(f"Finished locking parent nodes in {t1-t0:.1f} seconds")
+        lock_parent_nodes(solver, script_builder, locked_node_ids, board)
     # Now, solve!
     print("Solving...")
     print(
@@ -253,6 +194,73 @@ def main():
     output = osp.abspath(output)
     print("Saving tree to", output)
     solver.dump_tree(filename=output, save_type=args.save_type)
+
+
+
+def lock_parent_nodes(solver, script_builder, locked_node_ids, board):
+    # Now, add all parent nodes to be locked to ensure that the solver
+    # can't adjust its strategy on previous streets to avoid being
+    # exploited
+
+    # To do this we:
+    # 1. Get all the lines associated with the locked nodes
+    # 2. Get all the ancestor nodes of those lines that belong
+    #    to the locked player
+    # 3. Expand those to all nodes
+    # 4. Lock those nodes
+
+    # This is not quite correct, but it's good enough for now. The correct
+    # way to do this would be to use a trie and store all nodes in the trie.
+    # then we could traverse the trie backwards
+
+    # We use a set to deduplicate
+
+    locker = solver
+    if script_builder is not None:
+        locker = script_builder
+
+    lines_of_locked_nodes: Set[Line] = {
+        node_id_to_line(node_id) for node_id in locked_node_ids
+    }
+    print("Gathering parent nodes...")
+    parent_lines = set()
+    for line in lines_of_locked_nodes:
+        p = line.get_current_player_previous_action()
+        while p is not None:
+            parent_lines.add(p)
+            p = p.get_current_player_previous_action()
+
+    parent_node_ids = []
+    for line in parent_lines:
+        parent_node_ids += line.get_node_ids(dead_cards=board)
+
+    num_node_ids = len(parent_node_ids)
+
+    t0 = time.time()
+    print(f"Locking {len(parent_node_ids):,} parent nodes")
+    for i, node_id in enumerate(parent_node_ids):
+        if node_id not in locked_node_ids:
+            locker.lock_node(node_id)
+        if (i + 1) % 100 == 0:
+            print(
+                f"\r{i+1}/{num_node_ids} ({100.0 * (i+1)/num_node_ids:.1f}%)",
+                end="",
+            )
+    print(f"\r{num_node_ids}/{num_node_ids} (100.0%)")
+
+    if script_builder is not None:
+        run_script(script_builder, solver)
+    t1 = time.time()
+    print(f"Finished locking parent nodes in {t1-t0:.1f} seconds")
+
+
+def run_script(script_builder, solver):
+    print("Writing and running locking scripts...")
+    script_builder.write_script(osp.abspath("locking_script.txt"))
+    t2 = time.time()
+    solver.load_script_silent(osp.abspath("locking_script.txt"))
+    t3 = time.time()
+    print(f"Ran script in {t3-t2:.1f} seconds")
 
 
 if __name__ == "__main__":

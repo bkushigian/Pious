@@ -122,7 +122,10 @@ def parse_args():
     parser.add_argument(
         "root_dir",
         type=str,
-        help="Root directory of the solve DBs: should contain subdirectories, each of which contain cfr files",
+        help=(
+            "Root directory of the solve DBs: should contain subdirectories, each of"
+            " which contain cfr files"
+        ),
     )
     parser.add_argument("--solver_path", type=str, default=PATH)
     parser.add_argument("--solver_executable", type=str, default=EXECUTABLE)
