@@ -123,11 +123,11 @@ class AggregationReport:
         self.info = None
         self._df = None
         self._view: pd.DataFrame = None
-        self.columns_to_suppress = []
+        self.hidden_columns = []
         self.column_filters = []
         self.load_info()
         self.load_from_csv()
-        self._default_column_filters()
+        self.default_hidden_columns()
 
         # We keep track of the current _view_ of the aggregation report, which
         # allows us to make modifications (e.g., through filters, sorting, etc)
@@ -179,7 +179,7 @@ class AggregationReport:
             new_names[column] = new_name.replace(" ", "_")
         self._df.rename(columns=new_names, inplace=True)
 
-    def _default_column_filters(self):
+    def default_hidden_columns(self):
         other_player = "ip" if self.oop else "oop"
         columns_to_suppress = [
             "global_freq",
@@ -189,11 +189,17 @@ class AggregationReport:
             "connectedness",
             "ahml",
             "high_card",
+            "r1",
+            "r2",
+            "r3",
+            "s1",
+            "s2",
+            "s3",
         ]
         for col in self.columns():
             if col.startswith(other_player):
                 columns_to_suppress.append(col)
-        self.columns_to_suppress = columns_to_suppress
+        self.hidden_columns = columns_to_suppress
 
     def view(self) -> pd.DataFrame:
         """
@@ -206,7 +212,7 @@ class AggregationReport:
         """
 
         result = self._view.copy()
-        to_drop = [c for c in self.columns_to_suppress if c in result]
+        to_drop = [c for c in self.hidden_columns if c in result]
         result.drop(columns=to_drop, inplace=True)
         return result
 
@@ -320,17 +326,39 @@ class AggregationReport:
         plt.show()
 
     def _process_flops(self):
+        """
+        An initial modification of the base dataframe: this should only be run
+        once. This cleans up some data to ensure that flops are ordered
+        correctly, ranks and suits are easily accessible, etc.
+        """
         df = self._df
         df.rename(columns={"flop": "raw_flop"}, inplace=True)
         flops_s = df["raw_flop"]
         flops_t = []
-
+        rs1, rs2, rs3, ss1, ss2, ss3 = [], [], [], [], [], []
         for flop in flops_s:
             c1, c2, c3 = flop.split()
-            flops_t.append((card_tuple(c1), card_tuple(c2), card_tuple(c3)))
+            r1, s1 = card_tuple(c1)
+            r2, s2 = card_tuple(c2)
+            r3, s3 = card_tuple(c3)
+            rs1.append(r1)
+            ss1.append(s1)
+            rs2.append(r2)
+            ss2.append(s2)
+            rs3.append(r3)
+            ss3.append(s3)
 
+            flops_t.append(((r1, r2, r3), (s1, s2, s3)))
+
+        df["r1"] = rs1
+        df["r2"] = rs2
+        df["r3"] = rs3
+        df["s1"] = ss1
+        df["s2"] = ss2
+        df["s3"] = ss3
         df["flop"] = flops_t
         df.sort_values(by="flop", ascending=False, inplace=True)
+        df.reset_index(drop=True, inplace=True)
 
     def _compute_textures(self):
         df = self._df
@@ -342,8 +370,7 @@ class AggregationReport:
         df["texture"] = None
         for idx, row in df.iterrows():
             flop = row["flop"]
-            ranks = [c[0] for c in flop]
-            suits = [c[1] for c in flop]
+            ranks, suits = flop
 
             # High card
             high_card = ranks_rev[max(ranks)] + "_high"
