@@ -195,6 +195,19 @@ class AggregationReport:
             "s1",
             "s2",
             "s3",
+            "flush",
+            "flushdraw",
+            "rainbow",
+            "straight",
+            "oesd",
+            "gutshot",
+            "straightdraw",
+            "wheeldraw",
+            "broadwaydraw",
+            "disconneted",
+            "toak",
+            "paired",
+            "unpaired",
         ]
         for col in self.columns():
             if col.startswith(other_player):
@@ -361,13 +374,34 @@ class AggregationReport:
         df.reset_index(drop=True, inplace=True)
 
     def _compute_textures(self):
+        """
+        Compute texture columns
+        """
         df = self._df
         df["pairedness"] = None
         df["suitedness"] = None
         df["connectedness"] = None
         df["high_card"] = None
         df["ahml"] = None
+
         df["texture"] = None
+
+        df["flush"] = False
+        df["flushdraw"] = False
+        df["rainbow"] = False
+
+        df["straight"] = False
+        df["oesd"] = False
+        df["gutshot"] = False
+        df["straightdraw"] = False
+        df["disconnected"] = False
+        df["wheeldraw"] = False
+        df["broadwaydraw"] = False
+
+        df["toak"] = False
+        df["paired"] = False
+        df["unpaired"] = False
+
         for idx, row in df.iterrows():
             flop = row["flop"]
             ranks, suits = flop
@@ -383,20 +417,26 @@ class AggregationReport:
             n_ranks = len(set(ranks))
             if n_ranks == 3:
                 pairedness = "UNPAIRED"
+                df.at[idx, "unpaired"] = True
             elif n_ranks == 2:
                 pairedness = "PAIRED"
+                df.at[idx, "paired"] = True
             elif n_ranks == 1:
                 pairedness = "TOAK"
+                df.at[idx, "toak"] = True
 
             # Suitedness
             suitedness = None
             n_suits = len(set(suits))
             if n_suits == 3:
                 suitedness = "RAINBOW"
+                df.at[idx, "rainbow"] = True
             elif n_suits == 2:
                 suitedness = "FD"
+                df.at[idx, "flushdraw"] = True
             elif n_suits == 1:
                 suitedness = "MONOTONE"
+                df.at[idx, "flush"] = True
 
             # Connectedness
             connectedness = "DISCONNECTED"
@@ -405,26 +445,39 @@ class AggregationReport:
             if pairedness == "UNPAIRED":
                 if max(ranks) - min(ranks) < 5:
                     connectedness = "STRAIGHT"
-                elif has_ace:
-                    if max([r % 14 for r in ranks]) <= 5:
-                        connectedness = "STRAIGHT"
+                    df.at[idx, "straight"] = True
+                elif has_ace and max([r % 14 for r in ranks]) <= 5:
+                    connectedness = "STRAIGHT"
+                    df.at[idx, "straight"] = True
+
             if connectedness == "DISCONNECTED":
                 # Else, check to see if straight draws are possible
                 unique_ranks = list(set(ranks))
                 if has_ace:
                     unique_ranks.append(1)
                 unique_ranks.sort(reverse=True)
-
-                diffs = [
-                    abs(unique_ranks[i] - unique_ranks[i + 1])
-                    for i in range(len(unique_ranks) - 1)
-                ]
-                if len(diffs) > 0:
-                    diff = min(diffs)
-                    if diff <= 3:
-                        connectedness = "OESD"
-                    elif diff == 4:
+                for i in range(len(unique_ranks) - 1):
+                    if connectedness == "OESD":  # We've already found an OESD
+                        break
+                    r1, r2 = unique_ranks[i : i + 2]
+                    if 0 < r1 - r2 <= 3:
+                        # If cards are close (e.g., 5h 8d), this makes for an
+                        # open ended straight draw EXCEPT for when one of the
+                        # cards is an ace
+                        if r1 == 14:
+                            connectedness = "GUTSHOT"
+                            df.at[idx, "broadwaydraw"] = True
+                        if r2 == 1:
+                            connectedness = "GUTSHOT"
+                            df.at[idx, "wheeldraw"] = True
+                        else:
+                            connectedness = "OESD"
+                            df.at[idx, "oesd"] = True
+                            df.at[idx, "gutshot"] = True
+                    elif 0 < r1 - r2 == 4:
                         connectedness = "GUTSHOT"
+                        df.at[idx, "gutshot"] = True
+
             df.at[idx, "pairedness"] = pairedness
             df.at[idx, "suitedness"] = suitedness
             df.at[idx, "connectedness"] = connectedness
@@ -456,6 +509,17 @@ class AggregationReport:
 
     def __repr__(self):
         return str(self)
+
+    def get_view_str(self) -> str:
+        pd.set_option("display.max_rows", None)
+        pd.set_option("display.max_columns", None)
+        s = str(self.view())
+        pd.reset_option("display.max_rows")
+        pd.reset_option("display.max_columns")
+        return s
+
+    def paginate(self):
+        pass
 
 
 class TreeNode:
