@@ -3,6 +3,9 @@ import pandas as pd
 from os import path as osp
 from io import StringIO
 from collections import namedtuple
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import mplcursors
 
 TEST_TREE = r"C:\PioSOLVER\Reports\SimpleTree\SRP\b25\BTNvBB"
 
@@ -33,6 +36,47 @@ def ahml(rank):
         return "M"
     else:
         return "L"
+
+
+def color_texture(texture):
+    """
+    Return a coloration of a texture
+    """
+
+    red = "00"
+    green = "00"
+    blue = "00"
+
+    if "MONOTONE" in texture:
+        red = "ff"
+    elif "FD" in texture:
+        red = "99"
+    elif "RAINBOW" in texture:
+        red = "00"
+    else:
+        print(f"Warning: Unrecognized suitedness {texture}")
+
+    if "STRAIGHT" in texture:
+        green = "ff"
+    elif "OESD" in texture:
+        green = "aa"
+    elif "GUTSHOT" in texture:
+        green = "55"
+    elif "DISCONNECTED" in texture:
+        green = "00"
+    else:
+        print(f"Warning: Unrecognized connectedness {texture}")
+
+    if "TOAK" in texture:
+        blue = "ff"
+    elif "PAIRED" in texture:
+        blue = "99"
+    elif "UNPAIRED" in texture:
+        blue = "00"
+    else:
+        print(f"Warning: Unrecognized pairedness {texture}")
+
+    return f"#{red}{green}{blue}"
 
 
 ranks_rev = {
@@ -211,6 +255,69 @@ class AggregationReport:
     def tail(self, n=10):
         self._view = self._view.tail(n)
         return self
+
+    def plot(self, columns=None, labels=True):
+        v = self.view()
+        fig, ax = plt.subplots()
+        colors = [color_texture(texture) for texture in v["texture"]]
+        if columns is None:
+            columns = ["ev", "ev"]
+        if len(columns) == 1:
+            c1 = columns[0]
+            c2 = c1
+        elif len(columns) == 2:
+            c1, c2 = columns
+        else:
+            c1, c2 = "ev", "ev"
+        scatter = ax.scatter(
+            v[c1], v[c2], c=colors, label=v["raw_flop"], s=60, edgecolors="black"
+        )
+        all_textures = [
+            ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
+            ("monotone disconneted", ("UNPAIRED", "MONOTONE", "DISCONNECTED")),
+            ("monotone connected", ("UNPAIRED", "MONOTONE", "STRAIGHT")),
+            ("monotone gutshot", ("UNPAIRED", "MONOTONE", "GUTSHOT")),
+            ("monotone oesd", ("UNPAIRED", "MONOTONE", "OESD")),
+            ("rainbow disconnected", ("UNPAIRED", "RAINBOW", "DISCONNECTED")),
+            ("rainbow connected", ("UNPAIRED", "RAINBOW", "STRAIGHT")),
+            ("rainbow oesd", ("UNPAIRED", "RAINBOW", "OESD")),
+            ("rainbow gutter", ("UNPAIRED", "RAINBOW", "GUTSHOT")),
+            ("flushdraw disconnected", ("UNPAIRED", "FD", "DISCONNECTED")),
+            ("flushdraw connected", ("UNPAIRED", "FD", "STRAIGHT")),
+            ("flushdraw oesd", ("UNPAIRED", "FD", "OESD")),
+            ("flushdraw gutter", ("UNPAIRED", "FD", "GUTSHOT")),
+            ("paired rainbow disconnected", ("PAIRED", "RAINBOW", "DISCONNECTED")),
+            ("paired rainbow oesd", ("PAIRED", "RAINBOW", "OESD")),
+            ("paired rainbow gutter", ("PAIRED", "RAINBOW", "GUTSHOT")),
+            ("paired flushdraw disconnected", ("PAIRED", "FD", "DISCONNECTED")),
+            ("paired flushdraw oesd", ("PAIRED", "FD", "OESD")),
+            ("paired flushdraw gutter", ("PAIRED", "FD", "GUTSHOT")),
+        ]
+        legend_elements = [
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                label=label,
+                markerfacecolor=color_texture(t),
+                markersize=8,
+            )
+            for (label, t) in all_textures
+        ]
+        # Add the legend
+        ax.legend(handles=legend_elements, loc="upper left", prop={"size": 15})
+
+        mplcursors.cursor(ax.collections, hover=True).connect(
+            "add",
+            lambda sel: sel.annotation.set_text(v["raw_flop"].iloc[sel.index]),
+        )
+        ax.set_xlabel(c1, fontsize=15)
+        ax.set_ylabel(c2, fontsize=15)
+        ax.set_title(
+            f"{c1.capitalize()} vs {c2.capitalize()}".replace("_", " "), fontsize=20
+        )
+        plt.show()
 
     def _process_flops(self):
         df = self._df
