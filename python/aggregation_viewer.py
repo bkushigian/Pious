@@ -79,6 +79,13 @@ def color_texture(texture):
     return f"#{red}{green}{blue}"
 
 
+def marker_size_from_high_card(flop, max_size=220, min_size=10):
+    r, s = card_tuple(flop.split()[0])
+    factor = (max_size / min_size) ** (1 / 12)
+    size = min_size * factor ** (r - 2)
+    return size
+
+
 ranks_rev = {
     2: "2",
     3: "3",
@@ -204,10 +211,12 @@ class AggregationReport:
             "straightdraw",
             "wheeldraw",
             "broadwaydraw",
-            "disconneted",
+            "disconnected",
             "toak",
             "paired",
             "unpaired",
+            "wheel",
+            "broadway",
         ]
         for col in self.columns():
             if col.startswith(other_player):
@@ -247,23 +256,6 @@ class AggregationReport:
         self._view.query(expr=query_string, inplace=True)
         return self
 
-    def filter_texture(self, textures=None, pred=None):
-        v = self._view
-        if textures is not None:
-
-            def fn(tup):
-                for t in textures:
-                    if t.upper() not in tup:
-                        return False
-                return True
-
-            v = v[v["texture"].apply(fn)]
-        if pred is not None:
-            v = v[v["texture"].apply(pred)]
-
-        self._view = v
-        return self
-
     def columns(self):
         return self._view.columns
 
@@ -279,6 +271,7 @@ class AggregationReport:
         v = self.view()
         fig, ax = plt.subplots()
         colors = [color_texture(texture) for texture in v["texture"]]
+        sizes = [marker_size_from_high_card(flop) for flop in v["raw_flop"]]
         if columns is None:
             columns = ["ev", "ev"]
         if len(columns) == 1:
@@ -289,7 +282,12 @@ class AggregationReport:
         else:
             c1, c2 = "ev", "ev"
         scatter = ax.scatter(
-            v[c1], v[c2], c=colors, label=v["raw_flop"], s=60, edgecolors="black"
+            v[c1],
+            v[c2],
+            c=colors,
+            label=v["raw_flop"],
+            s=sizes,
+            edgecolors="black",
         )
         all_textures = [
             ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
@@ -402,9 +400,13 @@ class AggregationReport:
         df["paired"] = False
         df["unpaired"] = False
 
+        df["wheel"] = False
+        df["broadway"] = False
+
         for idx, row in df.iterrows():
             flop = row["flop"]
             ranks, suits = flop
+            modulo_ranks = [r % 14 for r in ranks]
 
             # High card
             high_card = ranks_rev[max(ranks)] + "_high"
@@ -449,8 +451,14 @@ class AggregationReport:
                 elif has_ace and max([r % 14 for r in ranks]) <= 5:
                     connectedness = "STRAIGHT"
                     df.at[idx, "straight"] = True
+                    # Check if is broadway straight or wheel straight
+                    if all([r >= 10 for r in ranks]):
+                        df.at[idx, "broadway"] = True
+                    if all([r <= 5 for r in modulo_ranks]):
+                        df.at[idx, "wheel"] = True
 
             if connectedness == "DISCONNECTED":
+                straightdraw = False
                 # Else, check to see if straight draws are possible
                 unique_ranks = list(set(ranks))
                 if has_ace:
@@ -467,16 +475,20 @@ class AggregationReport:
                         if r1 == 14:
                             connectedness = "GUTSHOT"
                             df.at[idx, "broadwaydraw"] = True
+                            df.at[idx, "straightdraw"] = True
                         if r2 == 1:
                             connectedness = "GUTSHOT"
                             df.at[idx, "wheeldraw"] = True
+                            df.at[idx, "straightdraw"] = True
                         else:
                             connectedness = "OESD"
                             df.at[idx, "oesd"] = True
                             df.at[idx, "gutshot"] = True
+                            df.at[idx, "straightdraw"] = True
                     elif 0 < r1 - r2 == 4:
                         connectedness = "GUTSHOT"
                         df.at[idx, "gutshot"] = True
+                        df.at[idx, "straightdraw"] = True
 
             df.at[idx, "pairedness"] = pairedness
             df.at[idx, "suitedness"] = suitedness
