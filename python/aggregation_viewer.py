@@ -281,7 +281,7 @@ class AggregationReport:
             c1, c2 = columns
         else:
             c1, c2 = "ev", "ev"
-        scatter = ax.scatter(
+        ax.scatter(
             v[c1],
             v[c2],
             c=colors,
