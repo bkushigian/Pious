@@ -135,7 +135,7 @@ class AggregationReport:
         self.hidden_columns = []
         self.load_info()
         self.load_from_csv()
-        self.default_hidden_columns()
+        self.set_default_hidden_columns()
 
         # We keep track of the current _view_ of the aggregation report, which
         # allows us to make modifications (e.g., through filters, sorting, etc)
@@ -187,7 +187,7 @@ class AggregationReport:
             new_names[column] = new_name.replace(" ", "_")
         self._df.rename(columns=new_names, inplace=True)
 
-    def default_hidden_columns(self):
+    def set_default_hidden_columns(self):
         other_player = "ip" if self.oop else "oop"
         columns_to_suppress = [
             "global_freq",
