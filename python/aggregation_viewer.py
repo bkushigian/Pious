@@ -133,7 +133,6 @@ class AggregationReport:
         self._df = None
         self._view: pd.DataFrame = None
         self.hidden_columns = []
-        self.column_filters = []
         self.load_info()
         self.load_from_csv()
         self.default_hidden_columns()
