@@ -79,7 +79,9 @@ def color_texture(texture):
     return f"#{red}{green}{blue}"
 
 
-def marker_size_from_high_card(flop, max_size=220, min_size=10):
+def marker_size_from_high_card(flop, max_size=None, min_size=10):
+    if max_size is None:
+        max_size = 220
     r, s = card_tuple(flop.split()[0])
     factor = (max_size / min_size) ** (1 / 12)
     size = min_size * factor ** (r - 2)
@@ -267,26 +269,72 @@ class AggregationReport:
         self._view = self._view.tail(n)
         return self
 
-    def plot(self, columns=None, labels=True):
-        v = self.view()
+    def plot(self, col1=None, col2=None, labels=True, max_size=None, marker=None):
+        v: pd.DataFrame = self._view.copy()
+        values1 = None
+        values2 = None
+        if col1 is not None and col2 is None:
+            v.sort_values(by=col1, ascending=True, inplace=True)
+            values2 = v[col1]
+            values1 = list(range(len(values2)))
+            x_axis = "#"
+            y_axis = col1
+            if max_size is None:
+                max_size = 30
+            if marker is None:
+                marker = ","
+        elif col1 is None and col2 is not None:
+            v.sort_values(by=col2, ascending=True, inplace=True)
+            values2 = v[col2]
+            values1 = list(range(len(values2)))
+            x_axis = "#"
+            y_axis = col2
+            if max_size is None:
+                max_size = 30
+            if marker is None:
+                marker = ","
+
+        elif col1 is None and col2 is None:
+            # By default, plot ev against the first action
+            col1 = "ev"
+            action_types = ("bet", "raise", "call")
+            actions = self.get_actions()
+            for prefix in action_types:
+                xs = [a for a in actions if a.startswith(prefix)]
+                if len(xs) > 0:
+                    col2 = xs[0]
+                    break
+            if col2 is None:
+                if "check" not in actions:
+                    raise RuntimeError(f"No valid actions in {actions}")
+                col2 = "check"
+            values1 = v[col1]
+            values2 = v[col2]
+            x_axis = col1
+            y_axis = col2
+
+        else:
+            values1 = v[col1]
+            values2 = v[col2]
+            x_axis = col1
+            y_axis = col2
+
+        if marker is None:
+            marker = "o"
+
         fig, ax = plt.subplots()
         colors = [color_texture(texture) for texture in v["texture"]]
-        sizes = [marker_size_from_high_card(flop) for flop in v["raw_flop"]]
-        if columns is None:
-            columns = ["ev", "ev"]
-        if len(columns) == 1:
-            c1 = columns[0]
-            c2 = c1
-        elif len(columns) == 2:
-            c1, c2 = columns
-        else:
-            c1, c2 = "ev", "ev"
+        sizes = [
+            marker_size_from_high_card(flop, max_size=max_size)
+            for flop in v["raw_flop"]
+        ]
         ax.scatter(
-            v[c1],
-            v[c2],
+            values1,
+            values2,
             c=colors,
             label=v["raw_flop"],
             s=sizes,
+            marker=marker,
             edgecolors="black",
         )
         all_textures = [
@@ -329,10 +377,11 @@ class AggregationReport:
             "add",
             lambda sel: sel.annotation.set_text(v["raw_flop"].iloc[sel.index]),
         )
-        ax.set_xlabel(c1, fontsize=15)
-        ax.set_ylabel(c2, fontsize=15)
+        ax.set_xlabel(x_axis, fontsize=15)
+        ax.set_ylabel(y_axis, fontsize=15)
         ax.set_title(
-            f"{c1.capitalize()} vs {c2.capitalize()}".replace("_", " "), fontsize=20
+            f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
+            fontsize=20,
         )
         plt.show()
 
