@@ -151,6 +151,30 @@ class AggregationReport:
             f.write(html)
         webbrowser.open(url)
 
+    def plot(
+        self,
+        col1=None,
+        col2=None,
+        min_size=None,
+        max_size=None,
+        labels=None,
+        marker=None,
+        sort_single_column=None,
+        legend=None,
+        legend_size=None,
+    ):
+        self.plotter.scatter(
+            col1=col1,
+            col2=col2,
+            min_size=min_size,
+            max_size=max_size,
+            labels=labels,
+            marker=marker,
+            sort_single_column=sort_single_column,
+            legend=legend,
+            legend_size=legend_size,
+        )
+
     def _find_matching_column(self, columns, column):
         if column in columns:
             return column
