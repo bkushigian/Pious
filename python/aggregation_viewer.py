@@ -6,6 +6,9 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import mplcursors
+import webbrowser
+import tempfile
+import pydoc
 
 TEST_TREE = r"C:\PioSOLVER\Reports\SimpleTree\SRP\b25\BTNvBB"
 
@@ -132,6 +135,7 @@ class AggregationReport:
         self.info = None
         self._df = None
         self._view: pd.DataFrame = None
+        self._current_filters = []
         self.hidden_columns = []
         self.load_info()
         self.load_from_csv()
@@ -219,7 +223,7 @@ class AggregationReport:
             "wheel",
             "broadway",
         ]
-        for col in self.columns():
+        for col in self.all_columns():
             if col.startswith(other_player):
                 columns_to_suppress.append(col)
         self.hidden_columns = columns_to_suppress
@@ -254,11 +258,48 @@ class AggregationReport:
         return self
 
     def filter(self, query_string):
+        """
+        Filter the boards by some criterion.
+
+        ## Example
+
+        To filter all ace high boards without flushes, straights, or paired
+        cards, you could issue the following query:
+
+        ```
+        r.filter("r1 == 14 and not flush and not straight and unpaired")
+        ```
+        """
+        self._current_filters.append(query_string)
         self._view.query(expr=query_string, inplace=True)
         return self
 
-    def columns(self):
+    def undo_filter(self, n=1):
+        """
+        Remove the last n filters from the view
+        """
+        if n <= 0:
+            return
+        cf = self._current_filters[:-n]
+        self.reset()
+        for f in cf:
+            self.filter(f)
+        self._current_filters = cf
+
+    def all_columns(self):
+        """
+        Return all columns in the `self._view` dataframe. This includes many
+        columns that are hidden by default, but that are useful for issuing
+        filters.
+        """
         return self._view.columns
+
+    def view_columns(self):
+        """
+        Return all columns in a `self.view()` result. This does not display any
+        hidden columns that are in `self._view`.
+        """
+        return self.view().columns
 
     def head(self, n=10):
         self._view = self._view.head(n)
@@ -268,30 +309,73 @@ class AggregationReport:
         self._view = self._view.tail(n)
         return self
 
-    def plot(self, col1=None, col2=None, labels=True, max_size=None, marker=None):
+    def _find_matching_column(self, columns, column):
+        if column in columns:
+            return column
+        if column is None:
+            return None
+        if columns is None:
+            return None
+        matches = [c for c in columns if c.startswith(column)]
+        if len(matches) == 1:
+            return matches[0]
+        elif len(matches) == 0:
+            return None
+        print(f"Column name {column} has multiple matches: {', '.join(matches)}")
+        return None
+
+    def plot(self, col1=None, col2=None, labels=True, min_size=None, max_size=None, marker=None, sort_single_column=False, legend=True, legend_size=12):
+        """
+        This is a gargantuan method and should be refactored. I'm exploring
+        different ideas at the moment and getting familiar with MPL. I should
+        add an `AggregationReportPlotter` class and factor out this logic, along
+        with a lot of settings/etc, to that.
+
+        Currently: by default, if no columns are provided `plot()` will plot
+        `ev` against an action. It tries to find the first interesting action,
+        looking for bets, raises, calls, and then finally check.
+
+        If a single column is provided it will plot the values from that column
+        against the index of each value (0...N-1). The plotted column will be in
+        sorted order if `sort_single_column` is `True`.
+
+        If both columns are provided, plot col1 and col2 against each other.
+        """
         v: pd.DataFrame = self._view.copy()
+        columns = list(v.columns)
+        col1 = self._find_matching_column(columns, col1)
+        col2 = self._find_matching_column(columns, col2)
         values1 = None
         values2 = None
+
+        if min_size is None:
+            min_size = 10
+            if max_size is not None and min_size > max_size:
+                max_size = min_size
+        if max_size is None:
+            max_size = 200
+            if min_size > max_size:
+                min_size = max_size
+
+
         if col1 is not None and col2 is None:
-            v.sort_values(by=col1, ascending=True, inplace=True)
+            if sort_single_column:
+                v.sort_values(by=col1, ascending=True, inplace=True)
             values2 = v[col1]
             values1 = list(range(len(values2)))
             x_axis = "#"
             y_axis = col1
-            if max_size is None:
-                max_size = 30
             if marker is None:
-                marker = ","
+                marker = "."
         elif col1 is None and col2 is not None:
-            v.sort_values(by=col2, ascending=True, inplace=True)
+            if sort_single_column:
+                v.sort_values(by=col2, ascending=True, inplace=True)
             values2 = v[col2]
             values1 = list(range(len(values2)))
             x_axis = "#"
             y_axis = col2
-            if max_size is None:
-                max_size = 30
             if marker is None:
-                marker = ","
+                marker = "."
 
         elif col1 is None and col2 is None:
             # By default, plot ev against the first action
@@ -357,6 +441,7 @@ class AggregationReport:
             ("paired flushdraw oesd", ("PAIRED", "FD", "OESD")),
             ("paired flushdraw gutter", ("PAIRED", "FD", "GUTSHOT")),
         ]
+
         legend_elements = [
             Line2D(
                 [0],
@@ -370,7 +455,8 @@ class AggregationReport:
             for (label, t) in all_textures
         ]
         # Add the legend
-        ax.legend(handles=legend_elements, loc="upper left", prop={"size": 15})
+        if legend:
+            ax.legend(handles=legend_elements, loc="upper left", prop={"size": legend_size})
 
         mplcursors.cursor(ax.collections, hover=True).connect(
             "add",
@@ -383,6 +469,13 @@ class AggregationReport:
             fontsize=20,
         )
         plt.show()
+
+    def in_browser(self):
+        with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as f:
+            url = 'file://' + f.name
+            html = self.view().to_html()
+            f.write(html)
+        webbrowser.open(url)
 
     def _process_flops(self):
         """
@@ -570,16 +663,18 @@ class AggregationReport:
     def __repr__(self):
         return str(self)
 
-    def get_view_str(self) -> str:
+    def dump(self) -> str:
         pd.set_option("display.max_rows", None)
         pd.set_option("display.max_columns", None)
+        pd.set_option("display.width", 1000)
         s = str(self.view())
         pd.reset_option("display.max_rows")
         pd.reset_option("display.max_columns")
+        pd.reset_option("display.width")
         return s
 
     def paginate(self):
-        pass
+        pydoc.pager(self.dump())
 
 
 class TreeNode:
