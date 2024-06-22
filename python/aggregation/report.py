@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import pandas as pd
 from os import path as osp
 from io import StringIO
@@ -12,7 +12,17 @@ from aggregation.util import *
 
 
 class AggregationReport:
-    def __init__(self, agg_report_directory: str):
+    def __init__(self, agg_report_directory: str, db_loc: Optional[str] = None):
+        """Create a new `AggregationReport`
+
+        Args:
+            agg_report_directory (str): the location of the directory
+            containing the aggregation report
+
+            db_loc (Optional[str], optional): _description_. Defaults to None.
+            the location of the database of solves that were used to generate
+            the aggregation report
+        """
         self.agg_report_directory = agg_report_directory
         self.csv_path = osp.join(agg_report_directory, "report.csv")
         self.info_path = osp.join(agg_report_directory, "info.txt")
@@ -24,7 +34,7 @@ class AggregationReport:
         self._view: pd.DataFrame = None
         self._current_filters = []
         self.hidden_columns = []
-        self.load_info()
+        self._load_info()
         self.load_from_csv()
         self.set_default_hidden_columns()
 
@@ -44,76 +54,11 @@ class AggregationReport:
         df = pd.read_csv(self.body)
         df = df.drop(df.index[-1])
         self._df = df
-        self.clean_column_names()
+        self._clean_column_names()
         self._process_flops()
         self._compute_textures()
         self._view = self._df.copy()
         return self._view
-
-    def load_info(self):
-        with open(self.info_path) as f:
-            info_text = f.read()
-        self.info = parse_info(info_text)
-        if self.info.player == "OOP":
-            self.oop = True
-        elif self.info.player == "IP":
-            self.ip = True
-        else:
-            raise RuntimeError("Unknown Player", self.info.player)
-
-    def clean_column_names(self):
-        us = "ip" if self.ip else "oop"
-        new_names = {}
-        for column in self._df.columns:
-            new_name = column.lower()
-            if new_name.startswith(us + " "):
-                new_name = new_name[len(us) + 1 :].replace(" ", "_")
-                new_names[column] = new_name
-            elif new_name.endswith(" freq"):
-                new_name = new_name[:-5]
-            elif new_name == "global %":
-                new_name = "global_freq"
-            if " " in new_name:
-                new_name = new_name.replace(" ", "_")
-            new_names[column] = new_name.replace(" ", "_")
-        self._df.rename(columns=new_names, inplace=True)
-
-    def set_default_hidden_columns(self):
-        other_player = "ip" if self.oop else "oop"
-        columns_to_suppress = [
-            "global_freq",
-            "flop",
-            "pairedness",
-            "suitedness",
-            "connectedness",
-            "ahml",
-            "high_card",
-            "r1",
-            "r2",
-            "r3",
-            "s1",
-            "s2",
-            "s3",
-            "flush",
-            "flushdraw",
-            "rainbow",
-            "straight",
-            "oesd",
-            "gutshot",
-            "straightdraw",
-            "wheeldraw",
-            "broadwaydraw",
-            "disconnected",
-            "toak",
-            "paired",
-            "unpaired",
-            "wheel",
-            "broadway",
-        ]
-        for col in self.all_columns():
-            if col.startswith(other_player):
-                columns_to_suppress.append(col)
-        self.hidden_columns = columns_to_suppress
 
     def view(self) -> pd.DataFrame:
         """
@@ -196,6 +141,16 @@ class AggregationReport:
         self._view = self._view.tail(n)
         return self
 
+    def in_browser(self):
+        """
+        Open the dataframe in a browser
+        """
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html") as f:
+            url = "file://" + f.name
+            html = self.view().to_html()
+            f.write(html)
+        webbrowser.open(url)
+
     def _find_matching_column(self, columns, column):
         if column in columns:
             return column
@@ -211,12 +166,70 @@ class AggregationReport:
         print(f"Column name {column} has multiple matches: {', '.join(matches)}")
         return None
 
-    def in_browser(self):
-        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html") as f:
-            url = "file://" + f.name
-            html = self.view().to_html()
-            f.write(html)
-        webbrowser.open(url)
+    def set_default_hidden_columns(self):
+        other_player = "ip" if self.oop else "oop"
+        columns_to_suppress = [
+            "global_freq",
+            "flop",
+            "pairedness",
+            "suitedness",
+            "connectedness",
+            "ahml",
+            "high_card",
+            "r1",
+            "r2",
+            "r3",
+            "s1",
+            "s2",
+            "s3",
+            "flush",
+            "flushdraw",
+            "rainbow",
+            "straight",
+            "oesd",
+            "gutshot",
+            "straightdraw",
+            "wheeldraw",
+            "broadwaydraw",
+            "disconnected",
+            "toak",
+            "paired",
+            "unpaired",
+            "wheel",
+            "broadway",
+        ]
+        for col in self.all_columns():
+            if col.startswith(other_player):
+                columns_to_suppress.append(col)
+        self.hidden_columns = columns_to_suppress
+
+    def _load_info(self):
+        with open(self.info_path) as f:
+            info_text = f.read()
+        self.info = parse_info(info_text)
+        if self.info.player == "OOP":
+            self.oop = True
+        elif self.info.player == "IP":
+            self.ip = True
+        else:
+            raise RuntimeError("Unknown Player", self.info.player)
+
+    def _clean_column_names(self):
+        us = "ip" if self.ip else "oop"
+        new_names = {}
+        for column in self._df.columns:
+            new_name = column.lower()
+            if new_name.startswith(us + " "):
+                new_name = new_name[len(us) + 1 :].replace(" ", "_")
+                new_names[column] = new_name
+            elif new_name.endswith(" freq"):
+                new_name = new_name[:-5]
+            elif new_name == "global %":
+                new_name = "global_freq"
+            if " " in new_name:
+                new_name = new_name.replace(" ", "_")
+            new_names[column] = new_name.replace(" ", "_")
+        self._df.rename(columns=new_names, inplace=True)
 
     def _process_flops(self):
         """
