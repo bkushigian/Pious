@@ -162,6 +162,7 @@ class AggregationReport:
         sort_single_column=None,
         legend=None,
         legend_size=None,
+        plot_size_inches=None,
     ):
         self.plotter.scatter(
             col1=col1,
@@ -173,6 +174,7 @@ class AggregationReport:
             sort_single_column=sort_single_column,
             legend=legend,
             legend_size=legend_size,
+            plot_size_inches=plot_size_inches,
         )
 
     def _find_matching_column(self, columns, column):
@@ -465,6 +467,7 @@ class Plotter:
         self.legend = True
         self.legend_size = 12
         self.sort_single_column = False
+        self.plot_size_inches = (18.5, 10.8)
 
     def scatter(
         self,
@@ -477,6 +480,7 @@ class Plotter:
         sort_single_column=None,
         legend=True,
         legend_size=None,
+        plot_size_inches=None,
     ):
         """
         This is a gargantuan method and should be refactored. I'm exploring
@@ -512,6 +516,7 @@ class Plotter:
         legend = legend or self.legend
         legend_size = legend_size or self.legend_size
         sort_single_column = sort_single_column or self.sort_single_column
+        plot_size_inches = plot_size_inches or self.plot_size_inches
 
         if min_size is None:
             min_size = 10
@@ -573,6 +578,7 @@ class Plotter:
             marker = "o"
 
         fig, ax = plt.subplots()
+        fig.set_size_inches(*plot_size_inches)
         colors = [color_texture(texture) for texture in v["texture"]]
         sizes = [
             marker_size_from_high_card(flop, max_size=max_size)
