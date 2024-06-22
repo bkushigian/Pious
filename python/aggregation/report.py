@@ -2,6 +2,7 @@ from typing import Dict, Optional
 import pandas as pd
 from os import path as osp
 from io import StringIO
+from matplotlib.backend_bases import PickEvent, MouseEvent, MouseButton
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import mplcursors
@@ -9,6 +10,9 @@ import webbrowser
 import tempfile
 import pydoc
 from aggregation.util import *
+from aggregation.database import CFRDatabase
+
+plt.ion()
 
 
 class AggregationReport:
@@ -34,6 +38,9 @@ class AggregationReport:
         self._view: pd.DataFrame = None
         self._current_filters = []
         self.hidden_columns = []
+        self.cfr_database = None
+        if db_loc is not None:
+            self.cfr_database = CFRDatabase(db_loc)
         self._load_info()
         self.load_from_csv()
         self.set_default_hidden_columns()
@@ -42,6 +49,9 @@ class AggregationReport:
         # allows us to make modifications (e.g., through filters, sorting, etc)
         # without modifying the original
         self.reset()
+
+    def set_db_loc(self, db_loc):
+        self.cfr_database = CFRDatabase(db_loc)
 
     def load_from_csv(self):
         """
@@ -176,6 +186,9 @@ class AggregationReport:
             legend_size=legend_size,
             plot_size_inches=plot_size_inches,
         )
+
+    def open_board_in_pio(self, board):
+        self.cfr_database.open_board_in_pio(board)
 
     def _find_matching_column(self, columns, column):
         if column in columns:
@@ -462,12 +475,13 @@ class Plotter:
         self.report: AggregationReport = report
         self.min_size = 20
         self.max_size = 200
-        self.labels = True
+        self.data_point_labels = True
         self.marker = "o"
         self.legend = True
         self.legend_size = 12
         self.sort_single_column = False
         self.plot_size_inches = (18.5, 10.8)
+        self.data_point_labels = None
 
     def scatter(
         self,
@@ -509,7 +523,7 @@ class Plotter:
         # Handle default values. We use the semantics of `or`, which returns the
         # first value with true truthiness, or the last value otherwise. This means that
         # `False or 7` evaluates to 7, while `100 or 7` evaluates to 100
-        labels = labels or self.labels
+        labels = labels or self.data_point_labels
         min_size = min_size or self.min_size
         max_size = max_size or self.max_size
         marker = marker or self.marker
@@ -584,7 +598,7 @@ class Plotter:
             marker_size_from_high_card(flop, max_size=max_size)
             for flop in v["raw_flop"]
         ]
-        ax.scatter(
+        scatter = ax.scatter(
             values1,
             values2,
             c=colors,
@@ -633,6 +647,7 @@ class Plotter:
                 handles=legend_elements, loc="upper left", prop={"size": legend_size}
             )
 
+        self.data_point_labels = tuple(v["raw_flop"])
         mplcursors.cursor(ax.collections, hover=True).connect(
             "add",
             lambda sel: sel.annotation.set_text(v["raw_flop"].iloc[sel.index]),
@@ -643,4 +658,22 @@ class Plotter:
             f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
             fontsize=20,
         )
+        fig.canvas.callbacks.connect("pick_event", self._make_on_pick_callback())
+        scatter.set_picker(True)
         plt.show()
+
+    def _make_on_pick_callback(self):
+        labels = self.data_point_labels
+
+        def on_click(event: PickEvent):
+            ind = list(event.ind)
+            mouseevent = event.mouseevent
+            if mouseevent.button == 1 and mouseevent.dblclick:
+                if len(ind) > 0:
+                    i = ind[0]
+                    print(labels[i])
+                    board = labels[i]
+                    print(f"Opening {board} in PioViewer")
+                    self.report.open_board_in_pio(board)
+
+        return on_click
