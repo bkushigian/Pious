@@ -1,3 +1,4 @@
+from typing import Dict
 import pandas as pd
 from os import path as osp
 from io import StringIO
@@ -18,6 +19,7 @@ class AggregationReport:
         self.ip = False
         self.oop = False
         self.info = None
+        self.plotter = Plotter(self)
         self._df = None
         self._view: pd.DataFrame = None
         self._current_filters = []
@@ -208,164 +210,6 @@ class AggregationReport:
             return None
         print(f"Column name {column} has multiple matches: {', '.join(matches)}")
         return None
-
-    def plot(
-        self,
-        col1=None,
-        col2=None,
-        labels=True,
-        min_size=None,
-        max_size=None,
-        marker=None,
-        sort_single_column=False,
-        legend=True,
-        legend_size=12,
-    ):
-        """
-        This is a gargantuan method and should be refactored. I'm exploring
-        different ideas at the moment and getting familiar with MPL. I should
-        add an `AggregationReportPlotter` class and factor out this logic, along
-        with a lot of settings/etc, to that.
-
-        Currently: by default, if no columns are provided `plot()` will plot
-        `ev` against an action. It tries to find the first interesting action,
-        looking for bets, raises, calls, and then finally check.
-
-        If a single column is provided it will plot the values from that column
-        against the index of each value (0...N-1). The plotted column will be in
-        sorted order if `sort_single_column` is `True`.
-
-        If both columns are provided, plot col1 and col2 against each other.
-        """
-        v: pd.DataFrame = self._view.copy()
-        columns = list(v.columns)
-        col1 = self._find_matching_column(columns, col1)
-        col2 = self._find_matching_column(columns, col2)
-        values1 = None
-        values2 = None
-
-        if min_size is None:
-            min_size = 10
-            if max_size is not None and min_size > max_size:
-                max_size = min_size
-        if max_size is None:
-            max_size = 200
-            if min_size > max_size:
-                min_size = max_size
-
-        if col1 is not None and col2 is None:
-            if sort_single_column:
-                v.sort_values(by=col1, ascending=True, inplace=True)
-            values2 = v[col1]
-            values1 = list(range(len(values2)))
-            x_axis = "#"
-            y_axis = col1
-            if marker is None:
-                marker = "."
-        elif col1 is None and col2 is not None:
-            if sort_single_column:
-                v.sort_values(by=col2, ascending=True, inplace=True)
-            values2 = v[col2]
-            values1 = list(range(len(values2)))
-            x_axis = "#"
-            y_axis = col2
-            if marker is None:
-                marker = "."
-
-        elif col1 is None and col2 is None:
-            # By default, plot ev against the first action
-            col1 = "ev"
-            action_types = ("bet", "raise", "call")
-            actions = self.get_actions()
-            for prefix in action_types:
-                xs = [a for a in actions if a.startswith(prefix)]
-                if len(xs) > 0:
-                    col2 = xs[0]
-                    break
-            if col2 is None:
-                if "check" not in actions:
-                    raise RuntimeError(f"No valid actions in {actions}")
-                col2 = "check"
-            values1 = v[col1]
-            values2 = v[col2]
-            x_axis = col1
-            y_axis = col2
-
-        else:
-            values1 = v[col1]
-            values2 = v[col2]
-            x_axis = col1
-            y_axis = col2
-
-        if marker is None:
-            marker = "o"
-
-        fig, ax = plt.subplots()
-        colors = [color_texture(texture) for texture in v["texture"]]
-        sizes = [
-            marker_size_from_high_card(flop, max_size=max_size)
-            for flop in v["raw_flop"]
-        ]
-        ax.scatter(
-            values1,
-            values2,
-            c=colors,
-            label=v["raw_flop"],
-            s=sizes,
-            marker=marker,
-            edgecolors="black",
-        )
-        all_textures = [
-            ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
-            ("monotone disconneted", ("UNPAIRED", "MONOTONE", "DISCONNECTED")),
-            ("monotone connected", ("UNPAIRED", "MONOTONE", "STRAIGHT")),
-            ("monotone gutshot", ("UNPAIRED", "MONOTONE", "GUTSHOT")),
-            ("monotone oesd", ("UNPAIRED", "MONOTONE", "OESD")),
-            ("rainbow disconnected", ("UNPAIRED", "RAINBOW", "DISCONNECTED")),
-            ("rainbow connected", ("UNPAIRED", "RAINBOW", "STRAIGHT")),
-            ("rainbow oesd", ("UNPAIRED", "RAINBOW", "OESD")),
-            ("rainbow gutter", ("UNPAIRED", "RAINBOW", "GUTSHOT")),
-            ("flushdraw disconnected", ("UNPAIRED", "FD", "DISCONNECTED")),
-            ("flushdraw connected", ("UNPAIRED", "FD", "STRAIGHT")),
-            ("flushdraw oesd", ("UNPAIRED", "FD", "OESD")),
-            ("flushdraw gutter", ("UNPAIRED", "FD", "GUTSHOT")),
-            ("paired rainbow disconnected", ("PAIRED", "RAINBOW", "DISCONNECTED")),
-            ("paired rainbow oesd", ("PAIRED", "RAINBOW", "OESD")),
-            ("paired rainbow gutter", ("PAIRED", "RAINBOW", "GUTSHOT")),
-            ("paired flushdraw disconnected", ("PAIRED", "FD", "DISCONNECTED")),
-            ("paired flushdraw oesd", ("PAIRED", "FD", "OESD")),
-            ("paired flushdraw gutter", ("PAIRED", "FD", "GUTSHOT")),
-        ]
-
-        legend_elements = [
-            Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="w",
-                label=label,
-                markerfacecolor=color_texture(t),
-                markersize=8,
-            )
-            for (label, t) in all_textures
-        ]
-        # Add the legend
-        if legend:
-            ax.legend(
-                handles=legend_elements, loc="upper left", prop={"size": legend_size}
-            )
-
-        mplcursors.cursor(ax.collections, hover=True).connect(
-            "add",
-            lambda sel: sel.annotation.set_text(v["raw_flop"].iloc[sel.index]),
-        )
-        ax.set_xlabel(x_axis, fontsize=15)
-        ax.set_ylabel(y_axis, fontsize=15)
-        ax.set_title(
-            f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
-            fontsize=20,
-        )
-        plt.show()
 
     def in_browser(self):
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html") as f:
@@ -572,3 +416,188 @@ class AggregationReport:
 
     def paginate(self):
         pydoc.pager(self.dump())
+
+
+class Plotter:
+    def __init__(self, report: AggregationReport):
+        self.report: AggregationReport = report
+        self.min_size = 20
+        self.max_size = 200
+        self.labels = True
+        self.marker = "o"
+        self.legend = True
+        self.legend_size = 12
+        self.sort_single_column = False
+
+    def scatter(
+        self,
+        col1=None,
+        col2=None,
+        labels=None,
+        min_size=None,
+        max_size=None,
+        marker=None,
+        sort_single_column=None,
+        legend=True,
+        legend_size=None,
+    ):
+        """
+        This is a gargantuan method and should be refactored. I'm exploring
+        different ideas at the moment and getting familiar with MPL. I should
+        add an `AggregationReportPlotter` class and factor out this logic, along
+        with a lot of settings/etc, to that.
+
+        Currently: by default, if no columns are provided `plot()` will plot
+        `ev` against an action. It tries to find the first interesting action,
+        looking for bets, raises, calls, and then finally check.
+
+        If a single column is provided it will plot the values from that column
+        against the index of each value (0...N-1). The plotted column will be in
+        sorted order if `sort_single_column` is `True`.
+
+        If both columns are provided, plot col1 and col2 against each other.
+        """
+        report = self.report
+        v: pd.DataFrame = report._view.copy()
+        columns = list(v.columns)
+        col1 = report._find_matching_column(columns, col1)
+        col2 = report._find_matching_column(columns, col2)
+        values1 = None
+        values2 = None
+
+        # Handle default values. We use the semantics of `or`, which returns the
+        # first value with true truthiness, or the last value otherwise. This means that
+        # `False or 7` evaluates to 7, while `100 or 7` evaluates to 100
+        labels = labels or self.labels
+        min_size = min_size or self.min_size
+        max_size = max_size or self.max_size
+        marker = marker or self.marker
+        legend = legend or self.legend
+        legend_size = legend_size or self.legend_size
+        sort_single_column = sort_single_column or self.sort_single_column
+
+        if min_size is None:
+            min_size = 10
+            if max_size is not None and min_size > max_size:
+                max_size = min_size
+        if max_size is None:
+            max_size = 200
+            if min_size > max_size:
+                min_size = max_size
+
+        # The following logic isn't great, but here we are :). I'll clean it up
+        # at some point (regarding what to do when one column is None, both are
+        # None, etc)
+        if col1 is not None and col2 is None:
+            if sort_single_column:
+                v.sort_values(by=col1, ascending=True, inplace=True)
+            values2 = v[col1]
+            values1 = list(range(len(values2)))
+            x_axis = "#"
+            y_axis = col1
+            if marker is None:
+                marker = "."
+        elif col1 is None and col2 is not None:
+            if sort_single_column:
+                v.sort_values(by=col2, ascending=True, inplace=True)
+            values2 = v[col2]
+            values1 = list(range(len(values2)))
+            x_axis = "#"
+            y_axis = col2
+            if marker is None:
+                marker = "."
+
+        elif col1 is None and col2 is None:
+            # By default, plot ev against the first action
+            col1 = "ev"
+            action_types = ("bet", "raise", "call")
+            actions = report.get_actions()
+            for prefix in action_types:
+                xs = [a for a in actions if a.startswith(prefix)]
+                if len(xs) > 0:
+                    col2 = xs[0]
+                    break
+            if col2 is None:
+                if "check" not in actions:
+                    raise RuntimeError(f"No valid actions in {actions}")
+                col2 = "check"
+            values1 = v[col1]
+            values2 = v[col2]
+            x_axis = col1
+            y_axis = col2
+
+        else:
+            values1 = v[col1]
+            values2 = v[col2]
+            x_axis = col1
+            y_axis = col2
+
+        if marker is None:
+            marker = "o"
+
+        fig, ax = plt.subplots()
+        colors = [color_texture(texture) for texture in v["texture"]]
+        sizes = [
+            marker_size_from_high_card(flop, max_size=max_size)
+            for flop in v["raw_flop"]
+        ]
+        ax.scatter(
+            values1,
+            values2,
+            c=colors,
+            label=v["raw_flop"],
+            s=sizes,
+            marker=marker,
+            edgecolors="black",
+        )
+        all_textures = [
+            ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
+            ("monotone disconneted", ("UNPAIRED", "MONOTONE", "DISCONNECTED")),
+            ("monotone connected", ("UNPAIRED", "MONOTONE", "STRAIGHT")),
+            ("monotone gutshot", ("UNPAIRED", "MONOTONE", "GUTSHOT")),
+            ("monotone oesd", ("UNPAIRED", "MONOTONE", "OESD")),
+            ("rainbow disconnected", ("UNPAIRED", "RAINBOW", "DISCONNECTED")),
+            ("rainbow connected", ("UNPAIRED", "RAINBOW", "STRAIGHT")),
+            ("rainbow oesd", ("UNPAIRED", "RAINBOW", "OESD")),
+            ("rainbow gutter", ("UNPAIRED", "RAINBOW", "GUTSHOT")),
+            ("flushdraw disconnected", ("UNPAIRED", "FD", "DISCONNECTED")),
+            ("flushdraw connected", ("UNPAIRED", "FD", "STRAIGHT")),
+            ("flushdraw oesd", ("UNPAIRED", "FD", "OESD")),
+            ("flushdraw gutter", ("UNPAIRED", "FD", "GUTSHOT")),
+            ("paired rainbow disconnected", ("PAIRED", "RAINBOW", "DISCONNECTED")),
+            ("paired rainbow oesd", ("PAIRED", "RAINBOW", "OESD")),
+            ("paired rainbow gutter", ("PAIRED", "RAINBOW", "GUTSHOT")),
+            ("paired flushdraw disconnected", ("PAIRED", "FD", "DISCONNECTED")),
+            ("paired flushdraw oesd", ("PAIRED", "FD", "OESD")),
+            ("paired flushdraw gutter", ("PAIRED", "FD", "GUTSHOT")),
+        ]
+
+        legend_elements = [
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                label=label,
+                markerfacecolor=color_texture(t),
+                markersize=8,
+            )
+            for (label, t) in all_textures
+        ]
+        # Add the legend
+        if legend:
+            ax.legend(
+                handles=legend_elements, loc="upper left", prop={"size": legend_size}
+            )
+
+        mplcursors.cursor(ax.collections, hover=True).connect(
+            "add",
+            lambda sel: sel.annotation.set_text(v["raw_flop"].iloc[sel.index]),
+        )
+        ax.set_xlabel(x_axis, fontsize=15)
+        ax.set_ylabel(y_axis, fontsize=15)
+        ax.set_title(
+            f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
+            fontsize=20,
+        )
+        plt.show()
