@@ -30,6 +30,23 @@ ranks = {
 }
 
 
+ranks_rev = {
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+    10: "T",
+    11: "J",
+    12: "Q",
+    13: "K",
+    14: "A",
+}
+
+
 def ahml(rank):
     if rank == 14:
         return "A"
@@ -89,23 +106,6 @@ def marker_size_from_high_card(flop, max_size=None, min_size=10):
     factor = (max_size / min_size) ** (1 / 12)
     size = min_size * factor ** (r - 2)
     return size
-
-
-ranks_rev = {
-    2: "2",
-    3: "3",
-    4: "4",
-    5: "5",
-    6: "6",
-    7: "7",
-    8: "8",
-    9: "9",
-    10: "T",
-    11: "J",
-    12: "Q",
-    13: "K",
-    14: "A",
-}
 
 
 def card_tuple(c):
@@ -324,7 +324,18 @@ class AggregationReport:
         print(f"Column name {column} has multiple matches: {', '.join(matches)}")
         return None
 
-    def plot(self, col1=None, col2=None, labels=True, min_size=None, max_size=None, marker=None, sort_single_column=False, legend=True, legend_size=12):
+    def plot(
+        self,
+        col1=None,
+        col2=None,
+        labels=True,
+        min_size=None,
+        max_size=None,
+        marker=None,
+        sort_single_column=False,
+        legend=True,
+        legend_size=12,
+    ):
         """
         This is a gargantuan method and should be refactored. I'm exploring
         different ideas at the moment and getting familiar with MPL. I should
@@ -356,7 +367,6 @@ class AggregationReport:
             max_size = 200
             if min_size > max_size:
                 min_size = max_size
-
 
         if col1 is not None and col2 is None:
             if sort_single_column:
@@ -456,7 +466,9 @@ class AggregationReport:
         ]
         # Add the legend
         if legend:
-            ax.legend(handles=legend_elements, loc="upper left", prop={"size": legend_size})
+            ax.legend(
+                handles=legend_elements, loc="upper left", prop={"size": legend_size}
+            )
 
         mplcursors.cursor(ax.collections, hover=True).connect(
             "add",
@@ -471,8 +483,8 @@ class AggregationReport:
         plt.show()
 
     def in_browser(self):
-        with tempfile.NamedTemporaryFile('w', delete=False, suffix='.html') as f:
-            url = 'file://' + f.name
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".html") as f:
+            url = "file://" + f.name
             html = self.view().to_html()
             f.write(html)
         webbrowser.open(url)
