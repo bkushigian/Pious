@@ -23,6 +23,7 @@ class AggregationReport:
         agg_report_directory: str,
         cfr_database: Optional[str | CFRDatabase] = None,
         report_cache: Optional[str] = None,
+        spot_name: Optional[str] = None,
     ):
         """Create a new `AggregationReport`
 
@@ -36,8 +37,10 @@ class AggregationReport:
         """
         self._ensure_is_valid_agg_report_diretory(agg_report_directory)
         self.agg_report_directory = agg_report_directory
-        self.csv_path = osp.join(agg_report_directory, "report.csv")
-        self.info_path = osp.join(agg_report_directory, "info.txt")
+        self.report_csv_path = osp.join(agg_report_directory, "report.csv")
+        self.report_info_path = osp.join(agg_report_directory, "info.txt")
+        self.hands_ev_path = osp.join(agg_report_directory, "handsEV.csv")
+        self.spot_name = spot_name
         self._report_cache: Dict[str, AggregationReport] = report_cache or {}
         if self.agg_report_directory in self._report_cache:
             raise ValueError(
@@ -62,7 +65,7 @@ class AggregationReport:
                     f"Illegal cfr_database value {cfr_database}: must either be a CFRDatabase or a string representing the path to a solve database"
                 )
         self._load_info()
-        self.load_from_csv()
+        self._load_report()
         self.set_default_hidden_columns()
 
         # We keep track of the current _view_ of the aggregation report, which
@@ -73,11 +76,11 @@ class AggregationReport:
     def set_db_loc(self, db_loc):
         self.cfr_database = CFRDatabase(db_loc)
 
-    def load_from_csv(self):
+    def _load_report(self):
         """
         Load the dataframe from the raw csv passed in.
         """
-        with open(self.csv_path) as f:
+        with open(self.report_csv_path) as f:
             lines = f.readlines()
         self.header = lines[:3]
         self.body = StringIO("\n".join(lines[3:]))
@@ -110,7 +113,11 @@ class AggregationReport:
         Reset the view
         """
         self._view = self._df.copy()
+        self._current_filters = []
         return self
+
+    def current_filters(self):
+        return self._current_filters.copy()
 
     def sort_by(self, by, ascending=True):
         """
@@ -185,6 +192,7 @@ class AggregationReport:
         self,
         col1=None,
         col2=None,
+        title=None,
         min_size=None,
         max_size=None,
         labels=None,
@@ -197,6 +205,7 @@ class AggregationReport:
         self.plotter.scatter(
             col1=col1,
             col2=col2,
+            title=title,
             min_size=min_size,
             max_size=max_size,
             labels=labels,
@@ -329,7 +338,7 @@ class AggregationReport:
         self.hidden_columns = columns_to_suppress
 
     def _load_info(self):
-        with open(self.info_path) as f:
+        with open(self.report_info_path) as f:
             info_text = f.read()
         self.info = parse_info(info_text)
         if self.info.player == "OOP":
@@ -585,12 +594,13 @@ class Plotter:
         self,
         col1=None,
         col2=None,
+        title=None,
         labels=None,
         min_size=None,
         max_size=None,
         marker=None,
         sort_single_column=None,
-        legend=True,
+        legend=None,
         legend_size=None,
         plot_size_inches=None,
     ):
@@ -625,9 +635,12 @@ class Plotter:
         min_size = min_size or self.min_size
         max_size = max_size or self.max_size
         marker = marker or self.marker
-        legend = legend or self.legend
-        legend_size = legend_size or self.legend_size
-        sort_single_column = sort_single_column or self.sort_single_column
+        if legend is None:
+            legend = self.legend
+        if legend_size is None:
+            legend_size = self.legend_size
+        if sort_single_column is None:
+            sort_single_column = self.sort_single_column
         plot_size_inches = plot_size_inches or self.plot_size_inches
 
         if min_size is None:
@@ -752,8 +765,10 @@ class Plotter:
         )
         ax.set_xlabel(x_axis, fontsize=15)
         ax.set_ylabel(y_axis, fontsize=15)
+        if title is None:
+            title = f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " ")
         ax.set_title(
-            f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
+            title,
             fontsize=20,
         )
         fig.canvas.callbacks.connect("pick_event", self._make_on_pick_callback())
