@@ -11,7 +11,12 @@ import webbrowser
 import tempfile
 import pydoc
 from aggregation.util import *
-from aggregation.database import CFRDatabase
+from aggregation.database import (
+    CFRDatabase,
+    apply_permutation,
+    ALL_SUIT_PERMUTATIONS,
+    board_to_ranks_suits,
+)
 from pathlib import Path
 
 plt.ion()
@@ -116,8 +121,19 @@ class AggregationReport:
         self._current_filters = []
         return self
 
-    def current_filters(self):
+    def filters(self, join: Optional[str | bool] = None, parens=True):
+        if join is not None and join is not False:
+            fs = self._current_filters
+            if parens:
+                fs = [f"({f})" for f in fs]
+            if join == True:
+                join = " and "
+            return join.join(fs)
+
         return self._current_filters.copy()
+
+    def joined_filters(self):
+        return "(" + ") and (".join(self._current_filters) + ")"
 
     def sort_by(self, by, ascending=True):
         """
@@ -201,7 +217,10 @@ class AggregationReport:
         legend=None,
         legend_size=None,
         plot_size_inches=None,
+        filter=None,
     ):
+        if filter is not None:
+            self.filter(filter)
         self.plotter.scatter(
             col1=col1,
             col2=col2,
@@ -215,6 +234,9 @@ class AggregationReport:
             legend_size=legend_size,
             plot_size_inches=plot_size_inches,
         )
+
+        if filter is not None:
+            self.undo_filter()
 
     def open_board_in_pio(self, board):
         self.cfr_database.open_board_in_pio(board)
@@ -364,6 +386,19 @@ class AggregationReport:
                 new_name = new_name.replace(" ", "_")
             new_names[column] = new_name.replace(" ", "_")
         self._df.rename(columns=new_names, inplace=True)
+
+    def __getitem__(self, item):
+        ranks, suits = board_to_ranks_suits(item)
+        v = self.view()
+        raw_flops = v["raw_flop"]
+        for permutation in ALL_SUIT_PERMUTATIONS:
+            new_suits = apply_permutation(suits, permutation)
+            cards = [f"{r}{s}" for (r, s) in zip(ranks, new_suits)]
+            board = " ".join(cards)
+            result = v.loc[v["raw_flop"] == board]
+            if len(result) > 0:
+                return result
+        return None
 
     def _process_flops(self):
         """
@@ -767,6 +802,7 @@ class Plotter:
         ax.set_ylabel(y_axis, fontsize=15)
         if title is None:
             title = f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " ")
+            title += f"\n{self.report.filters(join=True, parens=False)}"
         ax.set_title(
             title,
             fontsize=20,
