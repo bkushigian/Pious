@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple, List
 import pandas as pd
 import os
 from os import path as osp
@@ -22,6 +22,19 @@ from pathlib import Path
 plt.ion()
 
 
+def load_report_to_df(report_csv_path: str) -> Tuple[List[str], str, pd.DataFrame]:
+    """
+    Read in a report a return a (header, body, dataframe) tuple
+    """
+    with open(report_csv_path) as f:
+        lines = f.readlines()
+    header = lines[:3]
+    body = StringIO("\n".join(lines[3:]))
+    df = pd.read_csv(body)
+    df = df.drop(df.index[-1])
+    return header, body, df
+
+
 class AggregationReport:
     def __init__(
         self,
@@ -41,6 +54,7 @@ class AggregationReport:
             the aggregation report
         """
         self._ensure_is_valid_agg_report_diretory(agg_report_directory)
+        self.type = "RAW_REPORT"
         self.agg_report_directory = agg_report_directory
         self.report_csv_path = osp.join(agg_report_directory, "report.csv")
         self.report_info_path = osp.join(agg_report_directory, "info.txt")
@@ -59,6 +73,7 @@ class AggregationReport:
         self._view: pd.DataFrame = None
         self._current_filters = []
         self.hidden_columns = []
+        self.texture_columns = []
         self.cfr_database = None
         if cfr_database is not None:
             if isinstance(cfr_database, str):
@@ -85,13 +100,7 @@ class AggregationReport:
         """
         Load the dataframe from the raw csv passed in.
         """
-        with open(self.report_csv_path) as f:
-            lines = f.readlines()
-        self.header = lines[:3]
-        self.body = StringIO("\n".join(lines[3:]))
-        df = pd.read_csv(self.body)
-        df = df.drop(df.index[-1])
-        self._df = df
+        self.header, self.body, self._df = load_report_to_df(self.report_csv_path)
         self._clean_column_names()
         self._process_flops()
         self._compute_textures()
@@ -203,6 +212,12 @@ class AggregationReport:
             html = self.view().to_html()
             f.write(html)
         webbrowser.open(url)
+
+    def describe(self, cols=None):
+        v = self.view()
+        if cols is not None:
+            v = v[cols]
+        return v.describe()
 
     def plot(
         self,
@@ -638,6 +653,7 @@ class Plotter:
         legend=None,
         legend_size=None,
         plot_size_inches=None,
+        ax_line=None,
     ):
         """
         This is a gargantuan method and should be refactored. I'm exploring
@@ -737,6 +753,9 @@ class Plotter:
         if marker is None:
             marker = "o"
 
+        if ax_line is None:
+            ax_line = False
+
         fig, ax = plt.subplots()
         fig.set_size_inches(*plot_size_inches)
         colors = [color_texture(texture) for texture in v["texture"]]
@@ -753,6 +772,11 @@ class Plotter:
             marker=marker,
             edgecolors="black",
         )
+        if ax_line:
+
+            pt = max(min(ax.get_xlim()), min(ax.get_ylim()))
+            ax.axline((pt, pt), slope=1)
+
         all_textures = [
             ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
             ("monotone disconneted", ("UNPAIRED", "MONOTONE", "DISCONNECTED")),
