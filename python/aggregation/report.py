@@ -233,6 +233,8 @@ class AggregationReport:
         legend_size=None,
         plot_size_inches=None,
         filter=None,
+        xlim=None,
+        ylim=None,
     ):
         if filter is not None:
             self.filter(filter)
@@ -248,13 +250,17 @@ class AggregationReport:
             legend=legend,
             legend_size=legend_size,
             plot_size_inches=plot_size_inches,
+            xlim=xlim,
+            ylim=ylim,
         )
 
         if filter is not None:
             self.undo_filter()
 
-    def open_board_in_pio(self, board):
-        self.cfr_database.open_board_in_pio(board)
+    def open_board_in_pio(self, board, node=None):
+        if node is None:
+            node = self.info.node_id
+        self.cfr_database.open_board_in_pio(board, node=node)
 
     def parent(self):
         ard = self.agg_report_directory
@@ -654,6 +660,8 @@ class Plotter:
         legend_size=None,
         plot_size_inches=None,
         ax_line=None,
+        xlim=None,
+        ylim=None,
     ):
         """
         This is a gargantuan method and should be refactored. I'm exploring
@@ -772,6 +780,11 @@ class Plotter:
             marker=marker,
             edgecolors="black",
         )
+        if xlim is not None:
+            ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+
         if ax_line:
 
             pt = max(min(ax.get_xlim()), min(ax.get_ylim()))

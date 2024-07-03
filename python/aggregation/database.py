@@ -54,7 +54,7 @@ class CFRDatabase:
                 if apply_permutation(suits, perm) == s:
                     return b
 
-    def open_board_in_pio(self, board):
+    def open_board_in_pio(self, board, node="r:0"):
         """
         Look for this board in the
         """
@@ -64,4 +64,6 @@ class CFRDatabase:
         board_file_path = self.cfr_files[idx]
         if not osp.exists(board_file_path):
             raise RuntimeError(f"Board {board_file_path} does not exist")
-        subprocess.Popen([self.pio_viewer_location, board_file_path])
+        cmd = [self.pio_viewer_location, board_file_path, "--open-node", node]
+        print("Running:", " ".join(cmd))
+        subprocess.Popen(cmd)
