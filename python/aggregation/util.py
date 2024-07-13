@@ -60,7 +60,7 @@ def color_texture(texture):
     if "MONOTONE" in texture:
         red = "ff"
     elif "FD" in texture:
-        red = "99"
+        red = "cc"
     elif "RAINBOW" in texture:
         red = "00"
     else:
@@ -69,9 +69,9 @@ def color_texture(texture):
     if "STRAIGHT" in texture:
         green = "ff"
     elif "OESD" in texture:
-        green = "aa"
+        green = "88"
     elif "GUTSHOT" in texture:
-        green = "55"
+        green = "33"
     elif "DISCONNECTED" in texture:
         green = "00"
     else:

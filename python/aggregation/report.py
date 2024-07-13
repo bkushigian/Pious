@@ -1,5 +1,6 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple, List
 import pandas as pd
+import os
 from os import path as osp
 from io import StringIO
 from matplotlib.backend_bases import PickEvent, MouseEvent, MouseButton
@@ -10,13 +11,38 @@ import webbrowser
 import tempfile
 import pydoc
 from aggregation.util import *
-from aggregation.database import CFRDatabase
+from aggregation.database import (
+    CFRDatabase,
+    apply_permutation,
+    ALL_SUIT_PERMUTATIONS,
+    board_to_ranks_suits,
+)
+from pathlib import Path
 
 plt.ion()
 
 
+def load_report_to_df(report_csv_path: str) -> Tuple[List[str], str, pd.DataFrame]:
+    """
+    Read in a report a return a (header, body, dataframe) tuple
+    """
+    with open(report_csv_path) as f:
+        lines = f.readlines()
+    header = lines[:3]
+    body = StringIO("\n".join(lines[3:]))
+    df = pd.read_csv(body)
+    df = df.drop(df.index[-1])
+    return header, body, df
+
+
 class AggregationReport:
-    def __init__(self, agg_report_directory: str, db_loc: Optional[str] = None):
+    def __init__(
+        self,
+        agg_report_directory: str,
+        cfr_database: Optional[str | CFRDatabase] = None,
+        report_cache: Optional[str] = None,
+        spot_name: Optional[str] = None,
+    ):
         """Create a new `AggregationReport`
 
         Args:
@@ -27,9 +53,18 @@ class AggregationReport:
             the location of the database of solves that were used to generate
             the aggregation report
         """
+        self._ensure_is_valid_agg_report_diretory(agg_report_directory)
+        self.type = "RAW_REPORT"
         self.agg_report_directory = agg_report_directory
-        self.csv_path = osp.join(agg_report_directory, "report.csv")
-        self.info_path = osp.join(agg_report_directory, "info.txt")
+        self.report_csv_path = osp.join(agg_report_directory, "report.csv")
+        self.report_info_path = osp.join(agg_report_directory, "info.txt")
+        self.hands_ev_path = osp.join(agg_report_directory, "handsEV.csv")
+        self.spot_name = spot_name
+        self._report_cache: Dict[str, AggregationReport] = report_cache or {}
+        if self.agg_report_directory in self._report_cache:
+            raise ValueError(
+                f"There is already a cached AggregationReport associated with {self.agg_report_directory}"
+            )
         self.ip = False
         self.oop = False
         self.info = None
@@ -38,11 +73,19 @@ class AggregationReport:
         self._view: pd.DataFrame = None
         self._current_filters = []
         self.hidden_columns = []
+        self.texture_columns = []
         self.cfr_database = None
-        if db_loc is not None:
-            self.cfr_database = CFRDatabase(db_loc)
+        if cfr_database is not None:
+            if isinstance(cfr_database, str):
+                self.cfr_database = CFRDatabase(cfr_database)
+            elif isinstance(cfr_database, CFRDatabase):
+                self.cfr_database = cfr_database
+            else:
+                raise ValueError(
+                    f"Illegal cfr_database value {cfr_database}: must either be a CFRDatabase or a string representing the path to a solve database"
+                )
         self._load_info()
-        self.load_from_csv()
+        self._load_report()
         self.set_default_hidden_columns()
 
         # We keep track of the current _view_ of the aggregation report, which
@@ -53,17 +96,11 @@ class AggregationReport:
     def set_db_loc(self, db_loc):
         self.cfr_database = CFRDatabase(db_loc)
 
-    def load_from_csv(self):
+    def _load_report(self):
         """
         Load the dataframe from the raw csv passed in.
         """
-        with open(self.csv_path) as f:
-            lines = f.readlines()
-        self.header = lines[:3]
-        self.body = StringIO("\n".join(lines[3:]))
-        df = pd.read_csv(self.body)
-        df = df.drop(df.index[-1])
-        self._df = df
+        self.header, self.body, self._df = load_report_to_df(self.report_csv_path)
         self._clean_column_names()
         self._process_flops()
         self._compute_textures()
@@ -90,7 +127,22 @@ class AggregationReport:
         Reset the view
         """
         self._view = self._df.copy()
+        self._current_filters = []
         return self
+
+    def filters(self, join: Optional[str | bool] = None, parens=True):
+        if join is not None and join is not False:
+            fs = self._current_filters
+            if parens:
+                fs = [f"({f})" for f in fs]
+            if join == True:
+                join = " and "
+            return join.join(fs)
+
+        return self._current_filters.copy()
+
+    def joined_filters(self):
+        return "(" + ") and (".join(self._current_filters) + ")"
 
     def sort_by(self, by, ascending=True):
         """
@@ -161,10 +213,17 @@ class AggregationReport:
             f.write(html)
         webbrowser.open(url)
 
+    def describe(self, cols=None):
+        v = self.view()
+        if cols is not None:
+            v = v[cols]
+        return v.describe()
+
     def plot(
         self,
         col1=None,
         col2=None,
+        title=None,
         min_size=None,
         max_size=None,
         labels=None,
@@ -173,10 +232,16 @@ class AggregationReport:
         legend=None,
         legend_size=None,
         plot_size_inches=None,
+        filter=None,
+        xlim=None,
+        ylim=None,
     ):
+        if filter is not None:
+            self.filter(filter)
         self.plotter.scatter(
             col1=col1,
             col2=col2,
+            title=title,
             min_size=min_size,
             max_size=max_size,
             labels=labels,
@@ -185,10 +250,83 @@ class AggregationReport:
             legend=legend,
             legend_size=legend_size,
             plot_size_inches=plot_size_inches,
+            xlim=xlim,
+            ylim=ylim,
         )
 
-    def open_board_in_pio(self, board):
-        self.cfr_database.open_board_in_pio(board)
+        if filter is not None:
+            self.undo_filter()
+
+    def open_board_in_pio(self, board, node=None):
+        if node is None:
+            node = self.info.node_id
+        self.cfr_database.open_board_in_pio(board, node=node)
+
+    def parent(self):
+        ard = self.agg_report_directory
+        if osp.basename(ard) == "Root":
+            return None
+        par_dir = str(Path(ard).parent.absolute())
+        try:
+            self._ensure_is_valid_agg_report_diretory(par_dir)
+        except RuntimeError as e:
+            print(e)
+            return None
+        # Is valid parent dir
+        if par_dir not in self._report_cache:
+            return AggregationReport(
+                par_dir, self.cfr_database, report_cache=self._report_cache
+            )
+        return self._report_cache[par_dir]
+
+    def take_action(self, action_directory: str):
+        ard = self.agg_report_directory
+        d = osp.join(ard, action_directory)
+        dirs = [
+            d
+            for d in os.listdir(self.agg_report_directory)
+            if osp.isdir(osp.join(ard, d))
+        ]
+        # Normalize the action directory
+        na = action_directory.upper().replace("_", "").replace(" ", "")
+        # Look for an exact match
+        matching_dir = None
+        for d in dirs:
+            nd = d.upper().replace("_", "").replace(" ", "")
+            if nd == na:
+                if matching_dir is not None:
+                    raise ValueError(
+                        f"Ambiguous match: {d} and {matching_dir} both normalize to {nd}"
+                    )
+                matching_dir = d
+        if matching_dir is None:  # No exact match, so lets find a unique prefix
+            matching_dir = None  # Redundant, but to be clear :)
+            for d in dirs:
+                nd = d.upper().replace("_", "").replace(" ", "")
+                if nd.startswith(na):
+                    if matching_dir is not None:
+                        raise ValueError(
+                            f"Ambiguous fuzzy match: {na} is a prefix to both {d} and {matching_dir}: cannot resolve which action to take"
+                        )
+                    matching_dir = d
+        if matching_dir is None:
+            raise ValueError(
+                f"Unable to find an diretory in {dirs} corresponding to action {action_directory}"
+            )
+        new_ard = osp.join(ard, matching_dir)
+
+        if new_ard not in self._report_cache:
+            return AggregationReport(
+                agg_report_directory=new_ard,
+                cfr_database=self.cfr_database,
+                report_cache=self._report_cache,
+            )
+        return self._report_cache[new_ard]
+
+    def _ensure_is_valid_agg_report_diretory(self, d):
+        for file in ["report.csv", "info.txt", "handsEV.csv"]:
+            if not osp.isfile(osp.join(d, file)):
+                raise RuntimeError(f"Cannot find {file} in report directory {d}")
 
     def _find_matching_column(self, columns, column):
         if column in columns:
@@ -243,7 +381,7 @@ class AggregationReport:
         self.hidden_columns = columns_to_suppress
 
     def _load_info(self):
-        with open(self.info_path) as f:
+        with open(self.report_info_path) as f:
             info_text = f.read()
         self.info = parse_info(info_text)
         if self.info.player == "OOP":
@@ -269,6 +407,19 @@ class AggregationReport:
                 new_name = new_name.replace(" ", "_")
             new_names[column] = new_name.replace(" ", "_")
         self._df.rename(columns=new_names, inplace=True)
+
+    def __getitem__(self, item):
+        ranks, suits = board_to_ranks_suits(item)
+        v = self.view()
+        raw_flops = v["raw_flop"]
+        for permutation in ALL_SUIT_PERMUTATIONS:
+            new_suits = apply_permutation(suits, permutation)
+            cards = [f"{r}{s}" for (r, s) in zip(ranks, new_suits)]
+            board = " ".join(cards)
+            result = v.loc[v["raw_flop"] == board]
+            if len(result) > 0:
+                return result
+        return None
 
     def _process_flops(self):
         """
@@ -448,10 +599,22 @@ class AggregationReport:
                     break
         return actions
 
+    def get_action_dirs(self):
+        ard = self.agg_report_directory
+        return [
+            d
+            for d in os.listdir(self.agg_report_directory)
+            if osp.isdir(osp.join(ard, d))
+        ]
+
     def __str__(self):
         view = self.view()
         view_str = str(view)
-        return view_str
+        s = f"""AggregationReport for {self.info.player} at {self.info.line} [ {self.agg_report_directory} ]
+
+{view_str}"""
+
+        return s
 
     def __repr__(self):
         return str(self)
@@ -487,14 +650,18 @@ class Plotter:
         self,
         col1=None,
         col2=None,
+        title=None,
         labels=None,
         min_size=None,
         max_size=None,
         marker=None,
         sort_single_column=None,
-        legend=True,
+        legend=None,
         legend_size=None,
         plot_size_inches=None,
+        ax_line=None,
+        xlim=None,
+        ylim=None,
     ):
         """
         This is a gargantuan method and should be refactored. I'm exploring
@@ -527,9 +694,12 @@ class Plotter:
         min_size = min_size or self.min_size
         max_size = max_size or self.max_size
         marker = marker or self.marker
-        legend = legend or self.legend
-        legend_size = legend_size or self.legend_size
-        sort_single_column = sort_single_column or self.sort_single_column
+        if legend is None:
+            legend = self.legend
+        if legend_size is None:
+            legend_size = self.legend_size
+        if sort_single_column is None:
+            sort_single_column = self.sort_single_column
         plot_size_inches = plot_size_inches or self.plot_size_inches
 
         if min_size is None:
@@ -591,6 +761,9 @@ class Plotter:
         if marker is None:
             marker = "o"
 
+        if ax_line is None:
+            ax_line = False
+
         fig, ax = plt.subplots()
         fig.set_size_inches(*plot_size_inches)
         colors = [color_texture(texture) for texture in v["texture"]]
@@ -607,6 +780,16 @@ class Plotter:
             marker=marker,
             edgecolors="black",
         )
+        if xlim is not None:
+            ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+
+        if ax_line:
+
+            pt = max(min(ax.get_xlim()), min(ax.get_ylim()))
+            ax.axline((pt, pt), slope=1)
+
         all_textures = [
             ("3 of a kind", ("TOAK", "RAINBOW", "DISCONNECTED")),
             ("monotone disconneted", ("UNPAIRED", "MONOTONE", "DISCONNECTED")),
@@ -654,8 +837,11 @@ class Plotter:
         )
         ax.set_xlabel(x_axis, fontsize=15)
         ax.set_ylabel(y_axis, fontsize=15)
+        if title is None:
+            title = f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " ")
+            title += f"\n{self.report.filters(join=True, parens=False)}"
         ax.set_title(
-            f"{x_axis.capitalize()} vs {y_axis.capitalize()}".replace("_", " "),
+            title,
             fontsize=20,
         )
         fig.canvas.callbacks.connect("pick_event", self._make_on_pick_callback())
