@@ -4,10 +4,10 @@ import time
 import sys
 from os import path as osp
 
-from pious.pio_utils import Line, node_id_to_line
+from pious.pio.utils import Line, node_id_to_line
 from pious.script_builder import ScriptBuilder
-from pious import pio_utils
-from pious import nodelock_utils
+from pious.util import pio_utils
+from pious.util import nodelock_utils
 
 
 path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "Ks7h2c.cfr")

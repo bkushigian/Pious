@@ -2,8 +2,8 @@ from typing import List
 from os import path as osp
 
 from pious.script_builder import ScriptBuilder
-from pious.pio_utils import Line, filter_lines
-from pious.pyosolver import PYOSolver, Node
+from pious.pio.utils import Line, filter_lines
+from pious.pio.solver import Solver, Node
 
 
 def get_strategy_at_node(solver, node):
@@ -13,7 +13,7 @@ def get_strategy_at_node(solver, node):
 
 
 def lock_overfolds(
-    solver: PYOSolver,
+    solver: Solver,
     node_ids: List[str],
     overfold_amount=0.05,
     max_ev_threshold=0.05,
@@ -42,7 +42,7 @@ def lock_overfolds(
 
 
 def lock_overfold_at_node_id(
-    solver: PYOSolver,
+    solver: Solver,
     node_id: str,
     amount=0.01,
     max_ev_threshold=0.01,

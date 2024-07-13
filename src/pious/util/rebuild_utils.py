@@ -9,20 +9,20 @@ from argparse import ArgumentParser
 from os import path as osp
 import time
 
-from pious.pyosolver import PYOSolver, Node
-from pious.pio_utils import Line, filter_lines, is_flop, is_turn, is_nonterminal
-from pious.pio_utils import make_solver, FLOP, TURN
+from pious.pio.solver import Solver, Node
+from pious.pio.utils import Line, filter_lines, is_flop, is_turn, is_nonterminal
+from pious.pio.utils import make_solver, FLOP, TURN
 from pious.util.progress_bar import progress_bar
 
 
-def rebuild_and_resolve(solver: PYOSolver, lock_turns=True, lines=None, accuracy=0.05):
+def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.05):
     """
     Rebuild and resolve a game tree. This is to replace the broken functionality
     of `solve_all_spots` from UPI.
 
     Parameters
     ----------
-    solver : PYOSolver
+    solver : Solver
         The solver to use for rebuilding and resolving.
     lock_turns : bool, optional
         Whether to lock turns or not, by default True

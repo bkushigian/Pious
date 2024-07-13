@@ -5,11 +5,8 @@ suit my needs.
 
 import subprocess
 import os
-from decimal import Decimal, InvalidOperation
-from functools import partial
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional
 from uuid import uuid4
-import time
 
 
 class Node:
@@ -39,7 +36,7 @@ class Node:
         return None
 
 
-class PYOSolver(object):
+class Solver(object):
     def __init__(
         self,
         path,
@@ -177,6 +174,9 @@ class PYOSolver(object):
             # we will just try to guess the type.
             data[key] = guess_type(key, value)
         return data
+
+    def load_all_nodes(self):
+        return self._run("load_all_nodes")
 
     def show_all_lines(self):
         return self._run("show_all_lines").split("\n")

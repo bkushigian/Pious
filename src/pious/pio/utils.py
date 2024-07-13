@@ -5,24 +5,26 @@ A collection of PioSOLVER utility functions
 from typing import Dict, List, Optional, Tuple, Callable
 from itertools import permutations
 
-from pious.pyosolver import PYOSolver
+from pious.pio.solver import Solver
+from pious.conf import pious_conf
 
 CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
-PATH = r"C:\\PioSOLVER"
-EXECUTABLE = r"PioSOLVER2-edge"
+PATH = pious_conf.pio_install_directory
+EXECUTABLE = pious_conf.get_pio_solver_name()
+VIEWER = pious_conf.get_pio_viewer_name()
 
 FLOP = 1
 TURN = 2
 RIVER = 3
 
 
-def get_all_lines(solver: PYOSolver) -> List[str]:
+def get_all_lines(solver: Solver) -> List[str]:
     """
     Given a node in the tree, return a list of all the lines in the tree.
     """
-    lines = solver.show_all_lines
-    effective_stacks = solver.show_effective_stacks()
-    return [Line(line, effective_stack=effective_stacks) for line in lines]
+    lines = solver.show_all_lines()
+    effective_stack = solver.show_effective_stack()
+    return [Line(line, effective_stack=effective_stack) for line in lines]
 
 
 def money_in_per_street(streets_as_actions: List[List[str]]) -> Tuple[int]:
@@ -496,7 +498,7 @@ def make_solver(
     debug=False,
     log_file=None,
     store_script=False,
-) -> PYOSolver:
+) -> Solver:
     """
     Create a new solver instance.
 
@@ -507,7 +509,7 @@ def make_solver(
     :param store_script: Store all solver commands to a script file `script.txt`
     :returns: A new solver instance
     """
-    return PYOSolver(
+    return Solver(
         install_path,
         executable,
         debug=debug,
