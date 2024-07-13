@@ -1,14 +1,14 @@
 from typing import List, Set, Tuple
-from pio_utils import Line, node_id_to_line
-import pio_utils
-import nodelock_utils
-import pyosolver
-from script_builder import ScriptBuilder
 from argparse import ArgumentParser, Namespace
 import time
 import sys
-
 from os import path as osp
+
+from pious.pio_utils import Line, node_id_to_line
+from pious.script_builder import ScriptBuilder
+from pious import pio_utils
+from pious import nodelock_utils
+
 
 path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "Ks7h2c.cfr")
 
@@ -46,12 +46,6 @@ def parse_args() -> Namespace:
     parser.add_argument("--ip", action="store_true")
     parser.add_argument("--num_bets", type=int, default=3)
     parser.add_argument("--bets_per_street", type=int, default=1)
-    # parser.add_argument(
-    #     "--global_frequency",
-    #     type=float,
-    #     defualt=None,
-    #     help="minimum global frequency of a node needed to lock",
-    # )
 
     return parser.parse_args()
 

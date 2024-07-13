@@ -291,7 +291,7 @@ class PYOSolver(object):
         lines = []
 
         trigger_word = None
-        if command in NO_OUTPUT_COMMANDS:
+        if command in _NO_OUTPUT_COMMANDS:
             # We need to use a trigger word to tell if we are done
             trigger_word = f"{command} ok!\n"
 
@@ -451,7 +451,7 @@ def is_member(hand, hand_class):
         return ranks_match and hand[1] != hand[3]
 
 
-NO_OUTPUT_COMMANDS = [
+_NO_OUTPUT_COMMANDS = [
     "is_ready",
     "set_end_string",
     "load_tree",

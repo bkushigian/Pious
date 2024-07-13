@@ -1,9 +1,9 @@
-from pio_utils import Line, filter_lines
-from pyosolver import PYOSolver, Node
 from typing import List
 from os import path as osp
 
-from script_builder import ScriptBuilder
+from pious.script_builder import ScriptBuilder
+from pious.pio_utils import Line, filter_lines
+from pious.pyosolver import PYOSolver, Node
 
 
 def get_strategy_at_node(solver, node):

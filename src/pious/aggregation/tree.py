@@ -1,7 +1,7 @@
 from os import path as osp
 from typing import Dict
-from aggregation.report import AggregationReport
-from aggregation.util import *
+from pious.aggregation.report import AggregationReport
+from pious.aggregation.util import *
 
 
 class TreeNode:

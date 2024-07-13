@@ -2,9 +2,10 @@
 This file contains utility functions for working with node frequencies
 """
 
-from pyosolver import PYOSolver, Node
 from queue import PriorityQueue
-from traverser import bfs
+
+from pious.pyosolver import PYOSolver, Node
+from pious.traverser import bfs
 
 
 class NodeFreqPriorityQueue:

@@ -3,8 +3,9 @@ A collection of PioSOLVER utility functions
 """
 
 from typing import Dict, List, Optional, Tuple, Callable
-from pyosolver import PYOSolver
 from itertools import permutations
+
+from pious.pyosolver import PYOSolver
 
 CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
 PATH = r"C:\\PioSOLVER"

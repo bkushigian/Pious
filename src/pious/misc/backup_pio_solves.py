@@ -2,8 +2,8 @@
 
 """
 This script automatically detects new or updated .cfr files in a folder and
-copies them to a backup folder. It is intended to be used with the 
-PIOSolver software, which generates .cfr files as output
+copies them to a backup folder. It is intended to be used with the PioSOLVER
+software, which generates .cfr files as output
 
 The script is intended to be run as a scheduled task in Windows.
 
