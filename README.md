@@ -2,13 +2,17 @@
 
 Various Pio Utilities
 
-**Warning:** _This library is still under construction. All interfaces, classes, files, etc **will** be changed. I'm open sourcing this for feedback/collaboration_
+**Warning:** _This library is still under construction. All interfaces, classes, files, etc. **will** be changed. I'm open sourcing this for feedback/collaboration_
 
-## Installing Requirements
+## Install
 
-You'll need to install Python3.x (not sure the minimal x version, but anything
->= 3.9 should be good). You also need to install some requirements with `pip
-install -r requirements.txt`.
+Install with `pip install pious`
+
+## Solver Interface
+
+The main solver interface is `pious.pyosolver`
+
+
 
 ## Aggregation Reports
 
