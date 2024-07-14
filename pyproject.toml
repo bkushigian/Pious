@@ -1,9 +1,7 @@
 [project]
 name = "pious"
 version = "0.0.0.dev7"
-authors = [
-    { name="Ben Kushigian", email="bkushigian@gmail.com" }
-]
+authors = [{ name = "Ben Kushigian", email = "bkushigian@gmail.com" }]
 description = "The PioSOLVER Utility Suite"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -15,7 +13,8 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.7.1",
     "pandas>=2.0.3",
-    "mplcursors>=0.5.1"
+    "mplcursors>=0.5.1",
+    "ansi>=0.3",
 ]
 
 [project.urls]

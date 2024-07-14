@@ -10,8 +10,8 @@ import mplcursors
 import webbrowser
 import tempfile
 import pydoc
-from pious.aggregation.util import *
-from pious.aggregation.database import (
+from pious.pio.util import *
+from pious.pio.database import (
     CFRDatabase,
     apply_permutation,
     ALL_SUIT_PERMUTATIONS,

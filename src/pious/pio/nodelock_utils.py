@@ -2,7 +2,7 @@ from typing import List
 from os import path as osp
 
 from pious.script_builder import ScriptBuilder
-from pious.pio.utils import Line, filter_lines
+from pious.pio.line import Line, filter_lines
 from pious.pio.solver import Solver, Node
 
 

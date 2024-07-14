@@ -3,7 +3,7 @@ Compare different combination reports. This effectively performs a join on two
 aggregation reports.
 """
 
-from pious.aggregation.report import AggregationReport, Plotter
+from pious.pio.aggregation import AggregationReport, Plotter
 import pandas as pd
 from typing import Optional, List, Tuple
 
