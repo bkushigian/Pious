@@ -1,0 +1,7 @@
+IP Decision
+Node id: r:0:b300
+Board: Ts 7h 4d
+Line: Root,BET 300
+Starting stacks: 300
+
+Report done without weighting flops.
