@@ -3,3 +3,4 @@ run.log
 script.txt
 .vscode/
 /*.cfr
+dist/
