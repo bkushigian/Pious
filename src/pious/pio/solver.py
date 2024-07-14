@@ -6,7 +6,7 @@ suit my needs.
 import subprocess
 import os
 from typing import List, Optional
-from uuid import uuid4
+from pious.pio.tree_building import try_value_as_int, try_value_as_literal
 
 
 class Node:
@@ -165,14 +165,23 @@ class Solver(object):
         response = self._run("estimate_rebuild_forgotten_streets")
         return response
 
+    def reset_tree_info(self):
+        return self._run("reset_tree_info")
+
+    def add_info_line(self, info_line):
+        return self._run("add_info_line", info_line)
+
     def show_tree_info(self):
         data = {}
         self._run("show_tree_info")
         for line in self._run("show_tree_info").split("\n"):
-            _, key, value = line.split("#")
-            # We don't know what order these will be in, so
-            # we will just try to guess the type.
-            data[key] = guess_type(key, value)
+            try:
+                _, key, value = line.split("#")
+                # We don't know what order these will be in, so
+                # we will just try to guess the type.
+                data[key] = guess_type(key, value)
+            except ValueError:
+                pass
         return data
 
     def load_all_nodes(self):
@@ -246,6 +255,9 @@ class Solver(object):
     def lock_node(self, node_id):
         response = self._run("lock_node", node_id)
         return response
+
+    def load_script(self, script_filepath):
+        return self._run("load_script", script_filepath)
 
     def load_script_silent(self, script_filepath):
         return self._run("load_script_silent", script_filepath)
@@ -372,42 +384,16 @@ def first_int(to_parse):
     return int(to_parse.split(" ")[0])
 
 
-def try_as_int(maybe_int, default=None):
-    try:
-        return int(maybe_int)
-    except ValueError as e:
-        if default is None:
-            return maybe_int
-        else:
-            return default
-
-
 def guess_type(key, data_string):
     if "Config" in key and "Size" in key:
         values = data_string.split(",")
-        values = [try_as_int(s) for v in values for s in v.split(" ") if s]
+        values = [try_value_as_int(s) for v in values for s in v.split(" ") if s]
         return values
     if "Range" in key:
         return data_string.split(",")
     if "Board" == key:
         return data_string.split(" ")
     return try_value_as_literal(data_string)
-
-
-def try_value_as_literal(data_string):
-    try:
-        return bool(data_string)
-    except ValueError:
-        pass
-    try:
-        return int(data_string)
-    except ValueError:
-        pass
-    try:
-        return float(data_string)
-    except ValueError:
-        pass
-    return data_string
 
 
 def info_range_to_pio_range(hand_order, info_range):
