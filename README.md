@@ -72,15 +72,28 @@ To use the `AggregationReport`, start a `python` session from the `python`
 directory, and import the aggregation report module. Then create a new
 `AggregationReport` by passing in the path to the folder containing the
 `AggregationReport` (and optionally including the path to the solve database
-that you used to generate the aggregation report):
+that you used to generate the aggregation report).
+See `examples\aggregation_example.py` for more info:
 
 ```python
-from pious.pio.report import AggregationReport
+# Excerpt from examples\aggregation_example.py
 
-# With just the report
-r = AggregationReport(PATH_TO_REPORT_FOLDER)
-# With report and solve database
-r = AggregationReport(PATH_TO_REPORT_FOLDER, PATH_TO_SOLVE_DB)
+from pious.pio.aggregation import AggregationReport
+import pious.pio.resources as resources
+
+report = AggregationReport(get_aggregation_root(), get_database_root())
+print(report)
+print(report.describe())
+
+report.ioff()  # turn off matplotlib's interactive mode
+report.plot()  # exit report to continue
+
+report.filter("r1 == 14") # filter for ace high boards
+report.plot()
+
+report.reset()
+report.filter("r1 < 14 and flushdraw") # non ace high AND flushdraw boards
+report.plot()
 ```
 
 You can run `r.plot()` to get a nice visualization, `r.filter()` to focus only
