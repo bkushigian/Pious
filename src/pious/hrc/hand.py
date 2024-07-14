@@ -16,6 +16,7 @@ class Solve:
         self.settings = SolveSettings(json.loads(contents))
         self.nodes = []
         self.nodes_path = osp.join(hand_export_dir, "nodes")
+        self.node_cache = NodeCache(self.nodes_path)
         for node_file_json in listdir(self.nodes_path):
             if not node_file_json.endswith(".json"):
                 print(
@@ -26,7 +27,7 @@ class Solve:
                 )
                 continue
             node_file_json_path = osp.join(self.nodes_path, node_file_json)
-            node = HRCNode(node_file_json_path)
+            node = self.node_cache[node_file_json_path]
             self.nodes.append(node)
 
 
@@ -83,8 +84,35 @@ class EqModel:
         self.raked = d["raked"]
 
 
+class NodeCache:
+    def __init__(self, nodes_path):
+        self.nodes_path = nodes_path
+        self.cache = {}
+
+    def __getitem__(self, item):
+        # Canonicalize the item into a full node path
+        node_path = None
+        if isinstance(item, int):
+            item = osp.abspath(osp.join(self.nodes_path, f"{item}.json"))
+        if isinstance(item, str):
+            if (
+                item.startswith(self.nodes_path)
+                and item.endswith(".json")
+                and osp.exists(item)
+            ):
+                node_path = osp.abspath(item)
+            elif item.endswith(".json") and osp.exists(osp.join(self.nodes_path, item)):
+                node_path = osp.abspath(osp.join(self.nodes_path, item))
+            else:
+                raise KeyError(f"No such node {item}")
+        if node_path not in self.cache:
+            self.cache[node_path] = HRCNode(node_path, self)
+        return self.cache[node_path]
+
+
 class HRCNode:
-    def __init__(self, node_json_file):
+    def __init__(self, node_json_file, node_cache):
+        self.node_cache = node_cache
         self.filename = node_json_file
         self.id = int(osp.basename(node_json_file).strip(".json"))
         with open(node_json_file) as f:
@@ -100,8 +128,24 @@ class HRCNode:
             print(d)
             print(e)
             print(node_json_file)
-        self.actions = [Action(a) for a in d["actions"]]
+        self.actions = tuple([Action(a) for a in d["actions"]])
         self.hands = {h: HandData(h, d["hands"][h]) for h in d["hands"]}
+
+    def get_actions(self):
+        return self.actions
+
+    def get_hands(self):
+        return self.hands
+
+    def take_action(self, action) -> "HRCNode":
+        a = None
+        if isinstance(action, int):
+            a: Action = self.get_actions()[action]
+        else:
+            raise RuntimeError("Can only take integer actions")
+        if a.next_id is None:
+            return None
+        return self.node_cache[a.next_id]
 
     def __str__(self):
         return f"Node(id={self.id})"
@@ -117,10 +161,13 @@ class ActionSequence:
 
     def __init__(self, l):
         self._action_sequence_json = l
-        self.player_actions = [PlayerAction(d) for d in l]
+        self.player_actions = [PreviousAction(d) for d in l]
 
     def __str__(self):
         return f"ActionSequence[{', '.join(str(a) for a in self.player_actions)}]"
+
+    def __repr__(self):
+        return str(self)
 
 
 class Action:
@@ -129,6 +176,7 @@ class Action:
     def __init__(self, d):
         self.type = d["type"]
         self.amount = d["amount"]
+        self.next_id = d.get("node", None)
 
     def __str__(self):
         a = Action.action_map[self.type]
@@ -141,17 +189,18 @@ class Action:
         return str(self)
 
 
-class PlayerAction:
+class PreviousAction:
     """
-    Actions that a player may take
+    A previous action taken by a player in an action sequence
     """
 
     def __init__(self, d):
         self.player = d["player"]
-        self.action = Action(d)
+        self.type = d["type"]
+        self.amount = d["amount"]
 
     def __str__(self):
-        return f"PlayerAction(player={self.player},action={self.action})"
+        return f"PlayerAction(player={self.player},action={self.type} {self.amount})"
 
     def __repr__(self):
         return str(self)
