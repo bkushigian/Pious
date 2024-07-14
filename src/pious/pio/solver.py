@@ -23,10 +23,10 @@ class Node:
         self.flags = tuple(items[5].split(":")[1].strip().split(" "))
 
     def __repr__(self):
-        return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
+        str(self)
 
     def __str__(self):
-        return self._raw_node_data
+        return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
 
     def get_position(self):
         if self.node_type == "OOP_DEC":
@@ -372,19 +372,21 @@ def first_int(to_parse):
     return int(to_parse.split(" ")[0])
 
 
+def try_as_int(maybe_int, default=None):
+    try:
+        return int(maybe_int)
+    except ValueError as e:
+        if default is None:
+            return maybe_int
+        else:
+            return default
+
+
 def guess_type(key, data_string):
     if "Config" in key and "Size" in key:
-        if data_string.find(","):
-            try:
-                return [int(a) for a in data_string.split(",")]
-            # Case where sizings are expressed as allin 3x or 2e
-            except ValueError:
-                return data_string.split(",")
-        else:
-            try:
-                return [int(a) for a in data_string.split(" ")]
-            except ValueError:
-                return data_string.split(" ")
+        values = data_string.split(",")
+        values = [try_as_int(s) for v in values for s in v.split(" ") if s]
+        return values
     if "Range" in key:
         return data_string.split(",")
     if "Board" == key:

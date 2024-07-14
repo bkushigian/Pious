@@ -12,7 +12,7 @@ from pious.pio.line import (
     get_river_lines,
 )
 
-from pkg_resources import resource_filename, resource_listdir
+from pkg_resources import resource_filename
 
 cfr_path = resource_filename("pious.pio.resources.trees", "Kh7h2c.cfr")
 
