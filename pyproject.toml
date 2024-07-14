@@ -15,6 +15,7 @@ dependencies = [
     "pandas>=2.0.3",
     "mplcursors>=0.5.1",
     "ansi>=0.3",
+    "pytest>=8.2.2",
 ]
 
 [project.urls]

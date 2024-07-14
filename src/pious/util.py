@@ -1,3 +1,5 @@
+CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
+
 ranks = {
     "2": 2,
     "3": 3,

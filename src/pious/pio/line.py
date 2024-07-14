@@ -7,8 +7,8 @@ from itertools import permutations
 
 from pious.pio.solver import Solver
 from pious.conf import pious_conf
+from pious.util import CARDS
 
-CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
 PATH = pious_conf.pio_install_directory
 EXECUTABLE = pious_conf.get_pio_solver_name()
 VIEWER = pious_conf.get_pio_viewer_name()
@@ -490,32 +490,6 @@ class Line:
 
     def __repr__(self):
         return f"Line({self.line_str})"
-
-
-def make_solver(
-    install_path=PATH,
-    executable=EXECUTABLE,
-    debug=False,
-    log_file=None,
-    store_script=False,
-) -> Solver:
-    """
-    Create a new solver instance.
-
-    :param install_path: The path to the PioSOLVER installation
-    :param executable: The name of the executable
-    :param debug: Whether to run in debug mode (prints to stdout)
-    :param log_file: Store all solver communications to a log file (this can get big!)
-    :param store_script: Store all solver commands to a script file `script.txt`
-    :returns: A new solver instance
-    """
-    return Solver(
-        install_path,
-        executable,
-        debug=debug,
-        log_file=log_file,
-        store_script=store_script,
-    )
 
 
 def is_flop(line: Line) -> bool:

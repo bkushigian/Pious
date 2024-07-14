@@ -1,4 +1,34 @@
 from collections import namedtuple
+from pious.pio.solver import Solver
+from pious.util import card_tuple
+from pious.conf import pious_conf
+
+
+def make_solver(
+    debug=False,
+    log_file=None,
+    store_script=False,
+) -> Solver:
+    """
+    Create a new solver instance.
+
+    :param install_path: The path to the PioSOLVER installation
+    :param executable: The name of the executable
+    :param debug: Whether to run in debug mode (prints to stdout)
+    :param log_file: Store all solver communications to a log file (this can get big!)
+    :param store_script: Store all solver commands to a script file `script.txt`
+    :returns: A new solver instance
+    """
+    install_path = pious_conf.get_pio_install_directory()
+    executable = pious_conf.get_pio_solver_name()
+    return Solver(
+        install_path,
+        executable,
+        debug=debug,
+        log_file=log_file,
+        store_script=store_script,
+    )
+
 
 def color_texture(texture):
     """
@@ -48,7 +78,6 @@ def marker_size_from_high_card(flop, max_size=None, min_size=10):
     factor = (max_size / min_size) ** (1 / 12)
     size = min_size * factor ** (r - 2)
     return size
-
 
 
 Info = namedtuple("Info", ["player", "node_id", "line", "starting_stacks"])

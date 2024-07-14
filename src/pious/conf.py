@@ -44,5 +44,8 @@ class PiousConf:
             name = f"{name}-{self.pio_version_suffix}"
         return name
 
+    def get_pio_install_directory(self):
+        return self.pio_install_directory
+
 
 pious_conf = PiousConf()
