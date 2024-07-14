@@ -10,6 +10,9 @@ import mplcursors
 import webbrowser
 import tempfile
 import pydoc
+from pathlib import Path
+
+from pious.util import ranks_rev, ahml
 from pious.pio.util import *
 from pious.pio.database import (
     CFRDatabase,
@@ -17,7 +20,6 @@ from pious.pio.database import (
     ALL_SUIT_PERMUTATIONS,
     board_to_ranks_suits,
 )
-from pathlib import Path
 
 plt.ion()
 
@@ -53,7 +55,7 @@ class AggregationReport:
             the location of the database of solves that were used to generate
             the aggregation report
         """
-        self._ensure_is_valid_agg_report_diretory(agg_report_directory)
+        self._ensure_is_valid_agg_report_directory(agg_report_directory)
         self.type = "RAW_REPORT"
         self.agg_report_directory = agg_report_directory
         self.report_csv_path = osp.join(agg_report_directory, "report.csv")
@@ -122,12 +124,14 @@ class AggregationReport:
         result.drop(columns=to_drop, inplace=True)
         return result
 
-    def reset(self):
+    def reset(self, filter=None):
         """
-        Reset the view
+        Reset the view, optionally with a new filter
         """
         self._view = self._df.copy()
         self._current_filters = []
+        if filter:
+            self.filter(filter)
         return self
 
     def filters(self, join: Optional[str | bool] = None, parens=True):
@@ -268,7 +272,7 @@ class AggregationReport:
             return None
         par_dir = str(Path(ard).parent.absolute())
         try:
-            self._ensure_is_valid_agg_report_diretory(par_dir)
+            self._ensure_is_valid_agg_report_directory(par_dir)
         except RuntimeError as e:
             print(e)
             return None
@@ -323,7 +327,13 @@ class AggregationReport:
             )
         return self._report_cache[new_ard]
 
-    def _ensure_is_valid_agg_report_diretory(self, d):
+    def ion(self):
+        plt.ion()
+
+    def ioff(self):
+        plt.ioff()
+
+    def _ensure_is_valid_agg_report_directory(self, d):
         for file in ["report.csv", "info.txt", "handsEV.csv"]:
             if not osp.isfile(osp.join(d, file)):
                 raise RuntimeError(f"Cannot find {file} in report directory {d}")
