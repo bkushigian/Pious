@@ -4,9 +4,11 @@ from os import path as osp
 import importlib.resources
 
 
-cfr_path = osp.join(
-    importlib.resources.files("pious.pio.resources.trees"), "Kh7h2c.cfr"
-)
+trees_path = importlib.resources.files("pious.pio.resources.trees")
+cfr_path = osp.join(trees_path, "Kh7h2c.cfr")
+tree_building_path = importlib.resources.files("pious.pio.resources.tree_building")
+print("CFR_PATH", cfr_path)
+print("TREE BUILDING PATH", tree_building_path)
 
 
 def test_make_solver():
@@ -105,3 +107,13 @@ def test_rebuild_forgotten_streets():
     solver.load_tree(cfr_path)
     solver.rebuild_forgotten_streets()
     assert solver.is_ready()
+
+
+def _test_load_tree_from_config():
+    solver = make_solver(log_file="run.log", store_script="script.txt")
+    solver.reset_tree_info()
+    solver.load_script_silent(osp.join(tree_building_path, "25bbHU-2sizes.txt"))
+    solver.build_tree()
+    solver.go()
+    solver.wait_for_solver()
+    tree_info = solver.show_tree_info()

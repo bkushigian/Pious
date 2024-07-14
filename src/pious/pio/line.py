@@ -310,6 +310,9 @@ class Line:
 
         return nodes
 
+    def money_in_per_street(self):
+        return tuple(self._money_in_per_street)
+
     def n_streets(self) -> int:
         """
         Return the number of streets in this line, not including the root
