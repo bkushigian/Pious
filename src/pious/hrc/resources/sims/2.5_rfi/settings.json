@@ -1,0 +1,57 @@
+{
+  "handdata": {
+    "stacks": [
+      100000,
+      100000,
+      100000,
+      100000,
+      100000,
+      100000
+    ],
+    "blinds": [
+      1000,
+      500,
+      0
+    ],
+    "skipSb": false,
+    "movingBu": false,
+    "anteType": "REGULAR"
+  },
+  "treeconfig": {
+    "mode": "scripted"
+  },
+  "engine": {
+    "type": "montecarlo",
+    "maxactive": 4,
+    "configuration": {
+      "abstractions": [
+        {
+          "street": 0,
+          "buckets": 169
+        },
+        {
+          "street": 1,
+          "buckets": 16384,
+          "id": "d7b4eb2db1dca45751eb788820d47407bf960f87d23380eec60a336f7b874373"
+        },
+        {
+          "street": 2,
+          "buckets": 16384,
+          "id": "741bd150aec01478de0204b90775758d730248df0458d8d4a3a534bc90deb8a7"
+        },
+        {
+          "street": 3,
+          "buckets": 16384,
+          "id": "40624adecddaa224acf4cf2cf59e1e6f5e92d2080099d2465beac417cb6393a4"
+        }
+      ]
+    }
+  },
+  "eqmodel": {
+    "rakecap": 80,
+    "rakepct": 0.05,
+    "id": "chipev",
+    "nfnd": true,
+    "raked": true
+  }
+}

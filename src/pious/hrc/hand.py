@@ -7,7 +7,7 @@ from os import listdir
 import json
 
 
-class Solve:
+class HRCSim:
     def __init__(self, hand_export_dir):
         self.hand_export_dir = hand_export_dir
         self.settings_json_path = osp.join(self.hand_export_dir, "settings.json")
