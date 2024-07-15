@@ -30,6 +30,9 @@ class HRCSim:
             node = self.node_cache[node_file_json_path]
             self.nodes.append(node)
 
+    def get_node(self, node_id):
+        return self.node_cache[node_id]
+
 
 class SolveSettings:
     def __init__(self, settings):
@@ -123,7 +126,7 @@ class HRCNode:
             self.player = d["player"]
             self.street = d["street"]
             self.children = d["children"]
-            self.sequence = ActionSequence(d["sequence"])
+            self.sequence = [PreviousAction(x) for x in d["sequence"]]
         except KeyError as e:
             print(d)
             print(e)
