@@ -28,7 +28,7 @@ class GameState:
         a = action
         if a.player != self.current_player:
             raise RuntimeError(
-                f"Illegal state: current player {self.current_player} is not the player applying action {player}"
+                f"Illegal state: current player {self.current_player} is not the player applying action {a.player}"
             )
 
         if not self.in_hand[self.current_player]:
