@@ -23,6 +23,7 @@ class GameState:
         self.in_hand: List[bool] = list(in_hand)
         self.current_player: int = current_player
         self.available_actions: Optional[List[Action]] = available_actions
+        self.community_cards: List = []
 
     def apply_previous_action(self, action: PreviousAction) -> "GameState":
         a = action
@@ -90,6 +91,7 @@ class GameState:
             "in_hand": self.in_hand,
             "current_player": self.current_player,
             "available_actions": [a.as_json() for a in self.available_actions],
+            "community_cards": self.community_cards,
         }
 
 

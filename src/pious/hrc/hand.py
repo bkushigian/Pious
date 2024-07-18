@@ -6,6 +6,7 @@ from os import path as osp
 from os import listdir
 import json
 from typing import Dict, List, Tuple
+import copy
 
 
 class HRCSim:
@@ -117,6 +118,18 @@ class NodeCache:
         return self.cache[node_path]
 
 
+class HandStrategy:
+    def __init__(self, hand, d: Dict):
+        self._hand_data_json = copy.deepcopy(d)
+        self.hand = hand
+        self.weight = d["weight"]
+        self.played = tuple(d["played"])
+        self.evs = tuple(d["evs"])
+
+    def as_json(self):
+        return self._hand_data_json
+
+
 class HRCNode:
     def __init__(self, node_json_file, node_cache):
         self.node_cache: NodeCache = node_cache
@@ -138,15 +151,18 @@ class HRCNode:
             print(e)
             print(node_json_file)
         self.actions: Tuple[Action] = tuple([Action(a) for a in d["actions"]])
-        self.hands: Dict[str, HandData] = {
-            h: HandData(h, d["hands"][h]) for h in d["hands"]
+        self.hands: Dict[str, HandStrategy] = {
+            h: HandStrategy(h, d["hands"][h]) for h in d["hands"]
         }
 
     def get_actions(self):
         return self.actions
 
-    def get_hands(self):
+    def get_hands(self) -> Dict[str, HandStrategy]:
         return self.hands
+
+    def get_hands_as_json(self):
+        return {k: v.as_json() for (k, v) in self.hands.items()}
 
     def take_action(self, action) -> "HRCNode":
         a = None
@@ -242,12 +258,3 @@ class PreviousAction:
             "amount": self.amount,
             "next_id": None,
         }
-
-
-class HandData:
-    def __init__(self, hand, d):
-        self._hand_data_json = d
-        self.hand = hand
-        self.weight = d["weight"]
-        self.played = tuple(d["played"])
-        self.evs = tuple(d["evs"])
