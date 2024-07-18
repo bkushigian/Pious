@@ -1,7 +1,9 @@
 from pious.hrc.resources import get_test_hrc_sim
+from pious.hrc.hand import HRCNode
 
 sim = get_test_hrc_sim()
 nodes = sim.nodes
+
 
 def test_sim_settings():
     hand_data = sim.settings.hand_data
@@ -19,7 +21,6 @@ def test_sim_settings():
     assert engine.configuration.turn_abstractions == 16384
     assert engine.configuration.river_abstractions == 16384
 
-
     eq_model = sim.settings.eq_model
     assert eq_model.rake_cap == 80
     assert eq_model.rake_pct == 0.05
@@ -27,10 +28,26 @@ def test_sim_settings():
     assert eq_model.nfnd
     assert eq_model.raked
 
+
 def test_sim_nodes():
-    n0 = sim.node_cache[0]
+    n0: HRCNode = sim.node_cache[0]
     assert n0.player == 0
     assert n0.street == 0
     assert n0.children == 2
     assert n0.sequence == []
     assert len(n0.actions) == 2
+    assert (
+        n0.actions[0].type == "F"
+        and n0.actions[0].amount == 0
+        and n0.actions[0].next_id == 1
+    )
+    assert (
+        n0.actions[1].type == "R"
+        and n0.actions[1].amount == 2500
+        and n0.actions[1].next_id == 155
+    )
+
+    hands = n0.hands
+    assert hands["22"].weight == 1.0
+    assert hands["22"].played[0] == 0.8324
+    assert hands["22"].played[1] == 0.1676

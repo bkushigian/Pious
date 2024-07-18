@@ -5,6 +5,7 @@ An exported HRC Hand
 from os import path as osp
 from os import listdir
 import json
+from typing import Dict, List, Tuple
 
 
 class HRCSim:
@@ -41,6 +42,9 @@ class SolveSettings:
         self.tree_config = TreeConfig(settings["treeconfig"])
         self.engine = Engine(settings["engine"])
         self.eq_model = EqModel(settings["eqmodel"])
+
+    def as_json(self):
+        return self._settings_json
 
 
 class SolveData:
@@ -115,24 +119,28 @@ class NodeCache:
 
 class HRCNode:
     def __init__(self, node_json_file, node_cache):
-        self.node_cache = node_cache
-        self.filename = node_json_file
-        self.id = int(osp.basename(node_json_file).strip(".json"))
+        self.node_cache: NodeCache = node_cache
+        self.filename: str = node_json_file
+        self.id: int = int(osp.basename(node_json_file).strip(".json"))
         with open(node_json_file) as f:
             self._node_json = json.loads(f.read())
 
         d = self._node_json
         try:
-            self.player = d["player"]
-            self.street = d["street"]
-            self.children = d["children"]
-            self.sequence = [PreviousAction(x) for x in d["sequence"]]
+            self.player: int = d["player"]
+            self.street: int = d["street"]
+            self.children: int = d["children"]
+            self.sequence: List[PreviousAction] = [
+                PreviousAction(x) for x in d["sequence"]
+            ]
         except KeyError as e:
             print(d)
             print(e)
             print(node_json_file)
-        self.actions = tuple([Action(a) for a in d["actions"]])
-        self.hands = {h: HandData(h, d["hands"][h]) for h in d["hands"]}
+        self.actions: Tuple[Action] = tuple([Action(a) for a in d["actions"]])
+        self.hands: Dict[str, HandData] = {
+            h: HandData(h, d["hands"][h]) for h in d["hands"]
+        }
 
     def get_actions(self):
         return self.actions
@@ -156,6 +164,9 @@ class HRCNode:
     def __repr__(self):
         return str(self)
 
+    def as_json(self):
+        return self._node_json
+
 
 class ActionSequence:
     """
@@ -174,9 +185,17 @@ class ActionSequence:
 
 
 class Action:
+    """
+    Represents an available action at a given node (as opposed to a previous
+    action in an HRC action sequence). The main difference is that this does
+    not contain the current player (as that is maintained in game state) but
+    does contain the next node id (to traverse the game tree).
+    """
+
     action_map = {"R": "Raise", "F": "Fold", "C": "Call"}
 
-    def __init__(self, d):
+    def __init__(self, d, player=None):
+        self.player = player if player is not None else d.get("player", None)
         self.type = d["type"]
         self.amount = d["amount"]
         self.next_id = d.get("node", None)
@@ -190,6 +209,14 @@ class Action:
 
     def __repr__(self):
         return str(self)
+
+    def as_json(self):
+        return {
+            "player": None,
+            "type": self.type,
+            "amount": self.amount,
+            "next_id": self.next_id,
+        }
 
 
 class PreviousAction:
@@ -207,6 +234,14 @@ class PreviousAction:
 
     def __repr__(self):
         return str(self)
+
+    def as_json(self):
+        return {
+            "player": self.player,
+            "type": self.type,
+            "amount": self.amount,
+            "next_id": None,
+        }
 
 
 class HandData:
