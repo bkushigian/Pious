@@ -53,6 +53,7 @@ class CFRDatabase:
             for perm in ALL_SUIT_PERMUTATIONS:
                 if apply_permutation(suits, perm) == s:
                     return b
+        raise ValueError(f"Could not find isomorphic board to {b}")
 
     def open_board_in_pio(self, board, node="r:0"):
         """
