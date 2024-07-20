@@ -28,6 +28,7 @@ def test_game_state_root():
         "player_names": ["lj", "hj", "co", "bn", "sb", "bb"],
         "bets": [0, 0, 0, 0, 500, 1000],
         "in_hand": [True, True, True, True, True, True],
+        "community_cards": [],
         "current_player": 0,
         "available_actions": [
             {"player": None, "type": "F", "amount": 0, "next_id": 1},
@@ -61,6 +62,7 @@ def test_game_state_r_f():
         "player_names": ["lj", "hj", "co", "bn", "sb", "bb"],
         "bets": [0, 0, 0, 0, 500, 1000],
         "in_hand": [False, True, True, True, True, True],
+        "community_cards": [],
         "current_player": 1,
         "available_actions": [
             {"player": None, "type": "F", "amount": 0, "next_id": 2},
@@ -94,6 +96,7 @@ def test_game_state_r_r2500():
         "player_names": ["lj", "hj", "co", "bn", "sb", "bb"],
         "bets": [2500, 0, 0, 0, 500, 1000],
         "in_hand": [True, True, True, True, True, True],
+        "community_cards": [],
         "current_player": 1,
         "available_actions": [
             {"player": None, "type": "F", "amount": 0, "next_id": 156},
@@ -134,6 +137,7 @@ def test_game_state_r_r2500_r7500():
         "player_names": ["lj", "hj", "co", "bn", "sb", "bb"],
         "bets": [2500, 7500, 0, 0, 500, 1000],
         "in_hand": [True, True, True, True, True, True],
+        "community_cards": [],
         "current_player": 2,
         "available_actions": [
             {"player": None, "type": "F", "amount": 0, "next_id": 247},
@@ -182,6 +186,7 @@ def test_game_state_r_r2500_f_f_f_f_r12000():
         "player_names": ["lj", "hj", "co", "bn", "sb", "bb"],
         "bets": [2500, 0, 0, 0, 500, 12000],
         "in_hand": [True, False, False, False, False, True],
+        "community_cards": [],
         "current_player": 0,
         "available_actions": [
             {"player": None, "type": "F", "amount": 0, "next_id": None},
