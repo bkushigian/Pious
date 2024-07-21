@@ -53,6 +53,13 @@ def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.
     print(f"accuracy = {accuracy_in_chips}")
     solver.set_accuracy(accuracy_in_chips)
 
+    print("Loading all nodes...", end="", flush=True)
+    t0 = time.time()
+    solver.load_all_nodes()
+    t1 = time.time()
+    print("DONE")
+    print(f"Loaded all nodes in {t1 - t0:3.2f} seconds")
+
     print(solver.estimate_rebuild_forgotten_streets())
     print("Rebuilding forgotten streets...", end="", flush=True)
     t0 = time.time()
