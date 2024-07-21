@@ -5,7 +5,7 @@ suit my needs.
 
 import subprocess
 import os
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from pious.pio.tree_building import try_value_as_int, try_value_as_literal
 
 
@@ -204,12 +204,108 @@ class Solver(object):
     def clear_lines(self):
         return self._run("clear_lines")
 
-    def calc_ev(self, position, node):
+    def calc_ev(self, position, node) -> Tuple[Tuple[float], Tuple[float]]:
+        """
+        EV of a given player in a given node for all hands.
+
+        Numbers in the first item are EV, in the second item matchups.
+
+        :position: "OOP" or "IP"
+        :node: the node id (e.g., "r:0:c:c:7s:c")
+
+        :return: a tuple of (evs, matchups), where each is a length 1326 tuple
+            of floats
+        """
         results = self._run("calc_ev", position, node)
         evs, matchups = results.split("\n")
         evs = tuple(float(ev) for ev in evs.split())
         matchups = tuple(float(matchup) for matchup in matchups.split())
         return evs, matchups
+
+    def calc_ev_pp(self, position, node) -> str:
+        """
+        EV of a given player in a given node for all hands.
+
+        Numbers in the first item are EV, in the second are matchups.
+
+        :position: "OOP" or "IP"
+        :node: the node id (e.g., "r:0:c:c:7s:c")
+
+        :return: a human readable per-hand EV summary
+        """
+        results = self._run("calc_ev_pp", position, node)
+        return tuple(results.split("\n"))
+
+    def calc_eq(self, position, node) -> Tuple[Tuple[float], Tuple[float]]:
+        """
+        Equities for a given player in a given node for all hands.
+
+        Numbers in the first item are equities, numbers in the second are matchups.
+
+        :position: "OOP" or "IP"
+        :node: the node id (e.g., "r:0:c:c:7s:c")
+
+        :return: a tuple of (equities, matchups), where each is a length 1326
+            tuple of floats
+        """
+        results = self._run("calc_ev", position, node)
+        eqs, matchups = results.split("\n")
+        eqs = tuple(float(ev) for ev in eqs.split())
+        matchups = tuple(float(matchup) for matchup in matchups.split())
+        return eqs, matchups
+
+    def calc_eq_pp(self, position, node) -> str:
+        """
+        Equities for a given player in a given node for all hands.
+
+        Numbers in the first item are EV, in the second are matchups.
+
+        :position: "OOP" or "IP"
+        :node: the node id (e.g., "r:0:c:c:7s:c")
+
+        :return: a human readable per-hand equity summary
+        """
+        results = self._run("calc_eq_pp", position, node)
+        return tuple(results.split("\n"))
+
+    def calc_eq_node(self, position, node) -> Tuple[Tuple[float], Tuple[float], float]:
+        """
+        Equity for given player assuming ranges in given node.
+
+        Numbers in first item are equities, numbers in second are matchups, and
+        third item is total equities
+
+        :position: "OOP" or "IP"
+        :node: the node id (e.g., "r:0:c:c:7s:c")
+        """
+        results = self._run("calc_eq_node", position, node)
+        try:
+            eqs, matchups, total = results.split("\n")
+        except ValueError:
+            raise RuntimeError(f"Pio Error: calc_eq_node: {results}")
+        eqs = tuple(float(ev) for ev in eqs.split())
+        matchups = tuple(float(matchup) for matchup in matchups.split())
+        total = float(total)
+        return eqs, matchups, total
+
+    def calc_eq_preflop(self, position):
+        """
+        Preflop equity for given player assuming ranges in set_range command.
+
+        Numbers in first item are equities, numbers in second are matchups, and
+        third item is total equities
+
+        :position: "OOP" or "IP"
+        """
+        results = self._run("calc_eq_preflop", position)
+        try:
+            eqs, matchups, total = results.split("\n")
+        except ValueError:
+            raise RuntimeError(f"Pio Error: calc_eq_preflop: {results}")
+        eqs = tuple(float(ev) for ev in eqs.split())
+        matchups = tuple(float(matchup) for matchup in matchups.split())
+        total = float(total)
+        return eqs, matchups, total
 
     def solve_partial(self, node_id):
         return self._run("solve_partial", node_id)
@@ -237,6 +333,9 @@ class Solver(object):
 
     def build_tree(self):
         return self._run("build_tree")
+
+    def set_isomorphism(self, flop_trees, turn_trees):
+        return self._run("set_isomorphism", str(flop_trees), str(turn_trees))
 
     def dump_tree(self, filename, save_type="no_rivers"):
         save_type = save_type.lower().replace("-", "_")

@@ -1,6 +1,6 @@
 [project]
 name = "pious"
-version = "0.0.0.dev7"
+version = "0.0.0.dev8"
 authors = [{ name = "Ben Kushigian", email = "bkushigian@gmail.com" }]
 description = "The PioSOLVER Utility Suite"
 readme = "README.md"
@@ -20,6 +20,7 @@ dependencies = [
 
 [project.urls]
 Issues = "https://github.com/bkushigian/Pious/issues"
+Homepage = "https://github.com/bkushigian/Pious"
 
 [build-system]
 requires = ["hatchling"]
