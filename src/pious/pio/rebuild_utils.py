@@ -10,8 +10,16 @@ from os import path as osp
 import time
 
 from pious.pio.solver import Solver, Node
-from pious.pio.line import Line, filter_lines, is_flop, is_turn, is_nonterminal
-from pious.pio.line import make_solver, FLOP, TURN
+from pious.pio.line import (
+    Line,
+    filter_lines,
+    is_flop,
+    is_turn,
+    is_nonterminal,
+    FLOP,
+    TURN,
+)
+from pious.pio.util import make_solver
 from pious.progress_bar import progress_bar
 
 
