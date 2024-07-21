@@ -16,7 +16,9 @@ from pious.util import (
 class Range:
     def __init__(self, rng):
         self.range_array = None
-        if isinstance(rng, (np.ndarray, np.generic)):
+        if isinstance(rng, Range):
+            self.range_array = np.copy(rng.range_array)
+        elif isinstance(rng, (np.ndarray, np.generic)):
             if len(rng) != NUM_COMBOS:
                 raise ValueError(
                     f"Illegal range array: must be length {NUM_COMBOS} but has length {len(rng)}"
