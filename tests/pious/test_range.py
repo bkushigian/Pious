@@ -96,3 +96,10 @@ def test_num_combos():
 
     r = Range("AA:0.5,TT:0.5")
     assert 6.0 == r.num_combos()
+
+
+def test_sub():
+    r = Range("AA")
+    assert r.num_combos() == 6
+    r2 = r - "Ah"
+    assert r2.num_combos() == 3

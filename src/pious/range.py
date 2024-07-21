@@ -5,7 +5,9 @@ Handle pio ranges
 from typing import Dict, List
 import numpy as np
 from pious.util import (
+    CARDS,
     NUM_COMBOS,
+    PIO_HAND_ORDER,
     combo_as_full_combos,
     get_pio_combo_index,
     is_full_combo,
@@ -29,6 +31,7 @@ class Range:
                 raise ValueError(
                     f"Illegal range list: must be length {NUM_COMBOS} but has length {len(rng)}"
                 )
+            self.range_array = np.array(rng)
         elif isinstance(rng, str):
             self.range_array = np.zeros(shape=NUM_COMBOS, dtype=np.float64)
             self._initialize_from_str(rng)
@@ -92,6 +95,20 @@ class Range:
         elif isinstance(x, str):
             for fc in combo_as_full_combos(x):
                 self.range_array[get_pio_combo_index(fc)] = v
+
+    def __sub__(self, c: str):
+        """
+        Remove a card from this range and
+        """
+
+        if c not in CARDS:
+            raise ValueError(f"Invalid card: {c}")
+
+        combos_to_exclude = [combo for combo in PIO_HAND_ORDER if c in combo]
+        r = Range(self)
+        for combo in combos_to_exclude:
+            r[combo] = 0.0
+        return r
 
     def num_combos(self):
         return sum(self.range_array)
