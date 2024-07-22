@@ -1,6 +1,7 @@
 from itertools import combinations, permutations
 from typing import Tuple
 import numpy as np
+from ansi.colour import fg, fx
 
 # All cards in deck
 CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
@@ -241,3 +242,31 @@ def ahml(rank):
 def card_tuple(c):
     r, s = c.strip()
     return ranks[r], s
+
+
+def color_card(c, mode="DARK_MODE"):
+    if c not in CARDS:
+        raise ValueError(f"Invalid card {c}")
+
+    mode = mode.upper()
+    s = c[1]
+
+    if mode == "LIGHT_MODE":
+        if s == "h":
+            c = fg.red(c)
+        if s == "s":
+            c = fg.black(c)
+        if s == "c":
+            c = fg.green(c)
+        if s == "d":
+            c = fg.blue(c)
+    else:
+        if s == "h":
+            c = fg.red(c)
+        if s == "s":
+            c = fg.white(c)
+        if s == "c":
+            c = fg.green(c)
+        if s == "d":
+            c = fg.blue(c)
+    return fx.bold(c)
