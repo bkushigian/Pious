@@ -23,23 +23,22 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-node_id = args.node_id
 
 s = make_solver()
 s.load_tree(args.cfr_path)
-node = s.show_node(node_id)
+node = s.show_node(args.node_id)
 
-line = node.as_line_str()
 s.load_all_nodes()
 all_lines = s.show_all_lines()
 
+line = node.as_line_str()
 if line not in all_lines:
     raise ValueError(f"Invalid line {line}")
 
 if args.resolve:
     rebuild_and_resolve(s)
 
-effects = blocker_effects(s, node_id)
+effects = blocker_effects(s, args.node_id)
 # Get effects as a list of key/value pairs, with the key being the card and the
 # blocker value, and sorted from lowest to highest blocker value
 effects = sorted(list(effects.items()), key=lambda x: x[1])
