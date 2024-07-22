@@ -8,7 +8,9 @@ import os
 from typing import List, Optional, Tuple
 import numpy as np
 
+
 from .tree_building import try_value_as_int, try_value_as_literal
+from ..util import CARDS
 from ..range import Range
 
 
@@ -36,6 +38,12 @@ class Node:
             return normalize_position(self.node_type)
         except ValueError:
             return None
+
+    def as_line_str(self) -> str:
+
+        items = self.node_id.split(":")
+        items = [a for a in items if a not in CARDS]
+        return ":".join(items)
 
 
 def normalize_position(pos):
@@ -143,7 +151,7 @@ class Solver(object):
             node_id = node_id.node_id
         data = self._run("show_node", node_id)
         if "ERROR" in data:
-            return None
+            raise ValueError(f"Could not find node_id {node_id}")
         return Node(data)
 
     def show_children(self, node_id: str | Node) -> List[Node]:
@@ -250,7 +258,10 @@ class Solver(object):
         return self._run("load_all_nodes")
 
     def show_all_lines(self):
-        return self._run("show_all_lines").split("\n")
+        result = self._run("show_all_lines")
+        if "ERROR" in result:
+            raise RuntimeError(f"{result}")
+        return result.split("\n")
 
     def show_effective_stack(self):
         return int(self._run("show_effective_stack").strip())
@@ -464,6 +475,12 @@ class Solver(object):
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         response = self._run("lock_node", node_id)
+        return response
+
+    def unlock_node(self, node_id: str | Node):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        response = self._run("unlock_node", node_id)
         return response
 
     def load_script(self, script_filepath: str):

@@ -18,10 +18,11 @@ TURN = 2
 RIVER = 3
 
 
-def get_all_lines(solver: Solver) -> List[str]:
+def get_all_lines(solver: Solver) -> List["Line"]:
     """
     Given a node in the tree, return a list of all the lines in the tree.
     """
+    solver.load_all_nodes()
     lines = solver.show_all_lines()
     effective_stack = solver.show_effective_stack()
     return [Line(line, effective_stack=effective_stack) for line in lines]

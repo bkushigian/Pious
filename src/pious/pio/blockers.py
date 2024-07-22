@@ -39,10 +39,7 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
     equities, matchups, total = eqc.compute_hand_equities(oop=False)
     equities = np.nan_to_num(equities, 0.0)  # Remove nans
 
-    base_villain_equity = eqc.ip()
     base_villain_equity2 = sum(equities * matchups) / sum(matchups)
-
-    print(base_villain_equity, base_villain_equity2)
 
     blocker_effects = {}
 
@@ -51,6 +48,6 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
         eqs = equities * a
         mus = matchups * a
         eq = sum(eqs * mus) / sum(mus)
-        diff = base_villain_equity - eq
+        diff = base_villain_equity2 - eq
         blocker_effects[c] = diff
     return blocker_effects
