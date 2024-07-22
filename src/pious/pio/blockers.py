@@ -8,7 +8,9 @@ from ..util import CARDS, PIO_HAND_ORDER, get_card_index_array
 import numpy as np
 
 
-def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
+def compute_single_card_blocker_effects(
+    solver: Solver, node_id: str | Node, num_hist_bins: int = 10
+):
     """
     Compute blocking effects of each card in the current player's range.
     Here, higher is better and lower is worse.
@@ -66,13 +68,14 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
         ]
 
         # Finally, break the equities of the blocked combos into a histogram
-        hist = np.zeros(shape=10, dtype=np.float64)
+        num_hist_bins = min(max(1, num_hist_bins), 20)
+        hist = np.zeros(shape=num_hist_bins, dtype=np.float64)
         total_matchups = sum(matchups)
         for idx, indicator in enumerate(indicator_array):
             if indicator == 0.0 or matchups[idx] == 0.0:
                 continue
             e = equities[idx]
-            hist_bin = min(int(e * 10), 9)
+            hist_bin = min(int(e * num_hist_bins), num_hist_bins - 1)
             hist[hist_bin] = matchups[idx] / total_matchups
         histograms[c] = hist
 

@@ -23,6 +23,8 @@ TOP_RIGHT = "┐"
 BOTTOM_LEFT = "└"
 BOTTOM_RIGHT = "┘"
 
+COMBO_WEIGHT_THRESHOLD = 0.001
+
 parser = ArgumentParser()
 parser.add_argument("cfr_path")
 parser.add_argument("node_id")
@@ -40,6 +42,12 @@ parser.add_argument(
 parser.add_argument("--use_same_scale", action="store_true")
 parser.add_argument("--per_card", action="store_true", help="Print a per-card summary")
 parser.add_argument("--cards", default=None, help="cards to print info on")
+parser.add_argument(
+    "--num_hist_bins",
+    default=10,
+    type=int,
+    help="Number of bins to break histogram into",
+)
 
 args = parser.parse_args()
 
@@ -64,6 +72,26 @@ def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 
     rgb[2] = (1 - v_n) * left[2] + v_n * right[2]
     rgb = rgb256(*rgb)
     return rgb
+
+
+def print_card_banner(c, board):
+    cards_in_board = []
+    for b in board:
+        cards_in_board.append(color_card(b))
+    n_cards = len(cards_in_board)
+    color_board = "".join(cards_in_board)
+    board_len = n_cards * 2 + 1
+    body = f"{color_card(c)}  on  [ {color_board} ]"
+    body_len = 5 + 2 + 4 + board_len  # Compute by hand cuz ansi codes
+    body_with_padding_len = body_len + 8  # 4 spacs per side
+    s = f"""  ┌{'─' * body_with_padding_len}┐
+-││{' ' * 4}{body}{' ' * 4}││-
+  └{'─' * body_with_padding_len}┘ """
+    lines = s.split("\n")
+    l = len(lines[0])
+    right_padding = (66 - len(lines[0])) // 2
+    for line in lines:
+        print(" " * right_padding + line)
 
 
 def print_combo_equities(combos, width=3):
@@ -91,6 +119,8 @@ def print_combo_equities(combos, width=3):
 def print_histogram(hist, width=40):
     N = len(hist)
     total = sum(hist)
+    if total < 0.0001:
+        return
     y_delta = 100.0 / N
     bin_bound = 0.0
     HISTOGRAM_CHAR_WIDTH = (
@@ -117,6 +147,51 @@ def print_histogram(hist, width=40):
     print(BOTTOM_LEFT + HORIZONTAL * HISTOGRAM_CHAR_WIDTH + BOTTOM_RIGHT)
 
 
+def print_equity_delta_graph(
+    equity_deltas,
+    board,
+    height=20,
+):
+    equity_deltas = sorted(equity_deltas, key=lambda x: x[1], reverse=True)
+    combos, deltas = zip(*equity_deltas)
+    min_delta, max_delta = min(deltas), max(deltas)
+    delta_delta = max_delta - min_delta
+    graph_height = [
+        int(min(height * (d - min_delta) / delta_delta, height)) for d in deltas
+    ]
+    i = 0
+    rows = []
+    LAST_HEIGHT_DRAWN = height
+    for h in range(height, -1, -1):
+        row = [" " * i]
+        rgb = linear_color_gradient(h, 0, height)
+        drawn = False
+        while i < len(graph_height) and graph_height[i] == h:
+            if LAST_HEIGHT_DRAWN == h:
+                char = HORIZONTAL
+            elif LAST_HEIGHT_DRAWN > h:
+                char = BOTTOM_LEFT
+
+            row.append(f"{rgb}{char}{reset}")
+            i += 1
+            LAST_HEIGHT_DRAWN = h
+            drawn = True
+        if not drawn:
+            row.append(f"{rgb}{VERTICAL}{reset}")
+        rows.append("".join(row))
+
+    delta_bin = max_delta
+    delta_incr = delta_delta / height
+    for row in rows:
+        rgb = linear_color_gradient(delta_bin, min_delta, max_delta)
+        prefix = f"{delta_bin*100:6.2f}"
+        prefix = f"{rgb}{prefix}{reset} {VERTICAL} "  # Length is 9
+        print(f"{prefix}{row}")
+        delta_bin -= delta_incr
+    print(f"       {BOTTOM_LEFT}{HORIZONTAL * len(deltas)}")
+    print(f"        {''.join(color_card(c, True) for c in combos if c not in board)}")
+
+
 s = make_solver()
 s.load_tree(args.cfr_path)
 node = s.show_node(args.node_id)
@@ -132,7 +207,9 @@ if line not in all_lines:
 if args.resolve:
     rebuild_and_resolve(s)
 
-equity_deltas, blocked_combos, histogram = blocker_effects(s, args.node_id)
+equity_deltas, blocked_combos, histogram = blocker_effects(
+    s, args.node_id, num_hist_bins=args.num_hist_bins
+)
 # Get effects as a list of key/value pairs, with the key being the card and the
 # blocker value, and sorted from lowest to highest blocker value
 equity_deltas = sorted(
@@ -200,10 +277,14 @@ if args.per_card:
             continue
         hist = histogram[c]
         combos = blocked_combos[c]
-        print(f"\n=== {color_card(c)} ===")
+        if len(combos) == 0 or sum(hist) < COMBO_WEIGHT_THRESHOLD:
+            continue
+        print_card_banner(c, board)
         print_histogram(hist, width=47)
         combos.sort(key=lambda x: x[1], reverse=True)
         print_combo_equities(combos, width=6)
+
+print_equity_delta_graph(equity_deltas, board)
 
 print()
 for row in rows:
