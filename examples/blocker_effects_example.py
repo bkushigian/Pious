@@ -23,6 +23,11 @@ TOP_RIGHT = "┐"
 BOTTOM_LEFT = "└"
 BOTTOM_RIGHT = "┘"
 
+TOP_LEFT_ROUND = "╭"
+TOP_RIGHT_ROUND = "╮"
+BOTTOM_LEFT_ROUND = "╰"
+BOTTOM_RIGHT_ROUND = "╯"
+
 COMBO_WEIGHT_THRESHOLD = 0.001
 
 parser = ArgumentParser()
@@ -84,9 +89,9 @@ def print_card_banner(c, board):
     body = f"{color_card(c)}  on  [ {color_board} ]"
     body_len = 5 + 2 + 4 + board_len  # Compute by hand cuz ansi codes
     body_with_padding_len = body_len + 8  # 4 spacs per side
-    s = f"""  ┌{'─' * body_with_padding_len}┐
+    s = f"""  ╭{'─' * body_with_padding_len}╮
 -││{' ' * 4}{body}{' ' * 4}││-
-  └{'─' * body_with_padding_len}┘ """
+  ╰{'─' * body_with_padding_len}╯ """
     lines = s.split("\n")
     l = len(lines[0])
     right_padding = (66 - len(lines[0])) // 2
@@ -170,7 +175,7 @@ def print_equity_delta_graph(
             if LAST_HEIGHT_DRAWN == h:
                 char = HORIZONTAL
             elif LAST_HEIGHT_DRAWN > h:
-                char = BOTTOM_LEFT
+                char = BOTTOM_LEFT_ROUND
 
             row.append(f"{rgb}{char}{reset}")
             i += 1
@@ -178,6 +183,8 @@ def print_equity_delta_graph(
             drawn = True
         if not drawn:
             row.append(f"{rgb}{VERTICAL}{reset}")
+        else:
+            row.append(f"{rgb}{TOP_RIGHT_ROUND}{reset}")
         rows.append("".join(row))
 
     delta_bin = max_delta
