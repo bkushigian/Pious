@@ -3,9 +3,9 @@ Create an equity calculator by wrapping a PioSOLVER instance
 """
 
 from typing import List, Sequence, Tuple
-from pious.pio.solver import Solver
-from pious.pio.util import make_solver
-from pious.range import Range
+from .solver import Solver
+from .util import make_solver
+from ..range import Range
 import numpy as np
 
 

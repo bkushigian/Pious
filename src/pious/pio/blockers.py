@@ -2,9 +2,9 @@
 A module for computing various blocker effects
 """
 
-from pious.pio.solver import Node, Solver
-from pious.pio.equity import EquityCalculator
-from pious.util import CARDS
+from .solver import Node, Solver
+from .equity import EquityCalculator
+from ..util import CARDS
 
 
 def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):

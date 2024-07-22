@@ -6,8 +6,8 @@ suit my needs.
 import subprocess
 import os
 from typing import List, Optional, Tuple
-from pious.pio.tree_building import try_value_as_int, try_value_as_literal
-from pious.range import Range
+from .tree_building import try_value_as_int, try_value_as_literal
+from ..range import Range
 
 
 class Node:

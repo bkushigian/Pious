@@ -69,7 +69,7 @@ def combo_as_full_combos(combo: str) -> Tuple[str]:
     all full combos.
 
     >>> combo_as_full_combos('ATo')
-    ("AsTd", "AsTd", "AsTc", "AhTs", "AhTd", "AhTc", "AdTs", "AdTh", "AdTc", "AcTs", "AcTh", "AcTd")
+    ('AsTh', 'AsTd', 'AsTc', 'AhTs', 'AhTd', 'AhTc', 'AdTs', 'AdTh', 'AdTc', 'AcTs', 'AcTh', 'AcTd')
     >>> combo_as_full_combos('AhTd')
     ('AhTd',)
     """
