@@ -4,7 +4,7 @@ A module for computing various blocker effects
 
 from .solver import Node, Solver
 from .equity import EquityCalculator
-from ..util import CARDS, get_card_index_array
+from ..util import CARDS, PIO_HAND_ORDER, get_card_index_array
 import numpy as np
 
 
@@ -20,7 +20,9 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
     # current position only to ensure we have the right player's range
     # associated with hero
 
-    pos = solver.show_node(node_id).get_position()
+    node: Node = solver.show_node(node_id)
+    pos = node.get_position()
+    board = node.board
     hero_is_oop = pos == "OOP"
 
     hero_range = solver.show_range("IP", node_id)
@@ -38,16 +40,43 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
     # Get villain equity information (ip)
     equities, matchups, total = eqc.compute_hand_equities(oop=False)
     equities = np.nan_to_num(equities, 0.0)  # Remove nans
+    for combo, e in zip(PIO_HAND_ORDER, equities):
+        print(combo, e)
 
+    print(board)
     base_villain_equity2 = sum(equities * matchups) / sum(matchups)
 
-    blocker_effects = {}
+    equity_deltas = {}
+    blocked_combos = {}
+    histograms = {}
 
     for c in CARDS:
-        a = get_card_index_array(c, negate=True)
-        eqs = equities * a
-        mus = matchups * a
+        indicator_array = get_card_index_array(c, negate=False)
+        mask_array = get_card_index_array(c, negate=True)
+
+        # First, compute individual equity deltas for this card
+        eqs = equities * mask_array
+        mus = matchups * mask_array
         eq = sum(eqs * mus) / sum(mus)
         diff = base_villain_equity2 - eq
-        blocker_effects[c] = diff
-    return blocker_effects
+        equity_deltas[c] = diff
+
+        # Next, collect the blocked combos and their equities
+        blocked_combos[c] = [
+            (PIO_HAND_ORDER[idx], equities[idx])
+            for (idx, indicator) in enumerate(indicator_array)
+            if indicator == 1.0 and matchups[idx] > 0.0
+        ]
+
+        # Finally, break the equities of the blocked combos into a histogram
+        hist = np.zeros(shape=10, dtype=np.float64)
+        total_matchups = sum(matchups)
+        for idx, indicator in enumerate(indicator_array):
+            if indicator == 0.0 or matchups[idx] == 0.0:
+                continue
+            e = equities[idx]
+            hist_bin = min(int(e * 10), 9)
+            hist[hist_bin] = matchups[idx] / total_matchups
+        histograms[c] = hist
+
+    return equity_deltas, blocked_combos, histograms

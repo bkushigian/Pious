@@ -31,8 +31,41 @@ parser.add_argument(
     help="Display cards from lowest equity blocker effect to highest equity blocker effect",
 )
 parser.add_argument("--use_same_scale", action="store_true")
+parser.add_argument("--per_card", action="store_true", help="Print a per-card summary")
 
 args = parser.parse_args()
+
+
+def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 0)):
+    # linear gradient along (255, 0, 0) and (255, 255, 255)
+    max_n = max - min
+    v_n = (v - min) / max_n
+    # Normalize values to [0, 1]
+
+    rgb = [0, 0, 0]
+    # The first component moves from left[0] when v == 0 to right[0] when v == 1
+    rgb[0] = (1 - v_n) * left[0] + v_n * right[0]
+    rgb[1] = (1 - v_n) * left[1] + v_n * right[1]
+    rgb[2] = (1 - v_n) * left[2] + v_n * right[2]
+    rgb = rgb256(*rgb)
+    return rgb
+
+
+def print_histogram(hist, width=40):
+    N = len(hist)
+    total = sum(hist)
+    y_delta = 100.0 / N
+    bin_bound = 0.0
+    for row_idx in range(N):
+        row_color = linear_color_gradient(
+            bin_bound, 0.0, 90.0, (255, 0, 0), (0, 250, 0)
+        )
+        percent = hist[row_idx] / total
+        n_chars = int(width * hist[row_idx] / total)
+        row = f"{'*' * n_chars:{width}}"
+        print(f"{row_color}{bin_bound:5.1f}%: {row}  {reset}({percent * 100.0:6.2f}%)")
+        bin_bound += y_delta
+
 
 s = make_solver()
 s.load_tree(args.cfr_path)
@@ -49,15 +82,17 @@ if line not in all_lines:
 if args.resolve:
     rebuild_and_resolve(s)
 
-effects = blocker_effects(s, args.node_id)
+equity_deltas, blocked_combos, histogram = blocker_effects(s, args.node_id)
 # Get effects as a list of key/value pairs, with the key being the card and the
 # blocker value, and sorted from lowest to highest blocker value
-effects = sorted(
-    list(effects.items()), key=lambda x: x[1], reverse=not args.low_to_high
+equity_deltas = sorted(
+    list(equity_deltas.items()), key=lambda x: x[1], reverse=not args.low_to_high
 )
-effects = [(card, eq_shift) for (card, eq_shift) in effects if card not in board]
+equity_deltas = [
+    (card, eq_shift) for (card, eq_shift) in equity_deltas if card not in board
+]
 
-sizes = [x[1] for x in effects]
+sizes = [x[1] for x in equity_deltas]
 min_effect = min(sizes)
 max_effect = max(sizes)
 abs_effect = max(abs(min_effect), abs(max_effect))
@@ -82,15 +117,15 @@ def color_effect(e, s):
 
 
 rows = []
-N = (len(effects) + args.cols - 1) // args.cols
+N = (len(equity_deltas) + args.cols - 1) // args.cols
 for i in range(N):
     row = []
     rows.append(row)
     for j in range(args.cols):
         idx = i + j * N
-        if idx >= len(effects):
+        if idx >= len(equity_deltas):
             continue
-        card, block_effect = effects[i + j * N]
+        card, block_effect = equity_deltas[i + j * N]
         e = block_effect
 
         if card in board:
@@ -102,7 +137,21 @@ for i in range(N):
             entry = f"({color_card(card)}) {s}{bold('%')}"
         row.append(entry)
 
+if args.per_card:
+    for c in histogram.keys():
+        if c in board:
+            continue
+        hist = histogram[c]
+        combos = blocked_combos[c]
+        print(f"\n=== {color_card(c)} ===")
+        print_histogram(hist)
+        combos.sort(key=lambda x: x[1], reverse=True)
+        combos_strs = [
+            f"{combo}: {linear_color_gradient(combo_equity, 0.0, 1.0)} {combo_equity:4.3f} {reset}"
+            for (combo, combo_equity) in combos
+        ]
+        print("  ".join(combos_strs))
 print()
 for row in rows:
-    print("      ".join(row))
+    print("      " + "      ".join(row))
 print()
