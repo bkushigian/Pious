@@ -9,8 +9,8 @@ from argparse import ArgumentParser
 from os import path as osp
 import time
 
-from pious.pio.solver import Solver, Node
-from pious.pio.line import (
+from .solver import Solver, Node
+from .line import (
     Line,
     filter_lines,
     is_flop,
@@ -19,8 +19,8 @@ from pious.pio.line import (
     FLOP,
     TURN,
 )
-from pious.pio.util import make_solver
-from pious.progress_bar import progress_bar
+from .util import make_solver
+from ..progress_bar import progress_bar
 
 
 def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.05):

@@ -4,7 +4,7 @@ Handle pio ranges
 
 from typing import Dict, List
 import numpy as np
-from pious.util import (
+from .util import (
     CARDS,
     NUM_COMBOS,
     PIO_HAND_ORDER,

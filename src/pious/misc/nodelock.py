@@ -5,7 +5,7 @@ import sys
 from os import path as osp
 
 from ..pio.line import Line, node_id_to_line
-from ..script_builder import ScriptBuilder
+from ..pio.script_builder import ScriptBuilder
 from ..pio import util as pio_util
 from ..pio import nodelock_utils
 

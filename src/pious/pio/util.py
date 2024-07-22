@@ -1,7 +1,7 @@
 from collections import namedtuple
-from pious.pio.solver import Solver
-from pious.util import card_tuple
-from pious.conf import pious_conf
+from .solver import Solver
+from ..util import card_tuple
+from ..conf import pious_conf
 
 
 def make_solver(
