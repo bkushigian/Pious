@@ -40,10 +40,7 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
     # Get villain equity information (ip)
     equities, matchups, total = eqc.compute_hand_equities(oop=False)
     equities = np.nan_to_num(equities, 0.0)  # Remove nans
-    for combo, e in zip(PIO_HAND_ORDER, equities):
-        print(combo, e)
 
-    print(board)
     base_villain_equity2 = sum(equities * matchups) / sum(matchups)
 
     equity_deltas = {}

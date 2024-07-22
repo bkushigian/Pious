@@ -244,12 +244,14 @@ def card_tuple(c):
     return ranks[r], s
 
 
-def color_card(c, mode="DARK_MODE"):
+def color_card(c, remove_suit=False, mode="DARK_MODE"):
     if c not in CARDS:
         raise ValueError(f"Invalid card {c}")
 
     mode = mode.upper()
     s = c[1]
+    if remove_suit:
+        c = c[0]
 
     if mode == "LIGHT_MODE":
         if s == "h":

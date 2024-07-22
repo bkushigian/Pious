@@ -11,10 +11,17 @@ from pious.pio import (
     make_solver,
     rebuild_and_resolve,
 )
-from pious.util import color_card
+from pious.util import color_card, CARDS
 from ansi.colour.rgb import rgb256
 from ansi.colour.fx import reset, bold, crossed_out
 from argparse import ArgumentParser
+
+HORIZONTAL = "─"
+VERTICAL = "│"
+TOP_LEFT = "┌"
+TOP_RIGHT = "┐"
+BOTTOM_LEFT = "└"
+BOTTOM_RIGHT = "┘"
 
 parser = ArgumentParser()
 parser.add_argument("cfr_path")
@@ -32,8 +39,16 @@ parser.add_argument(
 )
 parser.add_argument("--use_same_scale", action="store_true")
 parser.add_argument("--per_card", action="store_true", help="Print a per-card summary")
+parser.add_argument("--cards", default=None, help="cards to print info on")
 
 args = parser.parse_args()
+
+cards_to_print = args.cards
+if cards_to_print is None:
+    cards_to_print = CARDS
+else:
+    cards_to_print = cards_to_print.split()
+    args.per_card = True
 
 
 def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 0)):
@@ -51,20 +66,55 @@ def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 
     return rgb
 
 
+def print_combo_equities(combos, width=3):
+    i = 0
+    row = []
+    NUM_CHARS_IN_ROW = 11 * width
+    print(TOP_LEFT + HORIZONTAL * NUM_CHARS_IN_ROW + TOP_RIGHT)
+    print(f"{VERTICAL}{'BLOCKED COMBO EQUITIES':^{NUM_CHARS_IN_ROW}}{VERTICAL}")
+    print(f"{VERTICAL}{'':^{NUM_CHARS_IN_ROW}}{VERTICAL}")
+    for combo, combo_equity in combos:
+        i += 1
+        row.append(
+            f"{color_combo(combo)}: {linear_color_gradient(combo_equity, 0.0, 1.0)}{combo_equity:4.2f}{reset} "
+        )
+        if i % width == 0:
+            print(f'{VERTICAL} {"  ".join(row)} {VERTICAL}')
+            row = []
+    if len(row) > 0:
+        print(
+            f'{VERTICAL} {"  ".join(row)}{" " * (NUM_CHARS_IN_ROW - 11 * len(row))} {VERTICAL}'
+        )
+    print(BOTTOM_LEFT + HORIZONTAL * NUM_CHARS_IN_ROW + BOTTOM_RIGHT)
+
+
 def print_histogram(hist, width=40):
     N = len(hist)
     total = sum(hist)
     y_delta = 100.0 / N
     bin_bound = 0.0
+    HISTOGRAM_CHAR_WIDTH = (
+        5
+        + 3
+        + width
+        + 9
+        + 2  # ' 10.0' \  # '%: '  # '**********'  # '( 39.92%)'  # $BORDERS
+    )
+    print(TOP_LEFT + HORIZONTAL * HISTOGRAM_CHAR_WIDTH + TOP_RIGHT)
+    print(f"{VERTICAL}{'EQUITY_HISTOGRAM':^{HISTOGRAM_CHAR_WIDTH}}{VERTICAL}")
+    print(f"{VERTICAL}{'':^{HISTOGRAM_CHAR_WIDTH}}{VERTICAL}")
     for row_idx in range(N):
         row_color = linear_color_gradient(
             bin_bound, 0.0, 90.0, (255, 0, 0), (0, 250, 0)
         )
         percent = hist[row_idx] / total
         n_chars = int(width * hist[row_idx] / total)
-        row = f"{'*' * n_chars:{width}}"
-        print(f"{row_color}{bin_bound:5.1f}%: {row}  {reset}({percent * 100.0:6.2f}%)")
+        row = f"{'█' * n_chars:{width}}"
+        print(
+            f"{VERTICAL}{row_color}{bin_bound:5.1f}%: {row}  {reset}({percent * 100.0:6.2f}%){VERTICAL}"
+        )
         bin_bound += y_delta
+    print(BOTTOM_LEFT + HORIZONTAL * HISTOGRAM_CHAR_WIDTH + BOTTOM_RIGHT)
 
 
 s = make_solver()
@@ -130,27 +180,31 @@ for i in range(N):
 
         if card in board:
             s = f"{' ':6}"
-            entry = f" {crossed_out(color_card(card))}  {s} "
+            entry = f" {crossed_out(color_card(card,True))}  {s} "
         else:
             s = f"{e * 100:6.3f}"
             s = color_effect(e, s)
-            entry = f"({color_card(card)}) {s}{bold('%')}"
+            entry = f"({color_card(card,True)}) {s}{bold('%')}"
         row.append(entry)
+
+
+def color_combo(c):
+    return f"{color_card(c[:2], True)}{color_card(c[2:], True)}"
+
 
 if args.per_card:
     for c in histogram.keys():
         if c in board:
             continue
+        if c not in cards_to_print:
+            continue
         hist = histogram[c]
         combos = blocked_combos[c]
         print(f"\n=== {color_card(c)} ===")
-        print_histogram(hist)
+        print_histogram(hist, width=47)
         combos.sort(key=lambda x: x[1], reverse=True)
-        combos_strs = [
-            f"{combo}: {linear_color_gradient(combo_equity, 0.0, 1.0)} {combo_equity:4.3f} {reset}"
-            for (combo, combo_equity) in combos
-        ]
-        print("  ".join(combos_strs))
+        print_combo_equities(combos, width=6)
+
 print()
 for row in rows:
     print("      " + "      ".join(row))

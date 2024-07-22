@@ -1,4 +1,7 @@
 # Changelog
+## v0.0.0.dev10
+- fixed bug in blocker module (incorrect board was being passed to the equity calculator)
+- improved blocker example (histograms, per combo blocked equity listing, colors)
 
 ## v0.0.0.dev9
 - sanitized some solver.Solver inputs
