@@ -30,7 +30,7 @@ def test_aggregation_report():
     # Test for isomorphism resolution
     assert r["Ad 9d 6c"].iloc[0]["raw_flop"] == "As 9s 6h"
 
-    # Check tree navigation and report cacheing
+    # Check tree navigation and report caching
     assert len(r._report_cache) == 1, "Report caching error"
     r2 = r.take_action("CHECK")
     assert len(r2) == 7
