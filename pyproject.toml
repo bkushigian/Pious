@@ -1,6 +1,6 @@
 [project]
 name = "pious"
-version = "0.0.0.dev8"
+version = "0.0.0.dev9"
 authors = [{ name = "Ben Kushigian", email = "bkushigian@gmail.com" }]
 description = "The PioSOLVER Utility Suite"
 readme = "README.md"

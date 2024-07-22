@@ -6,7 +6,12 @@ suit my needs.
 import subprocess
 import os
 from typing import List, Optional, Tuple
-from pious.pio.tree_building import try_value_as_int, try_value_as_literal
+import numpy as np
+
+
+from .tree_building import try_value_as_int, try_value_as_literal
+from ..util import CARDS
+from ..range import Range
 
 
 class Node:
@@ -29,11 +34,42 @@ class Node:
         return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
 
     def get_position(self):
-        if self.node_type == "OOP_DEC":
+        try:
+            return normalize_position(self.node_type)
+        except ValueError:
+            return None
+
+    def as_line_str(self) -> str:
+
+        items = self.node_id.split(":")
+        items = [a for a in items if a not in CARDS]
+        return ":".join(items)
+
+
+def normalize_position(pos):
+    if isinstance(pos, int):
+        if pos == 0:
+            pos = "OOP"
+        elif pos == 1:
+            pos = "IP"
+        else:
+            raise ValueError(
+                f"Invalid position int {pos}: must be 0 for OOP or 1 for IP"
+            )
+    elif isinstance(pos, str):
+        pos2 = pos.upper()
+        if pos2 == "OOP" or pos2 == "IP":
+            return pos2
+        elif pos2 == "OOP_DEC":
             return "OOP"
-        elif self.node_type == "IP_DEC":
+        elif pos2 == "IP_DEC":
             return "IP"
-        return None
+        else:
+            raise ValueError(f'Invalid position str {pos}: must be "OOP" or "IP"')
+    else:
+        raise ValueError(
+            f"Invalid position {pos}: must be int (0 or 1) or str (OOP or IP)"
+        )
 
 
 class Solver(object):
@@ -89,20 +125,38 @@ class Solver(object):
     def is_ready(self):
         return self._run("is_ready")
 
-    def load_tree(self, cfr_file_path):
+    def load_tree(self, cfr_file_path: str, load_type=None):
+        if load_type is not None:
+            if load_type == "full" or load_type == "fast" or load_type == "auto":
+                pass
+            else:
+                raise ValueError(
+                    f"Illegal load type: must be 'full', 'fast', 'auto', or None"
+                )
+        cfr_file_path = cfr_file_path.strip()
+        if " " in cfr_file_path:
+            if not cfr_file_path.startswith('"'):
+                cfr_file_path = f'"{cfr_file_path}"'
         self.cfr_file_path = cfr_file_path
-        self._run("load_tree", cfr_file_path)
+        if load_type is None:
+            self._run("load_tree", cfr_file_path)
+        else:
+            self._run("load_tree", cfr_file_path, load_type)
         self.root_node_info = self.show_node("r:0")
         if self.debug:
             print(f"root_node_info: {self.root_node_info}\n")
 
-    def show_node(self, node_id) -> Optional[Node]:
+    def show_node(self, node_id: str | Node) -> Optional[Node]:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         data = self._run("show_node", node_id)
         if "ERROR" in data:
-            return None
+            raise ValueError(f"Could not find node_id {node_id}")
         return Node(data)
 
-    def show_children(self, node_id) -> List[Node]:
+    def show_children(self, node_id: str | Node) -> List[Node]:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         """
         Return a list of children of the given specified node.
         """
@@ -126,7 +180,9 @@ class Solver(object):
 
         return children
 
-    def show_children_actions(self, node_id) -> Optional[List[str]]:
+    def show_children_actions(self, node_id: str | Node) -> Optional[List[str]]:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         data = self._run("show_children", node_id)
         if "ERROR" in data:
             return []
@@ -139,10 +195,12 @@ class Solver(object):
         return self._run("show_hand_order").split(" ")
 
     def set_accuracy(self, accuracy: float, accuracy_type: str = "chips"):
-        if accuracy_type != "fraction":
-            accuracy_type = "chips"
-
-        self._run("set_accuracy", str(accuracy), accuracy_type)
+        acc_type = accuracy_type.lower()
+        if acc_type != "fraction" and acc_type != "chips":
+            raise ValueError(
+                f"Illegal accuracy type: {accuracy_type}: expected 'chip s' or 'fraction'"
+            )
+        self._run("set_accuracy", str(accuracy), acc_type)
 
     def go(self, steps=None, units="seconds", quiet=False):
         command = ["go"]
@@ -171,6 +229,18 @@ class Solver(object):
     def add_info_line(self, info_line):
         return self._run("add_info_line", info_line)
 
+    def show_board_no_iso(self):
+        """
+        Show the board without any isomorphisms set
+        """
+        return self._run("show_board_no_iso")
+
+    def show_board(self):
+        """
+        Show the board without any isomorphisms set (alias for show_board_no_iso())
+        """
+        return self.show_board_no_iso()
+
     def show_tree_info(self):
         data = {}
         self._run("show_tree_info")
@@ -188,12 +258,15 @@ class Solver(object):
         return self._run("load_all_nodes")
 
     def show_all_lines(self):
-        return self._run("show_all_lines").split("\n")
+        result = self._run("show_all_lines")
+        if "ERROR" in result:
+            raise RuntimeError(f"{result}")
+        return result.split("\n")
 
     def show_effective_stack(self):
         return int(self._run("show_effective_stack").strip())
 
-    def remove_line(self, line):
+    def remove_line(self, line: str):
         line = [str(l) for l in line]
         return self._run("remove_line", " ".join(line))
 
@@ -204,7 +277,9 @@ class Solver(object):
     def clear_lines(self):
         return self._run("clear_lines")
 
-    def calc_ev(self, position, node) -> Tuple[Tuple[float], Tuple[float]]:
+    def calc_ev(
+        self, position: str | int, node
+    ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
         EV of a given player in a given node for all hands.
 
@@ -216,59 +291,77 @@ class Solver(object):
         :return: a tuple of (evs, matchups), where each is a length 1326 tuple
             of floats
         """
+        position = normalize_position(position)
         results = self._run("calc_ev", position, node)
         evs, matchups = results.split("\n")
-        evs = tuple(float(ev) for ev in evs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        evs = np.array([float(ev) for ev in evs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         return evs, matchups
 
-    def calc_ev_pp(self, position, node) -> str:
+    def calc_ev_pp(self, position: str | int, node) -> str:
         """
         EV of a given player in a given node for all hands.
 
         Numbers in the first item are EV, in the second are matchups.
 
         :position: "OOP" or "IP"
-        :node: the node id (e.g., "r:0:c:c:7s:c")
+        :node_id: the node id (e.g., "r:0:c:c:7s:c")
 
         :return: a human readable per-hand EV summary
         """
+        position = normalize_position(position)
         results = self._run("calc_ev_pp", position, node)
         return tuple(results.split("\n"))
 
-    def calc_eq(self, position, node) -> Tuple[Tuple[float], Tuple[float]]:
+    def calc_matchups_line(self, node_id: str | Node) -> float:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        result = self._run("calc_matchups_line", node_id)
+        return float(result)
+
+    def calc_eq(
+        self, position: str | int, node_id: str | Node
+    ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
         Equities for a given player in a given node for all hands.
 
         Numbers in the first item are equities, numbers in the second are matchups.
 
         :position: "OOP" or "IP"
-        :node: the node id (e.g., "r:0:c:c:7s:c")
+        :node_id: the node id (e.g., "r:0:c:c:7s:c")
 
         :return: a tuple of (equities, matchups), where each is a length 1326
             tuple of floats
         """
-        results = self._run("calc_ev", position, node)
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        position = normalize_position(position)
+        results = self._run("calc_ev", position, node_id)
         eqs, matchups = results.split("\n")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         return eqs, matchups
 
-    def calc_eq_pp(self, position, node) -> str:
+    def calc_eq_pp(self, position: str | int, node_id: str | Node) -> str:
         """
         Equities for a given player in a given node for all hands.
 
         Numbers in the first item are EV, in the second are matchups.
 
         :position: "OOP" or "IP"
-        :node: the node id (e.g., "r:0:c:c:7s:c")
+        :node_id: the node id (e.g., "r:0:c:c:7s:c")
 
         :return: a human readable per-hand equity summary
         """
-        results = self._run("calc_eq_pp", position, node)
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        position = normalize_position(position)
+        results = self._run("calc_eq_pp", position, node_id)
         return tuple(results.split("\n"))
 
-    def calc_eq_node(self, position, node) -> Tuple[Tuple[float], Tuple[float], float]:
+    def calc_eq_node(
+        self, position: str | int, node_id: str | Node
+    ) -> Tuple[np.ndarray[float], np.ndarray[float], float]:
         """
         Equity for given player assuming ranges in given node.
 
@@ -276,19 +369,24 @@ class Solver(object):
         third item is total equities
 
         :position: "OOP" or "IP"
-        :node: the node id (e.g., "r:0:c:c:7s:c")
+        :node_id: the node id (e.g., "r:0:c:c:7s:c")
         """
-        results = self._run("calc_eq_node", position, node)
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        position = normalize_position(position)
+        results = self._run("calc_eq_node", position, node_id)
         try:
             eqs, matchups, total = results.split("\n")
         except ValueError:
             raise RuntimeError(f"Pio Error: calc_eq_node: {results}")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         total = float(total)
         return eqs, matchups, total
 
-    def calc_eq_preflop(self, position):
+    def calc_eq_preflop(
+        self, position: str | int
+    ) -> Tuple[np.ndarray[float], np.ndarray[float], float]:
         """
         Preflop equity for given player assuming ranges in set_range command.
 
@@ -297,47 +395,69 @@ class Solver(object):
 
         :position: "OOP" or "IP"
         """
+        position = normalize_position(position)
         results = self._run("calc_eq_preflop", position)
         try:
             eqs, matchups, total = results.split("\n")
         except ValueError:
             raise RuntimeError(f"Pio Error: calc_eq_preflop: {results}")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         total = float(total)
         return eqs, matchups, total
 
-    def solve_partial(self, node_id):
+    def solve_partial(self, node_id: str | Node):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         return self._run("solve_partial", node_id)
 
-    def show_range(self, position, node_id) -> List[float]:
-        range = self._run("show_range", position, node_id)
+    def show_range(self, position: str | int, node_id: Optional[str | Node]) -> Range:
+        """
+        Show range in given node as a list of 1326 floats from 0.0 (not
+        present) to 1.0 (full combo).  If only one argument is given then
+        IP/OOPrange from solver state is shown (the one set by set_range).
+        """
+        position = normalize_position(position)
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        if node_id is None:
+            range = self._run("show_range", position)
+        else:
+            range = self._run("show_range", position, node_id)
         if "ERROR" in range:
             print(f"Error in range at {position} {node_id}")
             print(f"{range}")
             return None
-        return [float(freq) for freq in range.split()]
+        return Range([float(freq) for freq in range.split()])
 
-    def set_range(self, position, *values):
-        values = [str(a) for a in values]
-        return self._run("set_range", position, *values)
+    def set_range(self, position: str | int, rng: str | List[float] | Range):
+        if isinstance(rng, str):
+            r = rng
+        elif isinstance(rng, list):
+            r = " ".join([str(x) for x in rng])
+        elif isinstance(rng, Range):
+            r = rng.pio_str()
+        position = normalize_position(position)
+        return self._run("set_range", position, r)
 
-    def set_eff_stack(self, value):
+    def set_eff_stack(self, value: int):
         return self._run("set_eff_stack", str(value))
 
-    def set_pot(self, oop, ip, start):
+    def set_pot(self, oop: int, ip: int, start: int):
         return self._run("set_pot", str(oop), str(ip), str(start))
 
-    def set_board(self, board):
+    def set_board(self, board: str):
         return self._run("set_board", "".join(board))
 
     def build_tree(self):
         return self._run("build_tree")
 
-    def set_isomorphism(self, flop_trees, turn_trees):
+    def set_isomorphism(self, flop_trees: bool | int, turn_trees: bool | int):
+        flop_trees = bool_or_int_to_int(flop_trees)
+        turn_trees = bool_or_int_to_int(turn_trees)
         return self._run("set_isomorphism", str(flop_trees), str(turn_trees))
 
-    def dump_tree(self, filename, save_type="no_rivers"):
+    def dump_tree(self, filename: str, save_type="no_rivers"):
         save_type = save_type.lower().replace("-", "_")
         if save_type in ("small", "no_rivers", None):
             save_type = "no_rivers"
@@ -351,26 +471,40 @@ class Solver(object):
             return self._run("dump_tree", filename)
         return self._run("dump_tree", filename, save_type)
 
-    def lock_node(self, node_id):
+    def lock_node(self, node_id: str | Node):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         response = self._run("lock_node", node_id)
         return response
 
-    def load_script(self, script_filepath):
+    def unlock_node(self, node_id: str | Node):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        response = self._run("unlock_node", node_id)
+        return response
+
+    def load_script(self, script_filepath: str):
         return self._run("load_script", script_filepath)
 
-    def load_script_silent(self, script_filepath):
+    def load_script_silent(self, script_filepath: str):
         return self._run("load_script_silent", script_filepath)
 
-    def set_strategy(self, node_id, *values):
+    def set_strategy(self, node_id: str | Node, values: List[float]):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         values = [str(v) for v in values]
         response = self._run("set_strategy", node_id, *values)
         return response
 
-    def show_strategy(self, node_id):
+    def show_strategy(self, node_id: str | Node):
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         strats = self._run("show_strategy", node_id).split("\n")
         return [[float(s) for s in strat.split()] for strat in strats]
 
-    def calc_global_freq(self, node_id: str) -> float:
+    def calc_global_freq(self, node_id: str | Node) -> float:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         return float(self._run("calc_global_freq", node_id))
 
     def _parse_data(self, data, *name_to_parser):
@@ -397,7 +531,7 @@ class Solver(object):
 
         if self.simulate:
             return
-        self.process.stdin.write(" ".join(commands) + "\n")
+        self.process.stdin.write(command_with_args + "\n")
         end_string = f"{self.end_string}\n"
         lines = []
 
@@ -577,3 +711,11 @@ _NO_OUTPUT_COMMANDS = [
     "set_mes",
     "free_tree",
 ]
+
+
+def bool_or_int_to_int(v: int | bool):
+    if v == True:
+        return 1
+    if v == False:
+        return 0
+    return v

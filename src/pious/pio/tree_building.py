@@ -4,7 +4,7 @@ Responsible for reading and writing tree building scripts found in C:\\PioSOLVER
 
 from typing import List
 from os import path as osp
-from pious.range import PreflopRange
+from ..range import PreflopRange
 
 
 def try_value_as_int(maybe_int):

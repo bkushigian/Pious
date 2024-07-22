@@ -5,9 +5,9 @@ A collection of PioSOLVER utility functions
 from typing import Dict, List, Optional, Tuple, Callable
 from itertools import permutations
 
-from pious.pio.solver import Solver
-from pious.conf import pious_conf
-from pious.util import CARDS
+from .solver import Solver
+from ..conf import pious_conf
+from ..util import CARDS
 
 PATH = pious_conf.pio_install_directory
 EXECUTABLE = pious_conf.get_pio_solver_name()
@@ -18,10 +18,11 @@ TURN = 2
 RIVER = 3
 
 
-def get_all_lines(solver: Solver) -> List[str]:
+def get_all_lines(solver: Solver) -> List["Line"]:
     """
     Given a node in the tree, return a list of all the lines in the tree.
     """
+    solver.load_all_nodes()
     lines = solver.show_all_lines()
     effective_stack = solver.show_effective_stack()
     return [Line(line, effective_stack=effective_stack) for line in lines]
@@ -178,11 +179,11 @@ class Line:
     3. Players are all in. To determine this we need `effective_stacks` We cannot detect this condition without help, so
        we provide the optional argument `is_terminal` to the `Line` constructor.
 
-       >>> Line("r:0:c:b30:b100:b900:c", effective_stacks=1000).streets_as_lines
+       >>> Line("r:0:c:b30:b100:b900:c", effective_stack=1000).streets_as_lines
        ['r:0', 'c:b30:b100:b900:c', '']
-       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stacks=1000).streets_as_lines
+       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stack=1000).streets_as_lines
        ['r:0', 'c:b30:b100:b900:c', 'b100:c']
-       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stacks=2000).streets_as_lines
+       >>> Line("r:0:c:b30:b100:b900:c:b100:c", effective_stack=2000).streets_as_lines
        ['r:0', 'c:b30:b100:b900:c', 'b100:c', '']
        >>> Line("r:0:c:b30:c:c:b30:c").streets_as_lines
        ['r:0', 'c:b30:c', 'c:b30:c', '']
@@ -393,7 +394,7 @@ class Line:
         False
         >>> Line("r:0:c:c:c:c").is_river()
         True
-        >>> Line("r:0:c:b1000:c", effective_stacks=1000).is_river()
+        >>> Line("r:0:c:b1000:c", effective_stack=1000).is_river()
         False
         """
         return self.current_street() == RIVER

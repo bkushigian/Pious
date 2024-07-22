@@ -1,9 +1,9 @@
 from typing import List
 from os import path as osp
 
-from pious.script_builder import ScriptBuilder
-from pious.pio.line import Line, filter_lines
-from pious.pio.solver import Solver, Node
+from .script_builder import ScriptBuilder
+from .line import Line, filter_lines
+from .solver import Solver, Node
 
 
 def get_strategy_at_node(solver, node):

@@ -1,6 +1,6 @@
 import pytest
 
-from pious.pio.equity import EquityCalculator
+from pious.pio.equity import EquityCalculator, compute_equities
 from pious.pio.util import make_solver
 
 
@@ -24,3 +24,12 @@ def test_equity_calc():
     assert ec.ip() == approx(0.912)
     assert ec.oop(preflop=True) == approx(0.186)
     assert ec.ip(preflop=True) == approx(0.813)
+
+    assert compute_equities("3h3d3c", "JJ TT", "AA    KK,QQ") == (
+        approx(0.088),
+        approx(0.912),
+    )
+    assert compute_equities("3h3d3c", "JJ TT", "AA    KK,QQ", preflop=True) == (
+        approx(0.186),
+        approx(0.813),
+    )

@@ -4,10 +4,10 @@ import time
 import sys
 from os import path as osp
 
-from pious.pio.line import Line, node_id_to_line
-from pious.script_builder import ScriptBuilder
-from pious.pio import utils as pio_utils
-from pious.pio import nodelock_utils
+from ..pio.line import Line, node_id_to_line
+from ..pio.script_builder import ScriptBuilder
+from ..pio import util as pio_util
+from ..pio import nodelock_utils
 
 
 path = osp.join(osp.dirname(__file__), "..", "resources", "trees", "Ks7h2c.cfr")
@@ -63,13 +63,13 @@ def create_filters_fns(
 
     street_filters = []
     if flop:
-        street_filters.append(pio_utils.is_flop)
+        street_filters.append(pio_util.is_flop)
 
     if turn:
-        street_filters.append(pio_utils.is_turn)
+        street_filters.append(pio_util.is_turn)
 
     if river:
-        street_filters.append(pio_utils.is_river)
+        street_filters.append(pio_util.is_river)
 
     def street_filter(line: Line):
         for f in street_filters:
@@ -79,9 +79,9 @@ def create_filters_fns(
 
     position_filters = []
     if ip:
-        position_filters.append(pio_utils.is_ip)
+        position_filters.append(pio_util.is_ip)
     if oop:
-        position_filters.append(pio_utils.is_oop)
+        position_filters.append(pio_util.is_oop)
 
     def position_filter(line: Line):
         for f in position_filters:
@@ -92,10 +92,10 @@ def create_filters_fns(
     bet_filters = []
 
     if num_bets is not None:
-        bet_filters.append(lambda line: pio_utils.num_bets(line) <= num_bets)
+        bet_filters.append(lambda line: pio_util.num_bets(line) <= num_bets)
     if bets_per_street is not None:
         bet_filters.append(
-            lambda line: max(pio_utils.bets_per_street(line)) <= bets_per_street
+            lambda line: max(pio_util.bets_per_street(line)) <= bets_per_street
         )
 
     def bet_filter(line: Line):
@@ -104,13 +104,13 @@ def create_filters_fns(
                 return False
         return True
 
-    return street_filter, position_filter, bet_filter, pio_utils.is_facing_bet
+    return street_filter, position_filter, bet_filter, pio_util.is_facing_bet
 
 
 def filter_lines_and_expand_to_node_ids(
     lines, board, filters
 ) -> Tuple[List[Line], List[str]]:
-    filtered_lines = pio_utils.filter_lines(lines=lines, filters=filters)
+    filtered_lines = pio_util.filter_lines(lines=lines, filters=filters)
     print(f"Filtered {len(lines):,} lines down to {len(filtered_lines):,} lines")
 
     node_ids = []
@@ -127,7 +127,7 @@ def main():
         print("Error: both --ip and --oop are set")
         sys.exit(1)
 
-    solver = pio_utils.make_solver(
+    solver = pio_util.make_solver(
         debug=args.debug, log_file=args.log_file, store_script=args.store_script
     )
     path = osp.abspath(args.path)
@@ -139,7 +139,7 @@ def main():
     print("pot =", pot)
 
     all_lines = [
-        Line(line, starting_street=pio_utils.FLOP) for line in solver.show_all_lines()
+        Line(line, starting_street=pio_util.FLOP) for line in solver.show_all_lines()
     ]
     filters = create_filters_fns(
         flop=args.flop,

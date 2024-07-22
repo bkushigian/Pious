@@ -2,9 +2,10 @@
 Create an equity calculator by wrapping a PioSOLVER instance
 """
 
-from pious.pio.solver import Solver
-from pious.pio.util import make_solver
-from pious.range import Range
+from typing import List, Sequence, Tuple
+from .solver import Solver
+from .util import make_solver
+from ..range import Range
 import numpy as np
 
 
@@ -22,15 +23,15 @@ class EquityCalculator:
 
         self.set_board(board)
 
-        self.solver.set_range("OOP", self.oop_range.pio_str())
-        self.solver.set_range("IP", self.ip_range.pio_str())
+        self.solver.set_range("OOP", self.oop_range)
+        self.solver.set_range("IP", self.ip_range)
         self.solver.build_tree()
 
     @staticmethod
     def sanitize_board(b):
         return "".join([c for c in b if c not in " \n\t,"])
 
-    def compute_equity(self, oop=True, preflop=False):
+    def compute_equity(self, oop: bool = True, preflop: bool = False):
         if oop:
             pos = "OOP"
         else:
@@ -42,7 +43,29 @@ class EquityCalculator:
             _, _, total = self.solver.calc_eq_node(pos, "r:0")
         return total
 
-    def set_board(self, board):
+    def compute_hand_equities(self, oop: bool = True, preflop: bool = False):
+        if oop:
+            pos = "OOP"
+        else:
+            pos = "IP"
+        if preflop:
+            equities, matchups, total = self.solver.calc_eq_preflop(pos)
+        else:
+            equities, matchups, total = self.solver.calc_eq_node(pos, "r:0")
+        return equities, matchups, total
+
+    def matchups(self):
+        return self.solver.calc_matchups_line("r:0")
+
+    def compute_equities(self, preflop: bool = False) -> Tuple[float, float]:
+        """
+        Compute oop and ip equities.
+        """
+        oop = self.compute_equity(oop=True, preflop=preflop)
+        ip = self.compute_equity(oop=False, preflop=preflop)
+        return oop, ip
+
+    def set_board(self, board: Sequence[str] | str):
         self.board = EquityCalculator.sanitize_board(board)
         b = self.board
         if len(b) % 2 != 0:
@@ -83,3 +106,31 @@ class EquityCalculator:
     def clear_board(self):
         self.solver.set_board("")
         self.solver.build_tree()
+
+
+def sanitize_board(board: str | Sequence[str]):
+    """
+    Sanitize a board to either
+    """
+    b = board
+    if isinstance(board, Sequence):
+        b = "".join([c.strip() for c in board])
+    if not isinstance(b, str):
+        raise ValueError(
+            f"Invalid board {board}: must be a sequence of cards or a string"
+        )
+    return b
+
+
+def compute_equities(
+    board: str | Sequence[str],
+    oop_range: str | Range,
+    ip_range: str | Range,
+    preflop: bool = False,
+) -> Tuple[float, float]:
+    """
+    Compute OOP and IP equities on a board given specified ranges.
+    """
+    # First, sanitize board to a string
+    b = sanitize_board(board)
+    return EquityCalculator(b, oop_range, ip_range).compute_equities(preflop=preflop)

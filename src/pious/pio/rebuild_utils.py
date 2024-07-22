@@ -9,13 +9,23 @@ from argparse import ArgumentParser
 from os import path as osp
 import time
 
-from pious.pio.solver import Solver, Node
-from pious.pio.line import Line, filter_lines, is_flop, is_turn, is_nonterminal
-from pious.pio.line import make_solver, FLOP, TURN
-from pious.progress_bar import progress_bar
+from .solver import Solver, Node
+from .line import (
+    Line,
+    filter_lines,
+    is_flop,
+    is_turn,
+    is_nonterminal,
+    FLOP,
+    TURN,
+)
+from .util import make_solver
+from ..progress_bar import progress_bar
 
 
-def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.05):
+def rebuild_and_resolve(
+    solver: Solver, lock_turns=True, lines=None, accuracy=0.05, unlock=True
+):
     """
     Rebuild and resolve a game tree. This is to replace the broken functionality
     of `solve_all_spots` from UPI.
@@ -31,6 +41,8 @@ def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.
         will be used, by default None
     accuracy : float, optional
         The accuracy as percent of pot to use for resolving, by default 0.05
+    unlock : bool, optional
+        Unlock nodes when done solving
     """
     if not solver.is_ready():
         return False
@@ -44,6 +56,13 @@ def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.
     accuracy_in_chips = accuracy * pot
     print(f"accuracy = {accuracy_in_chips}")
     solver.set_accuracy(accuracy_in_chips)
+
+    print("Loading all nodes...", end="", flush=True)
+    t0 = time.time()
+    solver.load_all_nodes()
+    t1 = time.time()
+    print("DONE")
+    print(f"Loaded all nodes in {t1 - t0:3.2f} seconds")
 
     print(solver.estimate_rebuild_forgotten_streets())
     print("Rebuilding forgotten streets...", end="", flush=True)
@@ -94,6 +113,13 @@ def rebuild_and_resolve(solver: Solver, lock_turns=True, lines=None, accuracy=0.
     t1 = time.time()
     print("DONE")
     print(f"Resolved full tree in {t1 - t0:3.2f} seconds")
+    if unlock:
+        print("Unlocking nodes...")
+        t0 = time.time()
+        for node_id in progress_bar(node_ids, prefix="Unlocking nodes"):
+            solver.unlock_node(node_id)
+        t1 = time.time()
+        print(f"Unlocked nodes in {t1 - t0:3.2f} seconds")
 
 
 def main():

@@ -12,9 +12,9 @@ import tempfile
 import pydoc
 from pathlib import Path
 
-from pious.util import ranks_rev, ahml
-from pious.pio.util import *
-from pious.pio.database import (
+from ..util import ranks_rev, ahml
+from .util import *
+from .database import (
     CFRDatabase,
     apply_permutation,
     ALL_SUIT_PERMUTATIONS,
@@ -62,11 +62,14 @@ class AggregationReport:
         self.report_info_path = osp.join(agg_report_directory, "info.txt")
         self.hands_ev_path = osp.join(agg_report_directory, "handsEV.csv")
         self.spot_name = spot_name
-        self._report_cache: Dict[str, AggregationReport] = report_cache or {}
+        self._report_cache: Dict[str, AggregationReport] = (
+            {} if report_cache is None else report_cache
+        )
         if self.agg_report_directory in self._report_cache:
             raise ValueError(
                 f"There is already a cached AggregationReport associated with {self.agg_report_directory}"
             )
+        self._report_cache[self.agg_report_directory] = self
         self.ip = False
         self.oop = False
         self.info = None
@@ -421,7 +424,6 @@ class AggregationReport:
     def __getitem__(self, item):
         ranks, suits = board_to_ranks_suits(item)
         v = self.view()
-        raw_flops = v["raw_flop"]
         for permutation in ALL_SUIT_PERMUTATIONS:
             new_suits = apply_permutation(suits, permutation)
             cards = [f"{r}{s}" for (r, s) in zip(ranks, new_suits)]
@@ -625,6 +627,9 @@ class AggregationReport:
 {view_str}"""
 
         return s
+
+    def __len__(self):
+        return len(self._view)
 
     def __repr__(self):
         return str(self)
