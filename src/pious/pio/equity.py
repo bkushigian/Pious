@@ -43,6 +43,20 @@ class EquityCalculator:
             _, _, total = self.solver.calc_eq_node(pos, "r:0")
         return total
 
+    def compute_hand_equities(self, oop: bool = True, preflop: bool = False):
+        if oop:
+            pos = "OOP"
+        else:
+            pos = "IP"
+        if preflop:
+            equities, matchups, total = self.solver.calc_eq_preflop(pos)
+        else:
+            equities, matchups, total = self.solver.calc_eq_node(pos, "r:0")
+        return equities, matchups, total
+
+    def matchups(self):
+        return self.solver.calc_matchups_line("r:0")
+
     def compute_equities(self, preflop: bool = False) -> Tuple[float, float]:
         """
         Compute oop and ip equities.

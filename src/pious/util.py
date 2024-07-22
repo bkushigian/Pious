@@ -1,5 +1,6 @@
 from itertools import combinations, permutations
 from typing import Tuple
+import numpy as np
 
 # All cards in deck
 CARDS = tuple(f"{r}{s}" for r in "AKQJT98765432" for s in "shdc")
@@ -13,6 +14,16 @@ PIO_HAND_ORDER = tuple(
 )
 ALL_COMBOS = PIO_HAND_ORDER
 _PIO_COMBO_INDICES = {combo: idx for (idx, combo) in enumerate(PIO_HAND_ORDER)}
+
+# Track, for each card, which combo indices have that card
+_CARD_TO_COMBO_INDICES = {}
+for card in CARDS:
+    _CARD_TO_COMBO_INDICES[card] = np.array(
+        [1.0 if card in combo else 0.0 for combo in PIO_HAND_ORDER]
+    )
+
+# A helper array to compute indicator arrays
+_ONES = np.ones(len(PIO_HAND_ORDER), dtype=np.float64)
 
 # Canonicalize the combos, and make for a fast lookup
 FULL_COMBO_HAND_ORDER_CANONICAL = {}
@@ -40,6 +51,15 @@ def get_pio_combo_index(full_combo):
     Canonicalize the combo and return the index in PioSolver's hand order
     """
     return _PIO_COMBO_INDICES[canonicalize_full_combo(full_combo)]
+
+
+def get_card_index_array(card, negate=False):
+    if card not in CARDS:
+        raise ValueError(f"Invalid card: {card}: must be in {CARDS}")
+    a = _CARD_TO_COMBO_INDICES[card]
+    if negate:
+        a = _ONES - a
+    return a
 
 
 OFFSUIT_COMBO_SUITS = tuple(

@@ -6,6 +6,8 @@ suit my needs.
 import subprocess
 import os
 from typing import List, Optional, Tuple
+import numpy as np
+
 from .tree_building import try_value_as_int, try_value_as_literal
 from ..range import Range
 
@@ -264,7 +266,9 @@ class Solver(object):
     def clear_lines(self):
         return self._run("clear_lines")
 
-    def calc_ev(self, position: str | int, node) -> Tuple[Tuple[float], Tuple[float]]:
+    def calc_ev(
+        self, position: str | int, node
+    ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
         EV of a given player in a given node for all hands.
 
@@ -279,8 +283,8 @@ class Solver(object):
         position = normalize_position(position)
         results = self._run("calc_ev", position, node)
         evs, matchups = results.split("\n")
-        evs = tuple(float(ev) for ev in evs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        evs = np.array([float(ev) for ev in evs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         return evs, matchups
 
     def calc_ev_pp(self, position: str | int, node) -> str:
@@ -298,9 +302,15 @@ class Solver(object):
         results = self._run("calc_ev_pp", position, node)
         return tuple(results.split("\n"))
 
+    def calc_matchups_line(self, node_id: str | Node) -> float:
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
+        result = self._run("calc_matchups_line", node_id)
+        return float(result)
+
     def calc_eq(
         self, position: str | int, node_id: str | Node
-    ) -> Tuple[Tuple[float], Tuple[float]]:
+    ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
         Equities for a given player in a given node for all hands.
 
@@ -317,8 +327,8 @@ class Solver(object):
         position = normalize_position(position)
         results = self._run("calc_ev", position, node_id)
         eqs, matchups = results.split("\n")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         return eqs, matchups
 
     def calc_eq_pp(self, position: str | int, node_id: str | Node) -> str:
@@ -340,7 +350,7 @@ class Solver(object):
 
     def calc_eq_node(
         self, position: str | int, node_id: str | Node
-    ) -> Tuple[Tuple[float], Tuple[float], float]:
+    ) -> Tuple[np.ndarray[float], np.ndarray[float], float]:
         """
         Equity for given player assuming ranges in given node.
 
@@ -358,12 +368,14 @@ class Solver(object):
             eqs, matchups, total = results.split("\n")
         except ValueError:
             raise RuntimeError(f"Pio Error: calc_eq_node: {results}")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         total = float(total)
         return eqs, matchups, total
 
-    def calc_eq_preflop(self, position: str | int):
+    def calc_eq_preflop(
+        self, position: str | int
+    ) -> Tuple[np.ndarray[float], np.ndarray[float], float]:
         """
         Preflop equity for given player assuming ranges in set_range command.
 
@@ -378,8 +390,8 @@ class Solver(object):
             eqs, matchups, total = results.split("\n")
         except ValueError:
             raise RuntimeError(f"Pio Error: calc_eq_preflop: {results}")
-        eqs = tuple(float(ev) for ev in eqs.split())
-        matchups = tuple(float(matchup) for matchup in matchups.split())
+        eqs = np.array([float(ev) for ev in eqs.split()])
+        matchups = np.array([float(matchup) for matchup in matchups.split()])
         total = float(total)
         return eqs, matchups, total
 

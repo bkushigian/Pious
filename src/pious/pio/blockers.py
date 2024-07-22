@@ -4,7 +4,8 @@ A module for computing various blocker effects
 
 from .solver import Node, Solver
 from .equity import EquityCalculator
-from ..util import CARDS
+from ..util import CARDS, get_card_index_array
+import numpy as np
 
 
 def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
@@ -28,19 +29,28 @@ def compute_single_card_blocker_effects(solver: Solver, node_id: str | Node):
     if hero_is_oop:
         hero_range, villain_range = villain_range, hero_range
 
-    # We now have hero and villain's range correctly assigned.  Sine position
+    # We now have hero and villain's range correctly assigned.  Since position
     # doesn't matter in equity calculations, so we assume that hero is OOP in
     # the equity calculator
 
     eqc = EquityCalculator(board, oop_range=hero_range, ip_range=villain_range)
 
+    # Get villain equity information (ip)
+    equities, matchups, total = eqc.compute_hand_equities(oop=False)
+    equities = np.nan_to_num(equities, 0.0)  # Remove nans
+
     base_villain_equity = eqc.ip()
+    base_villain_equity2 = sum(equities * matchups) / sum(matchups)
+
+    print(base_villain_equity, base_villain_equity2)
+
     blocker_effects = {}
 
     for c in CARDS:
-        vr = villain_range - c
-        eqc.set_ip_range(vr)
-        eq = eqc.ip()
+        a = get_card_index_array(c, negate=True)
+        eqs = equities * a
+        mus = matchups * a
+        eq = sum(eqs * mus) / sum(mus)
         diff = base_villain_equity - eq
         blocker_effects[c] = diff
     return blocker_effects
