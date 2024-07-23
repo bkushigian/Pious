@@ -14,7 +14,7 @@ dependencies = [
     "matplotlib>=3.7.1",
     "pandas>=2.0.3",
     "mplcursors>=0.5.1",
-    "ansi>=0.3",
+    "ansi>=0.3.7",
     "pytest>=8.2.2",
 ]
 

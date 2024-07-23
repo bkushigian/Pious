@@ -244,31 +244,68 @@ def card_tuple(c):
     return ranks[r], s
 
 
+def color_suit(suit, mode="DARK_MODE", width=1, align="^"):
+    hearts = "♥"
+    diamonds = "♦"
+    clubs = "♣"
+    spades = "♠"
+
+    s = {"h": hearts, "d": diamonds, "c": clubs, "s": spades}.get(suit, suit)
+    s2 = f"{s:{align}{width}}"
+    if mode == "LIGHT_MODE":
+        if s == "h" or s == hearts:
+            s = fg.red(s2)
+        if s == "s" or s == spades:
+            s = fg.black(s2)
+        if s == "c" or s == clubs:
+            s = fg.green(s2)
+        if s == "d" or s == diamonds:
+            s = fg.blue(s2)
+    else:
+        if s == "h" or s == hearts:
+            s = fg.red(s2)
+        if s == "s" or s == spades:
+            s = fg.white(s2)
+        if s == "c" or s == clubs:
+            s = fg.green(s2)
+        if s == "d" or s == diamonds:
+            s = fg.blue(s2)
+    return s
+
+
 def color_card(c, remove_suit=False, mode="DARK_MODE"):
     if c not in CARDS:
         raise ValueError(f"Invalid card {c}")
 
+    hearts = "♥"
+    diamonds = "♦"
+    clubs = "♣"
+    spades = "♠"
+    d = {"h": hearts, "d": diamonds, "c": clubs, "s": spades}
     mode = mode.upper()
-    s = c[1]
+    s = d[c[1]]
+    r = c[0]
     if remove_suit:
-        c = c[0]
+        c = r
+    else:
+        c = f"{r}{s}"
 
     if mode == "LIGHT_MODE":
-        if s == "h":
+        if s == "h" or s == hearts:
             c = fg.red(c)
-        if s == "s":
+        if s == "s" or s == spades:
             c = fg.black(c)
-        if s == "c":
+        if s == "c" or s == clubs:
             c = fg.green(c)
-        if s == "d":
+        if s == "d" or s == diamonds:
             c = fg.blue(c)
     else:
-        if s == "h":
+        if s == "h" or s == hearts:
             c = fg.red(c)
-        if s == "s":
+        if s == "s" or s == spades:
             c = fg.white(c)
-        if s == "c":
+        if s == "c" or s == clubs:
             c = fg.green(c)
-        if s == "d":
+        if s == "d" or s == diamonds:
             c = fg.blue(c)
     return fx.bold(c)

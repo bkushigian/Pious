@@ -10,11 +10,14 @@ from pious.pio import (
     compute_single_card_blocker_effects as blocker_effects,
     make_solver,
     rebuild_and_resolve,
+    find_isomorphic_board,
 )
-from pious.util import color_card, CARDS
+from pious.util import color_card, CARDS, color_suit
+from pious.util import SUIT_ORDER
 from ansi.colour.rgb import rgb256
 from ansi.colour.fx import reset, bold, crossed_out
 from argparse import ArgumentParser
+
 
 HORIZONTAL = "─"
 VERTICAL = "│"
@@ -27,6 +30,12 @@ TOP_LEFT_ROUND = "╭"
 TOP_RIGHT_ROUND = "╮"
 BOTTOM_LEFT_ROUND = "╰"
 BOTTOM_RIGHT_ROUND = "╯"
+
+LEFT_T = "├"
+RIGHT_T = "┤"
+TOP_T = "┬"
+BOTTOM_T = "┴"
+CROSS = "┼"
 
 COMBO_WEIGHT_THRESHOLD = 0.001
 
@@ -64,7 +73,9 @@ else:
     args.per_card = True
 
 
-def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 0)):
+def linear_color_gradient(
+    v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 0), bg=False
+):
     # linear gradient along (255, 0, 0) and (255, 255, 255)
     max_n = max - min
     v_n = (v - min) / max_n
@@ -75,7 +86,7 @@ def linear_color_gradient(v, min=0.0, max=1.0, left=(255, 0, 0), right=(0, 255, 
     rgb[0] = (1 - v_n) * left[0] + v_n * right[0]
     rgb[1] = (1 - v_n) * left[1] + v_n * right[1]
     rgb[2] = (1 - v_n) * left[2] + v_n * right[2]
-    rgb = rgb256(*rgb)
+    rgb = rgb256(rgb[0], rgb[1], rgb[2], bg=bg)
     return rgb
 
 
@@ -168,7 +179,7 @@ def print_equity_delta_graph(
     rows = []
     LAST_HEIGHT_DRAWN = height
     for h in range(height, -1, -1):
-        row = [" " * i]
+        row = [" " * 2 * i]
         rgb = linear_color_gradient(h, 0, height)
         drawn = False
         while i < len(graph_height) and graph_height[i] == h:
@@ -177,13 +188,13 @@ def print_equity_delta_graph(
             elif LAST_HEIGHT_DRAWN > h:
                 char = BOTTOM_LEFT_ROUND
 
-            row.append(f"{rgb}{char}{reset}")
+            row.append(f"{rgb}{char}{HORIZONTAL}{reset}")
             i += 1
             LAST_HEIGHT_DRAWN = h
             drawn = True
         if not drawn:
             row.append(f"{rgb}{VERTICAL}{reset}")
-        else:
+        elif h > 0:
             row.append(f"{rgb}{TOP_RIGHT_ROUND}{reset}")
         rows.append("".join(row))
 
@@ -192,15 +203,67 @@ def print_equity_delta_graph(
     for row in rows:
         rgb = linear_color_gradient(delta_bin, min_delta, max_delta)
         prefix = f"{delta_bin*100:6.2f}"
-        prefix = f"{rgb}{prefix}{reset} {VERTICAL} "  # Length is 9
+        prefix = f"{rgb}{prefix}{reset} {VERTICAL}"  # Length is 9
         print(f"{prefix}{row}")
         delta_bin -= delta_incr
-    print(f"       {BOTTOM_LEFT}{HORIZONTAL * len(deltas)}")
-    print(f"        {''.join(color_card(c, True) for c in combos if c not in board)}")
+    print(f"       {BOTTOM_LEFT}{HORIZONTAL * 2*len(deltas)}")
+    print(f"        {''.join(color_card(c, False) for c in combos if c not in board)}")
+
+
+def print_blocker_effects_by_rank_suit(equity_deltas, cell_width=7):
+    delta_lookup = {c: delta for (c, delta) in equity_deltas}
+    deltas = list(delta_lookup.values())
+    max_delta = max(deltas)
+    min_delta = min(deltas)
+    rows = []
+    for rank in "AKQJT98765432":
+        row = []
+        for suit in SUIT_ORDER:
+            card = f"{rank}{suit}"
+            delta = delta_lookup.get(card, None)
+            if delta:
+                color = linear_color_gradient(delta, min_delta, max_delta, bg=True)
+            else:
+                color = rgb256(0, 0, 0)
+            row.append((rank, suit, color, delta))
+        rows.append(row)
+
+    HOR_SEG = f"{HORIZONTAL*cell_width}"
+    TOP_HOR_LINE = f"{TOP_LEFT}{HOR_SEG}{TOP_T}{HOR_SEG}{TOP_T}{HOR_SEG}{TOP_T}{HOR_SEG}{TOP_RIGHT}"
+    CENTER_HOR_LINE = (
+        f"{LEFT_T}{HOR_SEG}{CROSS}{HOR_SEG}{CROSS}{HOR_SEG}{CROSS}{HOR_SEG}{RIGHT_T}"
+    )
+    BOT_HOR_LINE = f"{BOTTOM_LEFT}{HOR_SEG}{BOTTOM_T}{HOR_SEG}{BOTTOM_T}{HOR_SEG}{BOTTOM_T}{HOR_SEG}{BOTTOM_RIGHT}"
+    print(
+        f"     {color_suit('s', width=cell_width)} {color_suit('h', width=cell_width)} {color_suit('d', width=cell_width)} {color_suit('c', width=cell_width)} "
+    )
+    print(f"    {TOP_HOR_LINE}")
+    for i, row in enumerate(rows):
+        rank = row[0][0]
+        EMPTY_ROW_LINE = f"       {VERTICAL}"
+        DELTA_ROW_LINE = f"{bold}{rank}{reset} {VERTICAL}"
+        for rank, suit, color, delta in row:
+
+            padding = f"{color}{' '*cell_width}{reset}"
+            EMPTY_ROW_LINE += f"{padding}{VERTICAL}"
+            if delta is None:
+                # print empty cell
+                DELTA_ROW_LINE += f"{padding}{VERTICAL}"
+            else:
+                delta_s = f"{color}{bold}{delta*100:^{cell_width}.1f}{reset}"
+                # print delta
+                DELTA_ROW_LINE += f"{delta_s}{VERTICAL}"
+        print(f"  {DELTA_ROW_LINE}")
+        if i < len(rows) - 1:
+            print(f"    {CENTER_HOR_LINE}")
+    print(f"    {BOT_HOR_LINE}")
 
 
 s = make_solver()
-s.load_tree(args.cfr_path)
+cfr_path = find_isomorphic_board(args.cfr_path)
+if cfr_path is None:
+    raise ValueError(f"Cannot find isomorphic board: {args.cfr_path}")
+s.load_tree(cfr_path)
 node = s.show_node(args.node_id)
 board = node.board
 
@@ -250,33 +313,40 @@ def color_effect(e, s):
     return "".join([str(x) for x in msg])
 
 
-rows = []
-N = (len(equity_deltas) + args.cols - 1) // args.cols
-for i in range(N):
-    row = []
-    rows.append(row)
-    for j in range(args.cols):
-        idx = i + j * N
-        if idx >= len(equity_deltas):
-            continue
-        card, block_effect = equity_deltas[i + j * N]
-        e = block_effect
+def print_blocker_effects_by_card(equity_deltas):
+    print()
 
-        if card in board:
-            s = f"{' ':6}"
-            entry = f" {crossed_out(color_card(card,True))}  {s} "
-        else:
-            s = f"{e * 100:6.3f}"
-            s = color_effect(e, s)
-            entry = f"({color_card(card,True)}) {s}{bold('%')}"
-        row.append(entry)
+    rows = []
+    N = (len(equity_deltas) + args.cols - 1) // args.cols
+    for i in range(N):
+        row = []
+        rows.append(row)
+        for j in range(args.cols):
+            idx = i + j * N
+            if idx >= len(equity_deltas):
+                continue
+            card, block_effect = equity_deltas[i + j * N]
+            e = block_effect
+
+            if card in board:
+                s = f"{' ':6}"
+                entry = f" {crossed_out(color_card(card,True))}  {s} "
+            else:
+                s = f"{e * 100:6.3f}"
+                s = color_effect(e, s)
+                entry = f"({color_card(card,True)}) {s}{bold('%')}"
+            row.append(entry)
+
+    for row in rows:
+        print("      " + "      ".join(row))
+    print()
 
 
 def color_combo(c):
     return f"{color_card(c[:2], True)}{color_card(c[2:], True)}"
 
 
-if args.per_card:
+def print_per_card_data(histogram, blocked_combos):
     for c in histogram.keys():
         if c in board:
             continue
@@ -291,9 +361,9 @@ if args.per_card:
         combos.sort(key=lambda x: x[1], reverse=True)
         print_combo_equities(combos, width=6)
 
-print_equity_delta_graph(equity_deltas, board)
 
-print()
-for row in rows:
-    print("      " + "      ".join(row))
-print()
+if args.per_card:
+    print_per_card_data(histogram, blocked_combos)
+print_equity_delta_graph(equity_deltas, board)
+print_blocker_effects_by_rank_suit(equity_deltas)
+print_blocker_effects_by_card(equity_deltas)

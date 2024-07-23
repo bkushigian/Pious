@@ -2,7 +2,7 @@ import os
 from os import path as osp
 import subprocess
 from itertools import permutations
-from typing import Tuple
+from typing import Optional, Tuple
 
 
 def board_to_ranks_suits(board) -> Tuple[Tuple[str], Tuple[str]]:
@@ -23,8 +23,27 @@ def apply_permutation(suits: Tuple[str], perm: Tuple[str]) -> Tuple[str]:
 ALL_SUIT_PERMUTATIONS = list(permutations("shdc"))
 
 
+def find_isomorphic_board(board_path: str) -> Optional[str]:
+    board_path = osp.abspath(board_path)
+    board = osp.basename(board_path)[:-4]
+    db_loc = osp.dirname(board_path)
+    if not osp.exists(db_loc):
+        raise ValueError(f"No such database location as {db_loc}")
+    if not board_path.endswith(".cfr"):
+        raise ValueError(f"Illegal board path {board_path}: must have '.cfr' extension")
+    print(db_loc)
+    db = CFRDatabase(db_loc)
+    try:
+        iso_board = db.find_isomorphic_board(board)
+        return osp.join(db_loc, f"{iso_board}.cfr")
+    except ValueError:
+        return None
+
+
 class CFRDatabase:
     def __init__(self, db_location, pio_viewer_location=None):
+        if db_location.endswith(".cfr"):
+            db_location = osp.dirname(db_location)
         self.db_location = db_location
         self.pio_viewer_location = pio_viewer_location
 
@@ -53,7 +72,9 @@ class CFRDatabase:
             for perm in ALL_SUIT_PERMUTATIONS:
                 if apply_permutation(suits, perm) == s:
                     return b
-        raise ValueError(f"Could not find isomorphic board to {b}")
+        raise ValueError(
+            f"Could not find isomorphic board to {board} in database at {self.db_location}"
+        )
 
     def open_board_in_pio(self, board, node="r:0"):
         """
