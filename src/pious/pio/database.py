@@ -23,7 +23,7 @@ def apply_permutation(suits: Tuple[str], perm: Tuple[str]) -> Tuple[str]:
 ALL_SUIT_PERMUTATIONS = list(permutations("shdc"))
 
 
-def find_isomorphic_board(board_path: str) -> Optional[str]:
+def find_isomorphic_board(board_path: str, full_path=True) -> Optional[str]:
     board_path = osp.abspath(board_path)
     board = osp.basename(board_path)[:-4]
     db_loc = osp.dirname(board_path)
@@ -33,11 +33,11 @@ def find_isomorphic_board(board_path: str) -> Optional[str]:
         raise ValueError(f"Illegal board path {board_path}: must have '.cfr' extension")
     print(db_loc)
     db = CFRDatabase(db_loc)
-    try:
-        iso_board = db.find_isomorphic_board(board)
+    iso_board = db[board, full_path]
+    if full_path:
         return osp.join(db_loc, f"{iso_board}.cfr")
-    except ValueError:
-        return None
+    else:
+        return iso_board
 
 
 class CFRDatabase:
@@ -76,12 +76,30 @@ class CFRDatabase:
             f"Could not find isomorphic board to {board} in database at {self.db_location}"
         )
 
+    def __getitem__(self, items):
+        full_path = True
+        if isinstance(items, tuple):
+            board = items[0]
+            full_path = items[1]
+        else:
+            board = items
+        try:
+            iso_board = self.find_isomorphic_board(board)
+            if full_path:
+                return osp.join(self.db_location, f"{iso_board}.cfr")
+            else:
+                return iso_board
+        except ValueError:
+            raise KeyError(
+                f"Database at {self.db_location} does not have board isomorphic to {board}"
+            )
+
     def open_board_in_pio(self, board, node="r:0"):
         """
         Look for this board in the
         """
 
-        board = self.find_isomorphic_board(board)
+        board = self[board, False]
         idx = self.boards.index(board)
         board_file_path = self.cfr_files[idx]
         if not osp.exists(board_file_path):
@@ -89,3 +107,6 @@ class CFRDatabase:
         cmd = [self.pio_viewer_location, board_file_path, "--open-node", node]
         print("Running:", " ".join(cmd))
         subprocess.Popen(cmd)
+
+    def view(self, board, node="r:0"):
+        self.open_board_in_pio(board, node)
