@@ -86,20 +86,25 @@ def compute_single_card_blocker_effects(
             hist[hist_bin] = matchups[idx] / total_matchups
         histograms[c] = hist
 
-    return SingleCardBlockerEffects(board, equity_deltas, blocked_combos, histograms)
+    return SingleCardBlockerEffects(
+        board, node_id, equity_deltas, blocked_combos, histograms
+    )
 
 
 class SingleCardBlockerEffects:
-    def __init__(self, board, equity_deltas, blocked_combos, histograms):
+    def __init__(self, board, node, equity_deltas, blocked_combos, histograms):
         self.equity_deltas = equity_deltas
+        self.node = node
         self.blocked_combos = blocked_combos
         self.histograms = histograms
         self.board = board
 
-    def print_histogram(self, width=40):
-        print_histogram(self.histograms, width=width)
+    def print_histogram(self, card, width=40):
+        hist = self.histograms[card]
+        print_card_banner(card, self.board)
+        print_histogram(hist, width=width)
 
-    def print_per_card_data(self, cards_to_print=None):
+    def print_per_card(self, cards_to_print=None):
         print_per_card_data(
             self.histograms,
             self.board,
@@ -107,23 +112,29 @@ class SingleCardBlockerEffects:
             cards_to_print=cards_to_print,
         )
 
-    def print_equity_delta_graph(self, height=20):
+    def print_graph(self, height=20, print_suits=False):
         print_equity_delta_graph(
-            list(self.equity_deltas.items()), self.board, height=height
+            list(self.equity_deltas.items()),
+            self.board,
+            height=height,
+            print_suits=print_suits,
         )
 
-    def print_blocker_effects_by_rank_suit(self, cell_width=7):
+    def print_grid(self, cell_width=7):
         print_blocker_effects_by_rank_suit(
             list(self.equity_deltas.items()), cell_width=cell_width
         )
 
-    def print_blocker_effects_by_card(self, cols=4, use_same_scale=True):
+    def print_list(self, cols=4, use_same_scale=True):
         print_blocker_effects_by_card(
-            list(self.equity_deltas.items()),
+            sorted(list(self.equity_deltas.items()), key=lambda x: x[1]),
             board=self.board,
             cols=cols,
             use_same_scale=use_same_scale,
         )
+
+    def __call__(self, card, width=40):
+        self.print_histogram(card, width=width)
 
 
 def linear_color_gradient(
@@ -241,12 +252,11 @@ def print_histogram(hist, width=40):
     print(BOTTOM_LEFT + HORIZONTAL * HISTOGRAM_CHAR_WIDTH + BOTTOM_RIGHT)
 
 
-def print_equity_delta_graph(
-    equity_deltas,
-    board,
-    height=20,
-):
+def print_equity_delta_graph(equity_deltas, board, height=20, print_suits=False):
     equity_deltas = sorted(equity_deltas, key=lambda x: x[1], reverse=True)
+    equity_deltas = [
+        (combo, delta) for (combo, delta) in equity_deltas if combo not in board
+    ]
     combos, deltas = zip(*equity_deltas)
     min_delta, max_delta = min(deltas), max(deltas)
     delta_delta = max_delta - min_delta
@@ -257,7 +267,10 @@ def print_equity_delta_graph(
     rows = []
     LAST_HEIGHT_DRAWN = height
     for h in range(height, -1, -1):
-        row = [" " * 2 * i]
+        if print_suits:
+            row = [" " * 2 * i]
+        else:
+            row = [" " * 1 * i]
         rgb = linear_color_gradient(h, 0, height)
         drawn = False
         while i < len(graph_height) and graph_height[i] == h:
@@ -266,7 +279,11 @@ def print_equity_delta_graph(
             elif LAST_HEIGHT_DRAWN > h:
                 char = BOTTOM_LEFT_ROUND
 
-            row.append(f"{rgb}{char}{HORIZONTAL}{reset}")
+            if print_suits:
+                row.append(f"{rgb}{char}{HORIZONTAL}{reset}")
+            else:
+                row.append(f"{rgb}{char}{reset}")
+
             i += 1
             LAST_HEIGHT_DRAWN = h
             drawn = True
@@ -284,8 +301,13 @@ def print_equity_delta_graph(
         prefix = f"{rgb}{prefix}{reset} {VERTICAL}"  # Length is 9
         print(f"{prefix}{row}")
         delta_bin -= delta_incr
-    print(f"       {BOTTOM_LEFT}{HORIZONTAL * 2*len(deltas)}")
-    print(f"        {''.join(color_card(c, False) for c in combos if c not in board)}")
+    if print_suits:
+        print(f"       {BOTTOM_LEFT}{HORIZONTAL*2*len(deltas)}")
+    else:
+        print(f"       {BOTTOM_LEFT}{HORIZONTAL*1*len(deltas)}")
+    print(
+        f"        {''.join(color_card(c, not print_suits) for c in combos if c not in board)}"
+    )
 
 
 def print_blocker_effects_by_rank_suit(equity_deltas, cell_width=7):

@@ -43,7 +43,7 @@ solver.load_tree(args.cfr_path)
 effects = compute_single_card_blocker_effects(solver, args.node_id, args.num_hist_bins)
 
 if args.per_card:
-    effects.print_per_card_data()
-effects.print_equity_delta_graph()
-effects.print_blocker_effects_by_rank_suit()
-effects.print_blocker_effects_by_card()
+    effects.print_per_card()
+effects.print_graph()
+effects.print_grid()
+effects.print_list()

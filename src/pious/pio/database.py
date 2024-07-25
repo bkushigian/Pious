@@ -110,3 +110,6 @@ class CFRDatabase:
 
     def view(self, board, node="r:0"):
         self.open_board_in_pio(board, node)
+
+    def __call__(self, board, node="r:0"):
+        self.open_board_in_pio(board, node)
