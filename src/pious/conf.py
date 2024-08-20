@@ -1,5 +1,5 @@
 from os import path as osp
-import tomllib
+import tomli
 
 
 class PiousConf:
@@ -23,7 +23,7 @@ class PiousConf:
 
     def _read_from_toml(self, toml_path):
         with open(toml_path) as f:
-            toml = tomllib.loads(f.read())
+            toml = tomli.loads(f.read())
 
         pio = toml["pio"]
         if "install_directory" in pio:
