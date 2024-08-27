@@ -7,6 +7,7 @@
 - updated requried ansi from 3 to 3.7
 - Added `find_isomorphic_board` to `pious.pio.database`
 - Updated `color_suit`
+- Skipping PioSOLVER tests (tests that require PioSOLVER) on non-Windows platforms
 
 ## v0.0.0.dev9
 - sanitized some solver.Solver inputs
