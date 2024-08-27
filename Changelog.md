@@ -1,7 +1,13 @@
 # Changelog
+
 ## v0.0.0.dev10
 - fixed bug in blocker module (incorrect board was being passed to the equity calculator)
 - improved blocker example (histograms, per combo blocked equity listing, colors)
+- updated required python from 3.8 -> 3.11 (for tomlib module)
+- updated requried ansi from 3 to 3.7
+- Added `find_isomorphic_board` to `pious.pio.database`
+- Updated `color_suit`
+- Skipping PioSOLVER tests (tests that require PioSOLVER) on non-Windows platforms
 
 ## v0.0.0.dev9
 - sanitized some solver.Solver inputs
