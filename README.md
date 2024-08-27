@@ -8,7 +8,7 @@ easier.
 
 ## Install
 
-Install with `pip install pious`
+Install with `pip install pious`. Requires Python 3.11 or later.
 
 ## Solver Interface
 
