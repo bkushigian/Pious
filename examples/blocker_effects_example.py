@@ -36,14 +36,17 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+print_per_card_data = args.per_card
+if args.cards is not None:
+    print_per_card_data = True
 cards_to_print = args.cards
 
 solver = make_solver()
 solver.load_tree(args.cfr_path)
 effects = compute_single_card_blocker_effects(solver, args.node_id, args.num_hist_bins)
 
-if args.per_card:
-    effects.print_per_card()
+if print_per_card_data:
+    effects.print_per_card(cards_to_print=cards_to_print)
 effects.print_graph()
 effects.print_grid()
 effects.print_list()

@@ -2,6 +2,7 @@
 A module for computing various blocker effects
 """
 
+from typing import Optional
 from .solver import Node, Solver
 from .equity import EquityCalculator
 from ..util import (
@@ -14,6 +15,7 @@ from ..util import (
 )
 from ansi.colour.rgb import rgb256
 from ansi.colour.fx import reset, bold, crossed_out
+from ansi.colour import fg
 import numpy as np
 
 
@@ -179,13 +181,23 @@ CROSS = "┼"
 COMBO_WEIGHT_THRESHOLD = 0.001
 
 
-def print_card_banner(c, board):
+def print_card_banner(
+    c, board, equity_shift_amt: Optional[float] = None, shift_color_ansi_code=None
+):
     cards_in_board = []
     for b in board:
         cards_in_board.append(color_card(b))
     n_cards = len(cards_in_board)
     color_board = "".join(cards_in_board)
     board_len = n_cards * 2 + 1
+    equity_shift_str = ""  # By default, no equity shift
+    if equity_shift_amt:
+        equity_shift_str = f"{equity_shift_amt:4.1}"
+        board_len += len(equity_shift_str) + 2
+        if shift_color_ansi_code is not None:
+            equity_shift_str = f"{shift_color_ansi_code}{equity_shift_str}{reset}"
+        equity_shift_str = f": {equity_shift_str}"
+
     body = f"{color_card(c)}  on  [ {color_board} ]"
     body_len = 5 + 2 + 4 + board_len  # Compute by hand cuz ansi codes
     body_with_padding_len = body_len + 8  # 4 spacs per side
