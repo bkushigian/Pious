@@ -28,7 +28,7 @@ class Node:
         self.flags = tuple(items[5].split(":")[1].strip().split(" "))
 
     def __repr__(self):
-        str(self)
+        return str(self)
 
     def __str__(self):
         return f"Node({self.node_id}, {self.node_type}, {self.board}, {self.pot}, {self.num_children}, {self.flags})"
@@ -158,11 +158,11 @@ class Solver(object):
         return Node(data)
 
     def show_children(self, node_id: str | Node) -> List[Node]:
-        if isinstance(node_id, Node):
-            node_id = node_id.node_id
         """
         Return a list of children of the given specified node.
         """
+        if isinstance(node_id, Node):
+            node_id = node_id.node_id
         data = self._run("show_children", node_id)
         if "ERROR" in data:
             return []
@@ -170,11 +170,8 @@ class Solver(object):
             return []
         children_lines = data.split("\n\n")
         children = []
-        """
-        From the docs, each child entry is of the form:
-        'child n:' nodeID NODE_TYPE board pot children_no 'flags: f1 f2'
-
-        """
+        # From the docs, each child entry is of the form:
+        # 'child n:' nodeID NODE_TYPE board pot children_no 'flags: f1 f2'
         for child_line in children_lines:
             items = child_line.split("\n")
             node_data = items[1:]
