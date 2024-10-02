@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.0.dev12
+- added `pious.flops` and the `Flops` class to easily filter flops
+- Fixed bug in `pious.pio.solver.Node.__repr__()`
+
 ## v0.0.0.dev11
 - fixed bug in blocker module (incorrect board was being passed to the equity calculator)
 - improved blocker example (histograms, per combo blocked equity listing, colors)
