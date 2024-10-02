@@ -125,6 +125,9 @@ class Solver(object):
     def is_ready(self):
         return self._run("is_ready")
 
+    def echo(self, *args):
+        return self._run("echo", *args)
+
     def load_tree(self, cfr_file_path: str, load_type=None):
         if load_type is not None:
             if load_type == "full" or load_type == "fast" or load_type == "auto":

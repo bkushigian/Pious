@@ -1,8 +1,10 @@
+from os import path as osp
+import os
+import importlib.resources
+import pytest
+
 from pious.pio.util import make_solver
 from pious.pio.solver import Node
-from os import path as osp
-import importlib.resources
-
 
 trees_path = importlib.resources.files("pious.pio.resources.trees")
 cfr_path = osp.join(trees_path, "Kh7h2c.cfr")
@@ -11,17 +13,20 @@ print("CFR_PATH", cfr_path)
 print("TREE BUILDING PATH", tree_building_path)
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_make_solver():
     solver = make_solver()
     assert solver.is_ready()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_solver_load_tree():
     solver = make_solver()
     solver.load_tree(cfr_path)
     assert solver.is_ready()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_show_node():
     solver = make_solver()
     solver.load_tree(cfr_path)
@@ -37,6 +42,7 @@ def test_show_node():
     assert n.pot == (850, 0, 300)
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_show_children():
     solver = make_solver()
     solver.load_tree(cfr_path)
@@ -44,6 +50,7 @@ def test_show_children():
     assert len(children) == 3
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_show_children_actions():
     solver = make_solver()
     solver.load_tree(cfr_path)
@@ -51,12 +58,14 @@ def test_show_children_actions():
     assert children_actions == ["b850", "b300", "c"]
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_show_hand_order():
     solver = make_solver()
     solver.load_tree(cfr_path)
     assert solver.show_hand_order() is not None
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_show_tree_info():
     solver = make_solver()
     solver.load_tree(cfr_path)
@@ -102,6 +111,7 @@ def test_show_tree_info():
     assert "99:0.60799998" in range_oop
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_rebuild_forgotten_streets():
     solver = make_solver()
     solver.load_tree(cfr_path)
@@ -109,6 +119,7 @@ def test_rebuild_forgotten_streets():
     assert solver.is_ready()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def _test_load_tree_from_config():
     solver = make_solver(log_file="run.log", store_script="script.txt")
     solver.reset_tree_info()

@@ -1,10 +1,10 @@
 [project]
 name = "pious"
-version = "0.0.0.dev9"
+version = "0.0.0.dev10"
 authors = [{ name = "Ben Kushigian", email = "bkushigian@gmail.com" }]
 description = "The PioSOLVER Utility Suite"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -14,7 +14,7 @@ dependencies = [
     "matplotlib>=3.7.1",
     "pandas>=2.0.3",
     "mplcursors>=0.5.1",
-    "ansi>=0.3",
+    "ansi>=0.3.7",
     "pytest>=8.2.2",
 ]
 

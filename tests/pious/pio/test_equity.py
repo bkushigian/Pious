@@ -1,4 +1,5 @@
 import pytest
+import os
 
 from pious.pio.equity import EquityCalculator, compute_equities
 from pious.pio.util import make_solver
@@ -8,6 +9,7 @@ def approx(x, tolerance=0.01):
     return pytest.approx(x, tolerance)
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_equity_calc():
     ec = EquityCalculator("Kh9d8d", oop_range="AKo, 32o", ip_range="T9s, T8s")
     assert ec.oop() == approx(0.347)
