@@ -13,18 +13,14 @@ suite.
 def exec_flops(args: Namespace):
     flops = Flops()
 
-    print_flops = True
     if args.filter is not None:
         flops.filter(args.filter)
+    print(flops)
     if args.count:
-        print_flops = False
-        print(len(flops))
+        print(f'{len(flops)} flops satisfy filter "{args.filter}"')
     if args.file is not None:
-        print_flops = False
         with open(args.file, "w+") as f:
             f.write(str(flops))
-    if print_flops:
-        print(flops)
 
 
 parser = ArgumentParser(prog="pious", description="The PioSOLVER Utility Suite")
