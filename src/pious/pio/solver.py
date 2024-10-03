@@ -5,6 +5,7 @@ suit my needs.
 
 import subprocess
 import os
+from os import path as osp
 from typing import List, Optional, Tuple
 import numpy as np
 
@@ -140,6 +141,11 @@ class Solver(object):
         if " " in cfr_file_path:
             if not cfr_file_path.startswith('"'):
                 cfr_file_path = f'"{cfr_file_path}"'
+
+        if not osp.exists(cfr_file_path):
+            raise FileNotFoundError(cfr_file_path)
+
+        cfr_file_path = osp.abspath(cfr_file_path)
         self.cfr_file_path = cfr_file_path
         if load_type is None:
             self._run("load_tree", cfr_file_path)
