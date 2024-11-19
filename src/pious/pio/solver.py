@@ -138,19 +138,20 @@ class Solver(object):
                     f"Illegal load type: must be 'full', 'fast', 'auto', or None"
                 )
         cfr_file_path = cfr_file_path.strip()
-        if " " in cfr_file_path:
-            if not cfr_file_path.startswith('"'):
-                cfr_file_path = f'"{cfr_file_path}"'
+        cfr_file_path = osp.abspath(cfr_file_path)
 
         if not osp.exists(cfr_file_path):
             raise FileNotFoundError(cfr_file_path)
 
-        cfr_file_path = osp.abspath(cfr_file_path)
         self.cfr_file_path = cfr_file_path
+
+        # Now, quote the `cfr_file_path`
+        quoted_cfr_file_path = f'"{cfr_file_path}"'
+
         if load_type is None:
-            self._run("load_tree", cfr_file_path)
+            self._run("load_tree", quoted_cfr_file_path)
         else:
-            self._run("load_tree", cfr_file_path, load_type)
+            self._run("load_tree", quoted_cfr_file_path, load_type)
         self.root_node_info = self.show_node("r:0")
         if self.debug:
             print(f"root_node_info: {self.root_node_info}\n")
@@ -263,7 +264,7 @@ class Solver(object):
     def load_all_nodes(self):
         return self._run("load_all_nodes")
 
-    def show_all_lines(self):
+    def show_all_lines(self) -> List[str]:
         result = self._run("show_all_lines")
         if "ERROR" in result:
             raise RuntimeError(f"{result}")
