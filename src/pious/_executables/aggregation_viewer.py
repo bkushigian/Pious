@@ -1,6 +1,6 @@
 """
 This module gives an executable interface for aggregation reports. This should
-be launched `python -m pious aggregation`
+be launched `python -m pious aggregation_viewer`
 """
 
 from argparse import Namespace, _SubParsersAction
@@ -23,7 +23,7 @@ aggregation report. Use
 def register_command(sub_parsers: _SubParsersAction):
 
     parser_agg = sub_parsers.add_parser(
-        "aggregation",
+        "aggregation_viewer",
         description="Utility module for viewing piosolver aggregation reports",
     )
 

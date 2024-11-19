@@ -1,6 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-from ._executables.aggregation import register_command as aggregation_register_command
+from ._executables.aggregation_viewer import (
+    register_command as aggregation_register_command,
+)
 from ._executables.flops import register_command as flops_register_command
 from ._executables.blockers import register_command as blockers_register_command
 from ._executables.lines import register_command as lines_register_command
