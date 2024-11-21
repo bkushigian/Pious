@@ -1,6 +1,6 @@
 """
-This module gives an executable interface for aggregation reports. This should
-be launched `python -m pious aggregation_viewer`
+This module gives an executable interface for viewing aggregation reports. This
+should be launched `python -m pious aggregation_viewer`
 """
 
 from argparse import Namespace, _SubParsersAction

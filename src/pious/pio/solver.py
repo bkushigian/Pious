@@ -503,7 +503,7 @@ class Solver(object):
         response = self._run("set_strategy", node_id, *values)
         return response
 
-    def show_strategy(self, node_id: str | Node):
+    def show_strategy(self, node_id: str | Node) -> List[List[float]]:
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         strats = self._run("show_strategy", node_id).split("\n")

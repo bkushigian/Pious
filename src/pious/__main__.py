@@ -1,8 +1,9 @@
 from argparse import ArgumentParser, Namespace
 
 from ._executables.aggregation_viewer import (
-    register_command as aggregation_register_command,
+    register_command as aggregation_viewer_register_command,
 )
+from ._executables.aggregate import register_command as aggregate_register_command
 from ._executables.flops import register_command as flops_register_command
 from ._executables.blockers import register_command as blockers_register_command
 from ._executables.lines import register_command as lines_register_command
@@ -22,7 +23,8 @@ parser = ArgumentParser(prog="pious", description="The PioSOLVER Utility Suite")
 sub_parsers = parser.add_subparsers(title="commands")
 
 flops_register_command(sub_parsers)
-aggregation_register_command(sub_parsers)
+aggregation_viewer_register_command(sub_parsers)
+aggregate_register_command(sub_parsers)
 blockers_register_command(sub_parsers)
 lines_register_command(sub_parsers)
 
