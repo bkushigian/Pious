@@ -40,6 +40,17 @@ class Node:
         except ValueError:
             return None
 
+    def get_position_idx(self):
+        pos = self.get_position()
+        if pos is None:
+            raise ValueError("Invalid Node")
+        if pos == "OOP":
+            return 0
+        elif pos == "IP":
+            return 1
+        else:
+            raise ValueError(f"Invalid Position {pos}")
+
     def as_line_str(self) -> str:
 
         items = self.node_id.split(":")

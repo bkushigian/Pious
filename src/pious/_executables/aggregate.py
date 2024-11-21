@@ -40,10 +40,12 @@ def exec_aggregate_main(args: Namespace):
     elif osp.isfile(args.cfr_file_or_sim_dir):
         reports = aggregate.aggregate_single_file(
             args.cfr_file_or_sim_dir,
-            lines=args.lines,
-            flop=args.flop,
-            turn=args.turn,
-            river=args.river,
+            aggregate.LinesToAggregate(
+                lines=args.lines,
+                flop=args.flop,
+                turn=args.turn,
+                river=args.river,
+            ),
         )
         for line in reports:
             print(line)
