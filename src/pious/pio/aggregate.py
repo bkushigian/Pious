@@ -6,7 +6,7 @@ implementation.
 This module is wrapped by the CLI command `pious execute`.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from os import path as osp
 import os
 import pandas as pd
@@ -71,11 +71,123 @@ class AggregationConfig:
     Configure an aggregation report.
     """
 
-    def __init__(self, equities=True, evs=True, action_freqs=True, action_evs=False):
+    def __init__(
+        self,
+        equities=True,
+        evs=True,
+        action_freqs=True,
+        action_evs=False,
+        global_freq=False,
+    ):
         self.equities = equities
         self.evs = evs
         self.action_evs = action_evs
         self.action_freqs = action_freqs
+        self.global_freq = global_freq
+
+
+POSITIONS = ("OOP", "IP")
+
+
+class SpotData:
+    """
+    Data corresponding to a single spot. This is constructed from a node_id and
+    a solver instance, and caches data as it is requested
+    """
+
+    def __init__(self, solver: Solver, node_id: str):
+        self.solver: Solver = solver
+        self.node: Node = solver.show_node(node_id)
+
+        self._hand_evs: List[Optional[np.ndarray]] = [None, None]
+        self._evs: List[Optional[float]] = [None, None]
+        self._hand_eqs: List[Optional[np.ndarray]] = [None, None]
+        self._eqs: List[Optional[float]] = [None, None]
+        self._matchups: List[Optional[np.ndarray]] = [None, None]
+        self._total_matchups: List[Optional[float]] = [None, None]
+
+        self._money_so_far = (self.node.pot[0], self.node.pot[1])
+        self.position = self.node.get_position()
+
+    def hand_evs(self, pos_idx):
+        self._compute_hand_evs(pos_idx)
+        return self._hand_evs[pos_idx]
+
+    def hand_eqs(self, pos_idx):
+        self._compute_hand_eqs(pos_idx)
+        return self._hand_eqs[pos_idx]
+
+    def matchups(self, pos_idx):
+        self._compute_matchups(pos_idx)
+        return self._matchups[pos_idx]
+
+    def ev(self, pos_idx):
+        self._compute_ev(pos_idx)
+        return self._evs[pos_idx]
+
+    def eq(self, pos_idx):
+        self._compute_hand_eqs(pos_idx)
+        return self._eqs[pos_idx]
+
+    def _compute_hand_evs(self, pos_idx):
+        """
+        helper function to compute OOP and IP hand evs and total matchups if
+        they are not yet defined
+        """
+        if self._hand_evs[pos_idx] is None:
+            pos = POSITIONS[pos_idx]
+            evs, matchups = self.solver.calc_ev(pos, self.node.node_id)
+            evs = _clean_np_array(np.array(evs))
+            self._hand_evs[pos_idx] = evs
+            self._set_matchups(pos_idx, matchups)
+
+    def _compute_hand_eqs(self, pos_idx):
+        if self._hand_eqs[pos_idx] is None:
+            pos = POSITIONS[pos_idx]
+            eqs, matchups, eq = self.solver.calc_eq_node(pos, self.node.node_id)
+            eqs = _clean_np_array(np.array(eqs))
+            self._hand_eqs[pos_idx] = eqs
+            self._eqs[pos_idx] = eq
+            self._set_matchups(pos_idx, matchups)
+
+    def _compute_matchups(self, pos_idx):
+        if self._matchups[pos_idx] is None:
+            _, matchups, _ = self.solver.calc_eq_node(
+                POSITIONS[pos_idx], self.node.nod_id
+            )
+            self._set_matchups(pos_idx, matchups)
+
+    def _set_matchups(self, pos_idx, matchups):
+        if self._matchups[pos_idx] is None:
+            matchups = _clean_np_array(np.array(matchups))
+            total_matchups = sum(matchups)
+            self._matchups[pos_idx] = matchups
+            self._total_matchups[pos_idx] = total_matchups
+
+    def _compute_ev(self, pos_idx):
+        if self._evs[pos_idx] is None:
+            evs = self.hand_evs(pos_idx)
+            matchups = self.matchups(pos_idx)
+            total_matchups = self._total_matchups[pos_idx]
+            if total_matchups == 0:
+                self._evs[pos_idx] = np.nan
+                return
+
+            # Compute the weighted mean
+            weights = np.divide(matchups, total_matchups)
+
+            # EVs measure from start of hand, but we report from current decision
+            ev = np.dot(evs, weights) + self.node.pot[pos_idx]
+            self._evs[pos_idx] = ev
+
+
+def _clean_np_array(a: np.ndarray) -> np.ndarray:
+    """
+    helper function to clean up an np array by replacing inf and nan w/ 0
+    """
+    a = np.where(np.isnan(a), 0, a)
+    a[np.isinf(a)] = 0.0
+    return a
 
 
 class CFRDatabase:
@@ -219,6 +331,16 @@ def aggregate_lines_for_solver(
     conf: Optional[AggregationConfig] = None,
     weight: float = 1.0,
 ):
+    """
+    Aggregate the lines for a `Solver` instance with a tree already loaded.
+
+    :param solver: the `Solver` instance with a tree already loaded
+    :param lines_to_aggregate: a `list` of `Line` instances that belong to the
+    `Solver`'s loaded tree
+    :param conf: an optional `AggregationConfig` to customize the aggregation
+    :param weight: a weight to apply to the global frequency (e.g., if a flop is
+    discounted for being less common)
+    """
     if conf is None:
         conf = AggregationConfig()
     board = solver.show_board().split()
@@ -238,7 +360,16 @@ def aggregate_lines_for_solver(
 
         # Compute columns
         columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
-        columns.append("Global Freq")
+        if conf.global_freq:
+            columns.append("Global Freq")
+
+        if conf.evs:
+            columns.append("OOP EV")
+            columns.append("IP EV")
+
+        if conf.equities:
+            columns.append("OOP Equity")
+            columns.append("IP Equity")
 
         sorted_actions = get_sorted_actions(actions)
 
@@ -252,37 +383,63 @@ def aggregate_lines_for_solver(
         df = pd.DataFrame(columns=columns)
         reports[line] = df
 
-        position = node.get_position()
-        position_idx = node.get_position_idx()  # 0 for OOP, 1 for IP
-        cp_money_so_far = pot[position_idx]
-
         for node_id in node_ids:
-            row = get_runout(solver, node_id)
-
-            global_freq = solver.calc_global_freq(node_id)
-            row.append(global_freq * weight)
-
-            action_to_strats = get_actions_to_strats(solver, node_id, actions)
-
-            # Compute Frequencies
-            if conf.action_freqs:
-                row += get_action_freqs(
-                    solver, node_id, position, sorted_actions, action_to_strats
-                )
-
-            if conf.action_evs:
-                row += get_action_evs(
-                    solver,
-                    node_id,
-                    position,
-                    sorted_actions,
-                    action_to_strats,
-                    cp_money_so_far,
-                )
-
-            df.loc[len(df)] = row
+            spot_data = SpotData(solver, node_id)
+            node: Node = solver.show_node(node_id)
+            df.loc[len(df)] = compute_row(
+                conf,
+                spot_data,
+                weight,
+                actions,
+                sorted_actions,
+            )
 
     return reports
+
+
+def compute_row(
+    conf: AggregationConfig,
+    spot: SpotData,
+    weight: float,
+    actions: List[str],
+    sorted_actions: List[str],
+):
+    node = spot.node
+    node_id = node.node_id
+    row = get_runout(spot.solver, node_id)
+
+    if conf.global_freq:
+        print("Adding global freq")
+        global_freq = spot.solver.calc_global_freq(node_id)
+        row.append(global_freq * weight)
+
+    action_to_strats = get_actions_to_strats(spot.solver, node_id, actions)
+
+    if conf.evs:
+        evs = [spot.ev(0), spot.ev(1)]
+        row += evs
+
+    if conf.equities:
+        equities = [spot.eq(0), spot.eq(1)]
+        row += equities
+
+    # Compute Frequencies
+    if conf.action_freqs:
+        row += get_action_freqs(
+            spot, node_id, spot.position, sorted_actions, action_to_strats
+        )
+
+    if conf.action_evs:
+        row += get_action_evs(
+            spot.solver,
+            node_id,
+            spot.position,
+            sorted_actions,
+            action_to_strats,
+            spot._money_so_far[spot.node.get_position_idx()],
+        )
+
+    return row
 
 
 def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[Line]:
@@ -363,9 +520,11 @@ def get_actions_to_strats(solver: Solver, node_id: str, actions: List[str]):
     return actions_to_strats
 
 
-def get_action_freqs(solver, node_id, position, sorted_actions, action_to_strats):
+def get_action_freqs(
+    spot: SpotData, node_id, position, sorted_actions, action_to_strats
+):
     row = []
-    range = solver.show_range(position, node_id)
+    range = spot.solver.show_range(position, node_id)
     total_combos = sum(range.range_array)
     if total_combos == 0.0:
         for a in sorted_actions:
@@ -377,6 +536,50 @@ def get_action_freqs(solver, node_id, position, sorted_actions, action_to_strats
             x = 100.0 * np.dot(action_to_strats[a], range.range_array) / total_combos
             row.append(x)
     return row
+
+
+def get_both_player_equities(solver: Solver, node: Node) -> List[float]:
+    return [get_player_equity(solver, node, 0), get_player_equity(solver, node, 1)]
+
+
+def get_player_equity(solver: Solver, node: Node, position_idx: int):
+    if position_idx < 0 or position_idx > 1:
+        raise RuntimeError(f"Invalid position index {position_idx}: must be 0 or 1")
+
+    position = ["OOP", "IP"][position_idx]
+    _, _, equity = solver.calc_eq_node(position, node.node_id)
+
+    return equity
+
+
+def get_both_player_evs(spot: SpotData) -> List[float]:
+    return [spot.ev(0), spot.ev(1)]
+
+
+def get_player_ev(solver: Solver, node: Node, position_idx: int):
+    if position_idx < 0 or position_idx > 1:
+        raise RuntimeError(f"Invalid position index {position_idx}: must be 0 or 1")
+
+    position = ["OOP", "IP"][position_idx]
+    evs, matchups = solver.calc_ev(position, node.node_id)
+    evs = np.array(evs)
+    evs = np.where(np.isnan(evs), 0, evs)
+    evs[np.isinf(evs)] = 0.0
+    matchups = np.array(matchups)
+    matchups = np.where(np.isnan(matchups), 0, matchups)
+    matchups[np.isinf(matchups)] = 0.0
+    total_matchups = sum(matchups)
+
+    if total_matchups == 0:
+        return np.nan
+
+    # Compute the weighted mean
+    weights = np.divide(matchups, total_matchups)
+
+    # EVs measure from start of hand, but we report from current decision
+    ev = np.dot(evs, weights) + node.pot[0]
+
+    return ev
 
 
 def get_action_evs(
@@ -394,9 +597,7 @@ def get_action_evs(
     evs[np.isinf(evs)] = 0.0
     # EVs
     if total_matchups == 0:
-        print("no matchups")
         for a in sorted_actions:
-            print("Adding nans")
             row.append(np.nan)
     else:
         evs_dived = evs / total_matchups

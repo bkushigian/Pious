@@ -338,15 +338,15 @@ class Solver(object):
         return float(result)
 
     def calc_eq(
-        self, position: str | int, node_id: str | Node
+        self, position: str | int
     ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
-        Equities for a given player in a given node for all hands.
+        Equities for a given player in all hands given the game state.
+        NOTE: This is NOT for a given node. Instead, use `calc_eq_node`.
 
         Numbers in the first item are equities, numbers in the second are matchups.
 
         :position: "OOP" or "IP"
-        :node_id: the node id (e.g., "r:0:c:c:7s:c")
 
         :return: a tuple of (equities, matchups), where each is a length 1326
             tuple of floats
@@ -354,7 +354,7 @@ class Solver(object):
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         position = normalize_position(position)
-        results = self._run("calc_ev", position, node_id)
+        results = self._run("calc_eq", position)
         eqs, matchups = results.split("\n")
         eqs = np.array([float(ev) for ev in eqs.split()])
         matchups = np.array([float(matchup) for matchup in matchups.split()])
