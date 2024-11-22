@@ -3,14 +3,16 @@ This module is responsible for running aggregation reports. This does not
 currently mimic PioSOLVER output format. Instead, it is an alternative
 implementation.
 
-This module is wrapped by the CLI command `poius execute`.
+This module is wrapped by the CLI command `pious execute`.
 """
 
 from typing import Dict, List, Optional
 from os import path as osp
+import os
 import pandas as pd
 import numpy as np
 import sys
+import re
 
 from ..pio import (
     make_solver,
@@ -48,8 +50,27 @@ class LinesToAggregate:
         self.turn = turn
         self.river = river
 
+    @staticmethod
+    def create_from(lines: "LinesToAggregate" | List[str] | str) -> "LinesToAggregate":
+        ls = lines
+        if isinstance(ls, list):
+            # Case where a list of lines is passed
+            ls = LinesToAggregate(lines=lines)
+        elif isinstance(ls, str):
+            # Case where a single line is passed
+            ls = LinesToAggregate(lines=[lines])
+        if not isinstance(ls, LinesToAggregate):
+            raise ValueError(
+                f"lines input must be of type List[str], str, or LinesToAggregate, but found {type(lines)}"
+            )
+        return ls
+
 
 class AggregationConfig:
+    """
+    Configure an aggregation report.
+    """
+
     def __init__(self, equities=True, evs=True, action_freqs=True, action_evs=False):
         self.equities = equities
         self.evs = evs
@@ -57,10 +78,120 @@ class AggregationConfig:
         self.action_freqs = action_freqs
 
 
+class CFRDatabase:
+    def __init__(self, dir):
+        self.dir = dir
+        if not osp.isdir(dir):
+            raise ValueError(f"Directory {dir} does not exist")
+        self.dir_contents = os.listdir(dir)
+        self.all_files = [f for f in self.dir_contents if osp.isfile(osp.join(dir, f))]
+        self.cfr_files = [f for f in self.all_files if f.endswith(".cfr")]
+        self.boards = [f.split(".")[0] for f in self.cfr_files]
+
+        self.script_txt = osp.join(dir, "script.txt")
+        if not osp.isfile(self.script_txt):
+            self.script_txt = None
+
+        self.raw_weights: Dict[str, float] = {}
+        self._parse_board_weights_from_script()
+        self.total_weights = sum(self.raw_weights.values())
+
+        # Transform weights into board frequencies
+        self.frequencies = {
+            b: w / self.total_weights for (b, w) in self.raw_weights.items()
+        }
+
+    def get_weight(self, board: str):
+        return self.raw_weights.get(board.strip(), 1.0)
+
+    def _parse_board_weights_from_script(self):
+        # Groups:
+        # 0. Board
+        # 1. Flop
+        # 2. Turn (optional)
+        # 3. River (optional)
+        # 4. Weight
+        pattern = re.compile(
+            r"^#(([2-9AKQJT][scdh][2-9AKQJT][scdh][2-9AKQJT][scdh])([2-9AKQJT][scdh])?([2-9AKQJT][scdh])?)(?:(?::)(\d+|\d*\.\d+))$"
+        )
+
+        if self.script_txt is None:
+            return
+        with open(self.script_txt) as f:
+            lines = f.readlines()
+        for line in lines:
+            m: re.Match = pattern.match(line.strip())
+            if m:
+                groups = m.groups()
+                board = groups[0]
+                weight = float(groups[4])
+                self.raw_weights[board] = weight
+
+    def get_cfr_files(self):
+        """
+        Return the paths of each CFR file by joining to dir
+        """
+        return [osp.join(self.dir, f) for f in self.cfr_files]
+
+    def __iter__(self):
+        for board, cfr_file in zip(self.boards, self.cfr_files):
+            freq = self.frequencies[board]
+            yield board, osp.join(self.dir, cfr_file), freq
+
+
+def aggregate_files_in_dir(
+    dir: str, lines: List[Line] | str | LinesToAggregate, conf: AggregationConfig = None
+):
+    if conf is None:
+        conf = AggregationConfig()
+
+    db = CFRDatabase(dir)
+    if len(db.cfr_files) == 0:
+        raise RuntimeError(f"No CFR files found in {dir}")
+
+    # We want to collect lines. To do this we need a solver instance with a tree
+    # loaded, so we will grab the first cfr file in the DB
+    cfr0 = osp.join(db.dir, db.cfr_files[0])
+    solver: Solver = make_solver()
+    solver.load_tree(cfr0)
+
+    ls = LinesToAggregate.create_from(lines)
+    lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
+    reports = None
+    reports_lines = None
+    for board, cfr_file, freq in db:
+        print(board, cfr_file, freq)
+        new_reports = aggregate_single_file(cfr_file, lines, conf, freq)
+
+        # One time update: This is necessary to perform sanity checking and
+        # ensure that Each report has the same lines.
+        if reports is None:
+            reports = new_reports
+            reports_lines = set(reports.keys())
+            continue
+
+        # Perform Sanity Check
+        new_reports_lines = set(new_reports.keys())
+        if reports_lines != new_reports_lines:
+            sym_diff = reports_lines.symmetric_difference(new_reports_lines)
+            raise RuntimeError(
+                f"The following lines were not found in both reports: {sym_diff}"
+            )
+
+        # We know we have the same keyset, so combine the reports
+        for line in new_reports:
+            df1 = reports[line]
+            df2 = new_reports[line]
+            reports[line] = pd.concat([df1, df2], ignore_index=True)
+
+    return reports
+
+
 def aggregate_single_file(
     cfr_file: str,
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
+    weight: float = 1.0,
 ) -> pd.DataFrame:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
@@ -76,26 +207,17 @@ def aggregate_single_file(
         exit(-1)
     solver: Solver = make_solver()
     solver.load_tree(file_name)
-    ls = lines
-    if isinstance(ls, list):
-        # Case where a list of lines is passed
-        ls = LinesToAggregate(lines=lines)
-    elif isinstance(ls, str):
-        # Case where a single line is passed
-        ls = LinesToAggregate(lines=[lines])
-    if not isinstance(ls, LinesToAggregate):
-        raise ValueError(
-            f"lines input must be of type List[str], str, or LinesToAggregate, but found {type(lines)}"
-        )
+    ls = LinesToAggregate.create_from(lines)
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
-    return aggregate_lines_for_solver(solver, lines_to_aggregate, conf)
+    return aggregate_lines_for_solver(solver, lines_to_aggregate, conf, weight)
 
 
 def aggregate_lines_for_solver(
     solver: Solver,
     lines_to_aggregate: List[Line],
     conf: Optional[AggregationConfig] = None,
+    weight: float = 1.0,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -138,7 +260,7 @@ def aggregate_lines_for_solver(
             row = get_runout(solver, node_id)
 
             global_freq = solver.calc_global_freq(node_id)
-            row.append(global_freq)
+            row.append(global_freq * weight)
 
             action_to_strats = get_actions_to_strats(solver, node_id, actions)
 
