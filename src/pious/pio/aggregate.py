@@ -267,8 +267,6 @@ def aggregate_files_in_dir(
     solver: Solver = make_solver()
     solver.load_tree(cfr0)
 
-    ls = LinesToAggregate.create_from(lines)
-    lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
     reports = None
     reports_lines = None
     for board, cfr_file, freq in db:
