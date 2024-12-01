@@ -263,7 +263,8 @@ class Line:
         # Else if there is a call and the total money per street is the
         # effective stack amount
         elif (
-            line.endswith("c")
+            self._effective_stack is not None
+            and line.endswith("c")
             and sum(self._money_in_per_street) >= self._effective_stack
         ):
             self._is_terminal = True
