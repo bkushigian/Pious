@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0..dev14
+- Check if out exists before aggregation during `pious aggregate`
+- Added `pious` script on `pip install` (no longer need to run `python -m pious ...`)
+
+## v0.0.0.dev13
+- added executables, including
+  - aggregate
+- added aggregation support (initial)
+- added hand classification (simple)
+
 ## v0.0.0.dev12
 - added `pious.flops` and the `Flops` class to easily filter flops
 - Fixed bug in `pious.pio.solver.Node.__repr__()`
