@@ -172,6 +172,7 @@ class Hand(_Hand):
         self._rank_count = u32(0)
         self._rankset_suit = u32(0)
         self._rankset_of_count = u32(0)
+        self._extensive_details = None
 
     def is_straight_flush(self):
         self._evaluate_internal()
@@ -222,8 +223,8 @@ class Hand(_Hand):
         rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
         rank_count = [u32(0) for _ in range(13)]
         for c in self.all_cards:
-            r = c // 4
-            s = c % 4
+            r = u32(c // 4)
+            s = u32(c % 4)
             rankset |= 1 << r
             rankset_suit[s] |= 1 << r
             rank_count[r] += 1
@@ -286,3 +287,14 @@ class Hand(_Hand):
         self._rankset_suit = rankset_suit
         self._rankset_of_count = rankset_of_count
         return self._evaluation
+
+
+class ExtensiveHandDetails:
+    def __init__(self, hand: Hand):
+        self.hand = hand
+        hand_cards = sorted(hand.hand_cards, reverse=True)
+        board_cards = sorted(hand.board_cards, reverse=True)
+        self.hand_ranks = [c // 4 for c in hand_cards]
+        self.hand_suits = [c % 4 for c in hand_cards]
+        self.board_ranks = [c // 4 for c in board_cards]
+        self.board_suits = [c % 4 for c in board_cards]
