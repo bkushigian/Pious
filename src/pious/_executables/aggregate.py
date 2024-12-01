@@ -7,8 +7,10 @@ from argparse import Namespace, _SubParsersAction
 from os import path as osp
 import os
 import shutil
+import textwrap
 import tabulate
 from ..pio import aggregate
+import sys
 
 
 banner = f"""
@@ -54,6 +56,23 @@ def exec_aggregate_main(args: Namespace):
         river=args.river,
     )
 
+    out_dir = osp.abspath(args.out)
+    if osp.exists(out_dir) and not args.overwrite:
+        print()
+        print(f"\033[31mDestination exists!\033[0m")
+        print()
+        print(f"    \033[1m{out_dir}\033[0m")
+        print()
+        print(
+            textwrap.fill(
+                f"Use \033[33m--overwrite\033[0m to overwrite existing directory, specify a new output directory with \033[33m--out NEW_DESTINATION\033[0m, or manually remove destination before rerunning.",
+                width=80,
+            )
+        )
+        print()
+        print("\033[1mExiting.\033[0m")
+        print()
+        sys.exit(1)
     reports = None
     if osp.isdir(args.cfr_file_or_sim_dir):
         reports = aggregate.aggregate_files_in_dir(
@@ -67,7 +86,7 @@ def exec_aggregate_main(args: Namespace):
         pass
     else:
         print(f"{args.cfr_file_or_sim_dir} is neither a .cfr file or a directory")
-        exit(-1)
+        sys.exit(-1)
 
     if args.print:
         for line in reports:
