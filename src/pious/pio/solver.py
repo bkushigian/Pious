@@ -198,7 +198,7 @@ class Solver(object):
 
         return children
 
-    def show_children_actions(self, node_id: str | Node) -> Optional[List[str]]:
+    def show_children_actions(self, node_id: str | Node) -> List[str]:
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         data = self._run("show_children", node_id)

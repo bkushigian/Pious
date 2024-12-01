@@ -6,7 +6,7 @@ implementation.
 This module is wrapped by the CLI command `pious execute`.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 from os import path as osp
 import os
 import pandas as pd
@@ -14,7 +14,10 @@ import numpy as np
 import sys
 import re
 
-from ..pio import (
+from ..hands import Hand, hand
+from ..range import Range
+
+from . import (
     make_solver,
     Line,
     Node,
@@ -78,12 +81,14 @@ class AggregationConfig:
         action_freqs=True,
         action_evs=False,
         global_freq=False,
+        extra_columns: Optional[List[Tuple[str, Callable]]] = None,
     ):
         self.equities = equities
         self.evs = evs
         self.action_evs = action_evs
         self.action_freqs = action_freqs
         self.global_freq = global_freq
+        self.extra_columns = [] if extra_columns is None else extra_columns
 
 
 POSITIONS = ("OOP", "IP")
@@ -105,9 +110,16 @@ class SpotData:
         self._eqs: List[Optional[float]] = [None, None]
         self._matchups: List[Optional[np.ndarray]] = [None, None]
         self._total_matchups: List[Optional[float]] = [None, None]
+        self._hand_details: List[Optional[Hand]] = [None, None]
+        self._strategy: Optional[List[np.ndarray]] = None
+        self._available_actions: Optional[List[str]] = None
 
         self._money_so_far = (self.node.pot[0], self.node.pot[1])
+        self._range: List[Optional[Range]] = [None, None]
         self.position = self.node.get_position()
+
+    def board(self) -> Tuple[str]:
+        return self.node.board
 
     def hand_evs(self, pos_idx):
         self._compute_hand_evs(pos_idx)
@@ -117,9 +129,13 @@ class SpotData:
         self._compute_hand_eqs(pos_idx)
         return self._hand_eqs[pos_idx]
 
-    def matchups(self, pos_idx):
+    def matchups(self, pos_idx) -> np.ndarray:
         self._compute_matchups(pos_idx)
         return self._matchups[pos_idx]
+
+    def total_matchups(self, pos_idx) -> float:
+        self._compute_matchups(pos_idx)
+        return self._total_matchups[pos_idx]
 
     def ev(self, pos_idx):
         self._compute_ev(pos_idx)
@@ -128,6 +144,22 @@ class SpotData:
     def eq(self, pos_idx):
         self._compute_hand_eqs(pos_idx)
         return self._eqs[pos_idx]
+
+    def strategy(self):
+        self._compute_strategy()
+        return self._strategy
+
+    def hand_details(self, pos_idx) -> List[Optional[Hand]]:
+        self._compute_hand_details(pos_idx)
+        return self._hand_details[pos_idx]
+
+    def available_actions(self) -> List[str]:
+        self._compute_available_actions()
+        return self._available_actions
+
+    def range(self, pos_idx) -> Range:
+        self._compute_range(pos_idx)
+        return self._range[pos_idx]
 
     def _compute_hand_evs(self, pos_idx):
         """
@@ -140,6 +172,20 @@ class SpotData:
             evs = _clean_np_array(np.array(evs))
             self._hand_evs[pos_idx] = evs
             self._set_matchups(pos_idx, matchups)
+
+    def _compute_hand_details(self, pos_idx):
+        if self._hand_details[pos_idx] is None:
+            matchups = self.matchups(pos_idx)
+            hand_order = self.solver.show_hand_order()
+            board_string = "".join(self.board())
+            hd = []
+
+            for h, m in zip(hand_order, matchups):
+                if m == 0:
+                    hd.append(None)
+                else:
+                    hd.append(hand(h, board_string, True))
+            self._hand_details[pos_idx] = hd
 
     def _compute_hand_eqs(self, pos_idx):
         if self._hand_eqs[pos_idx] is None:
@@ -179,6 +225,24 @@ class SpotData:
             # EVs measure from start of hand, but we report from current decision
             ev = np.dot(evs, weights) + self.node.pot[pos_idx]
             self._evs[pos_idx] = ev
+
+    def _compute_strategy(self):
+        if self._strategy is None:
+            self._strategy = [
+                np.array(s) for s in self.solver.show_strategy(self.node.node_id)
+            ]
+
+    def _compute_available_actions(self):
+        if self._available_actions is None:
+            self._available_actions = self.solver.show_children_actions(
+                self.node.node_id
+            )
+
+    def _compute_range(self, pos_idx):
+        if self._range[pos_idx] is None:
+            self._range[pos_idx] = self.solver.show_range(
+                self.node.get_position(), self.node.node_id
+            )
 
 
 def _clean_np_array(a: np.ndarray) -> np.ndarray:
@@ -352,7 +416,6 @@ def aggregate_lines_for_solver(
         node_id = node_ids[0]
         actions = solver.show_children_actions(node_id)
         node: Node = solver.show_node(node_id)
-        pot = node.pot
 
         action_names = get_action_names(line, actions)
 
@@ -368,6 +431,10 @@ def aggregate_lines_for_solver(
         if conf.equities:
             columns.append("OOP Equity")
             columns.append("IP Equity")
+
+        if conf.extra_columns is not None:
+            for name, _ in conf.extra_columns:
+                columns.append(name)
 
         sorted_actions = get_sorted_actions(actions)
 
@@ -420,6 +487,10 @@ def compute_row(
     if conf.equities:
         equities = [spot.eq(0), spot.eq(1)]
         row += equities
+
+    if conf.extra_columns is not None:
+        for _, fn in conf.extra_columns:
+            row.append(fn(spot))
 
     # Compute Frequencies
     if conf.action_freqs:
@@ -510,7 +581,9 @@ def get_sorted_actions(actions):
     return sorted(actions, key=action_key)
 
 
-def get_actions_to_strats(solver: Solver, node_id: str, actions: List[str]):
+def get_actions_to_strats(
+    solver: Solver, node_id: str, actions: List[str]
+) -> Dict[str, List[List[float]]]:
     strats_for_node = solver.show_strategy(node_id)
     actions_to_strats = {}
     for i, a in enumerate(actions):

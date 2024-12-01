@@ -86,4 +86,4 @@ def exec_aggregate_main(args: Namespace):
                 + ".csv"
             )
             print(csv_file_name)
-            df.to_csv(csv_file_name)
+            df.to_csv(csv_file_name, float_format="%.2f", index=False)

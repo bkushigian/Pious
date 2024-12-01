@@ -16,8 +16,9 @@ from .util import (
 
 
 class Range:
+    range_array: np.ndarray
+
     def __init__(self, rng):
-        self.range_array = None
         if isinstance(rng, Range):
             self.range_array = np.copy(rng.range_array)
         elif isinstance(rng, (np.ndarray, np.generic)):
@@ -35,6 +36,8 @@ class Range:
         elif isinstance(rng, str):
             self.range_array = np.zeros(shape=NUM_COMBOS, dtype=np.float64)
             self._initialize_from_str(rng)
+        else:
+            raise RuntimeError("Could not compute range")
 
         if self.range_array is None:
             raise ValueError(
