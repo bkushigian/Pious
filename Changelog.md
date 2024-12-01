@@ -1,6 +1,8 @@
 # Changelog
 
-## v0.0..dev14
+## v0.0.0.dev15
+
+## v0.0.0.dev14
 - Check if out exists before aggregation during `pious aggregate`
 - Added `pious` script on `pip install` (no longer need to run `python -m pious ...`)
 
