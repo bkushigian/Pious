@@ -25,7 +25,9 @@ def get_all_lines(solver: Solver) -> List["Line"]:
     solver.load_all_nodes()
     lines = solver.show_all_lines()
     effective_stack = solver.show_effective_stack()
-    return [Line(line, effective_stack=effective_stack) for line in lines]
+    return [
+        Line(line, effective_stack=effective_stack) for line in lines if line != "r"
+    ]
 
 
 def money_in_per_street(streets_as_actions: List[List[str]]) -> Tuple[int]:
@@ -236,17 +238,36 @@ class Line:
 
         self.streets_as_lines = [":".join(street) for street in self.streets_as_actions]
 
+        money_so_far = 0
         # Update money in per street
         for street, actions in enumerate(self.streets_as_actions):
             # find last bet action
             for action in reversed(actions):
                 if action[0] == "b":
-                    self._money_in_per_street[street] = int(action[1:])
+                    money_this_street = int(action[1:])
+                    self._money_in_per_street[street] = money_this_street - money_so_far
+                    money_so_far = money_this_street
                     break
-        self._is_terminal = line.endswith("f") or (
-            self._effective_stack
+
+        # Several conditions for a line being terminal
+        if line.endswith("f"):  # Line ends with a fold
+            self._is_terminal = True
+        # Else, if river and this is not the first action of this street and the
+        # final action is check/call
+        elif (
+            len(self.streets_as_actions) == 4
+            and len(self.streets_as_actions[-1]) >= 2
+            and line.endswith("c")
+        ):
+            self._is_terminal = True
+        # Else if there is a call and the total money per street is the
+        # effective stack amount
+        elif (
+            self._effective_stack is not None
+            and line.endswith("c")
             and sum(self._money_in_per_street) >= self._effective_stack
-        )
+        ):
+            self._is_terminal = True
 
     def _check_is_well_formed(self) -> bool:
         """
@@ -346,10 +367,7 @@ class Line:
 
     def current_street(self) -> int:
         """
-        Return True if the current street is the given street
-
-        :param street: The street to check
-        :returns: True if the current street is the given street
+        Return the index of the current street
         """
 
         return self._starting_street + self.n_streets() - 1
@@ -533,15 +551,20 @@ def is_nonterminal(line: Line) -> bool:
 
 
 def filter_lines(
-    lines: List[Line], filters: Optional[List[Callable[[Line], bool]]] = None
-):
+    lines: List[Line],
+    filters: Optional[List[Callable[[Line], bool]] | Callable[[Line], bool]] = None,
+) -> List[Line]:
     if filters is None:
         return lines
 
-    def filt(line):
-        return all((f(line) for f in filters))
+    if isinstance(filters, Callable):
+        return [line for line in lines if filters(line)]
+    else:
 
-    return [line for line in lines if filt(line)]
+        def filt(line):
+            return all((f(line) for f in filters))
+
+        return [line for line in lines if filt(line)]
 
 
 def get_all_n_street_lines(lines: List[Line], n: int) -> List[Line]:
@@ -593,3 +616,12 @@ def num_bets(line: Line) -> int:
     """
 
     return line.line_str.count("b")
+
+
+def ensure_line_root(line: str):
+    """
+    Ensure each line starts with "r:0:"
+    """
+    if not line.startswith("r:0"):
+        line = "r:0:" + line
+    return line

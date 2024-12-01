@@ -5,6 +5,7 @@ suit my needs.
 
 import subprocess
 import os
+from os import path as osp
 from typing import List, Optional, Tuple
 import numpy as np
 
@@ -38,6 +39,17 @@ class Node:
             return normalize_position(self.node_type)
         except ValueError:
             return None
+
+    def get_position_idx(self):
+        pos = self.get_position()
+        if pos is None:
+            raise ValueError("Invalid Node")
+        if pos == "OOP":
+            return 0
+        elif pos == "IP":
+            return 1
+        else:
+            raise ValueError(f"Invalid Position {pos}")
 
     def as_line_str(self) -> str:
 
@@ -137,14 +149,20 @@ class Solver(object):
                     f"Illegal load type: must be 'full', 'fast', 'auto', or None"
                 )
         cfr_file_path = cfr_file_path.strip()
-        if " " in cfr_file_path:
-            if not cfr_file_path.startswith('"'):
-                cfr_file_path = f'"{cfr_file_path}"'
+        cfr_file_path = osp.abspath(cfr_file_path)
+
+        if not osp.exists(cfr_file_path):
+            raise FileNotFoundError(cfr_file_path)
+
         self.cfr_file_path = cfr_file_path
+
+        # Now, quote the `cfr_file_path`
+        quoted_cfr_file_path = f'"{cfr_file_path}"'
+
         if load_type is None:
-            self._run("load_tree", cfr_file_path)
+            self._run("load_tree", quoted_cfr_file_path)
         else:
-            self._run("load_tree", cfr_file_path, load_type)
+            self._run("load_tree", quoted_cfr_file_path, load_type)
         self.root_node_info = self.show_node("r:0")
         if self.debug:
             print(f"root_node_info: {self.root_node_info}\n")
@@ -180,7 +198,7 @@ class Solver(object):
 
         return children
 
-    def show_children_actions(self, node_id: str | Node) -> Optional[List[str]]:
+    def show_children_actions(self, node_id: str | Node) -> List[str]:
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         data = self._run("show_children", node_id)
@@ -257,7 +275,7 @@ class Solver(object):
     def load_all_nodes(self):
         return self._run("load_all_nodes")
 
-    def show_all_lines(self):
+    def show_all_lines(self) -> List[str]:
         result = self._run("show_all_lines")
         if "ERROR" in result:
             raise RuntimeError(f"{result}")
@@ -320,15 +338,15 @@ class Solver(object):
         return float(result)
 
     def calc_eq(
-        self, position: str | int, node_id: str | Node
+        self, position: str | int
     ) -> Tuple[np.ndarray[float], np.ndarray[float]]:
         """
-        Equities for a given player in a given node for all hands.
+        Equities for a given player in all hands given the game state.
+        NOTE: This is NOT for a given node. Instead, use `calc_eq_node`.
 
         Numbers in the first item are equities, numbers in the second are matchups.
 
         :position: "OOP" or "IP"
-        :node_id: the node id (e.g., "r:0:c:c:7s:c")
 
         :return: a tuple of (equities, matchups), where each is a length 1326
             tuple of floats
@@ -336,7 +354,7 @@ class Solver(object):
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         position = normalize_position(position)
-        results = self._run("calc_ev", position, node_id)
+        results = self._run("calc_eq", position)
         eqs, matchups = results.split("\n")
         eqs = np.array([float(ev) for ev in eqs.split()])
         matchups = np.array([float(matchup) for matchup in matchups.split()])
@@ -496,7 +514,7 @@ class Solver(object):
         response = self._run("set_strategy", node_id, *values)
         return response
 
-    def show_strategy(self, node_id: str | Node):
+    def show_strategy(self, node_id: str | Node) -> List[List[float]]:
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         strats = self._run("show_strategy", node_id).split("\n")
