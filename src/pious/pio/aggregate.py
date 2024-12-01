@@ -16,6 +16,7 @@ import re
 
 from ..hands import Hand, hand
 from ..range import Range
+from ..progress_bar import progress_bar
 
 from . import (
     make_solver,
@@ -277,6 +278,9 @@ class CFRDatabase:
             b: w / self.total_weights for (b, w) in self.raw_weights.items()
         }
 
+    def __len__(self):
+        return len(self.boards)
+
     def get_weight(self, board: str):
         return self.raw_weights.get(board.strip(), 1.0)
 
@@ -316,7 +320,10 @@ class CFRDatabase:
 
 
 def aggregate_files_in_dir(
-    dir: str, lines: List[Line] | str | LinesToAggregate, conf: AggregationConfig = None
+    dir: str,
+    lines: List[Line] | str | LinesToAggregate,
+    conf: AggregationConfig = None,
+    print_progress: bool = False,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -333,9 +340,9 @@ def aggregate_files_in_dir(
 
     reports = None
     reports_lines = None
-    for board, cfr_file, freq in db:
-        print(board, cfr_file, freq)
-        new_reports = aggregate_single_file(cfr_file, lines, conf, freq)
+    for board, cfr_file, freq in progress_bar(db, prefix="Aggregating Boards:"):
+        # print(board)
+        new_reports = aggregate_single_file(cfr_file, lines, conf, freq, print_progress)
 
         # One time update: This is necessary to perform sanity checking and
         # ensure that Each report has the same lines.
@@ -366,6 +373,7 @@ def aggregate_single_file(
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
     weight: float = 1.0,
+    print_progress: bool = False,
 ) -> pd.DataFrame:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
@@ -384,7 +392,9 @@ def aggregate_single_file(
     ls = LinesToAggregate.create_from(lines)
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
-    return aggregate_lines_for_solver(solver, lines_to_aggregate, conf, weight)
+    return aggregate_lines_for_solver(
+        solver, lines_to_aggregate, conf, weight, print_progress
+    )
 
 
 def aggregate_lines_for_solver(
@@ -392,6 +402,7 @@ def aggregate_lines_for_solver(
     lines_to_aggregate: List[Line],
     conf: Optional[AggregationConfig] = None,
     weight: float = 1.0,
+    print_progress: bool = False,
 ):
     """
     Aggregate the lines for a `Solver` instance with a tree already loaded.
@@ -402,6 +413,7 @@ def aggregate_lines_for_solver(
     :param conf: an optional `AggregationConfig` to customize the aggregation
     :param weight: a weight to apply to the global frequency (e.g., if a flop is
     discounted for being less common)
+    :param print_progress: print progress bar for aggregation
     """
     if conf is None:
         conf = AggregationConfig()
@@ -409,7 +421,7 @@ def aggregate_lines_for_solver(
 
     reports: Dict[Line, pd.DataFrame] = {}
 
-    for line in lines_to_aggregate:
+    for line in progress_bar(lines_to_aggregate, prefix="Aggregating Lines: "):
         node_ids = line.get_node_ids(dead_cards=board)
 
         # Get the first node_id to compute some global stuff about the line

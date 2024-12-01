@@ -37,6 +37,9 @@ def register_command(sub_parsers: _SubParsersAction):
     parser_agg.add_argument(
         "--overwrite", action="store_true", help="Overwrite results of a computation"
     )
+    parser_agg.add_argument(
+        "--progress", action="store_true", help="Print progress bar"
+    )
 
 
 def exec_aggregate_main(args: Namespace):
@@ -53,10 +56,14 @@ def exec_aggregate_main(args: Namespace):
 
     reports = None
     if osp.isdir(args.cfr_file_or_sim_dir):
-        reports = aggregate.aggregate_files_in_dir(args.cfr_file_or_sim_dir, lines)
+        reports = aggregate.aggregate_files_in_dir(
+            args.cfr_file_or_sim_dir, lines, print_progress=args.progress
+        )
         print(reports.keys())
     elif osp.isfile(args.cfr_file_or_sim_dir):
-        reports = aggregate.aggregate_single_file(args.cfr_file_or_sim_dir, lines)
+        reports = aggregate.aggregate_single_file(
+            args.cfr_file_or_sim_dir, lines, print_progress=args.progress
+        )
         pass
     else:
         print(f"{args.cfr_file_or_sim_dir} is neither a .cfr file or a directory")

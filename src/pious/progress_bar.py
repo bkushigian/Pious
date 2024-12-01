@@ -1,15 +1,25 @@
 import sys
-from typing import Optional
+from typing import Callable, Optional
+
+_PROGRESS_BAR_NESTING = 0
 
 
 def progress_bar(
-    it, prefix: str = "", size: int = 60, inc: Optional[int] = None, out=sys.stdout
+    it,
+    prefix: str | Callable = "",
+    size: int = 60,
+    inc: Optional[int] = None,
+    out=sys.stdout,
 ):
     """
     Print a progress bar
 
     Taken from https://stackoverflow.com/a/34482761
     """
+    global _PROGRESS_BAR_NESTING
+    if _PROGRESS_BAR_NESTING > 0:
+        print(file=out, flush=True)
+    _PROGRESS_BAR_NESTING += 1
     count = len(it)
     if inc is None:
         inc = 1
@@ -38,4 +48,7 @@ def progress_bar(
         yield item
         if (i + 1) % inc == 0:
             show(i + 1)
+    _PROGRESS_BAR_NESTING -= 1
+    if _PROGRESS_BAR_NESTING > 0:
+        print("\033[4A")
     print("\n", flush=True, file=out)
