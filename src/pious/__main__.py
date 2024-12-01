@@ -17,20 +17,24 @@ suite.
 """
 
 
-parser = ArgumentParser(prog="pious", description="The PioSOLVER Utility Suite")
+def main():
+    parser = ArgumentParser(prog="pious", description="The PioSOLVER Utility Suite")
 
-## DEFINE SUBPARSERS
-sub_parsers = parser.add_subparsers(title="commands")
+    ## DEFINE SUBPARSERS
+    sub_parsers = parser.add_subparsers(title="commands")
 
-flops_register_command(sub_parsers)
-aggregation_viewer_register_command(sub_parsers)
-aggregate_register_command(sub_parsers)
-blockers_register_command(sub_parsers)
-lines_register_command(sub_parsers)
+    flops_register_command(sub_parsers)
+    aggregation_viewer_register_command(sub_parsers)
+    aggregate_register_command(sub_parsers)
+    blockers_register_command(sub_parsers)
+    lines_register_command(sub_parsers)
+
+    args = parser.parse_args()
+    if "function" in args:
+        args.function(args)
+    else:
+        parser.print_help()
 
 
-args = parser.parse_args()
-if "function" in args:
-    args.function(args)
-else:
-    parser.print_help()
+if __name__ == "__main__":
+    main()
