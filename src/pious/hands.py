@@ -33,8 +33,64 @@ def card_to_str(c: Card) -> str:
     return f"{_RANK_STR[r]}{_SUIT_STR[s]}"
 
 
+def count_ones_in_nibble(nibble: int):
+    x = nibble & 0xF
+    match x:
+        case 0b0000:
+            return 0
+        case 0b0001:
+            return 1
+        case 0b0010:
+            return 1
+        case 0b0011:
+            return 2
+        case 0b0100:
+            return 1
+        case 0b0101:
+            return 2
+        case 0b0110:
+            return 2
+        case 0b0111:
+            return 3
+        case 0b1000:
+            return 1
+        case 0b1001:
+            return 2
+        case 0b1010:
+            return 2
+        case 0b1011:
+            return 3
+        case 0b1100:
+            return 2
+        case 0b1101:
+            return 3
+        case 0b1110:
+            return 3
+        case 0b1111:
+            return 4
+    return 0
+
+
 def count_ones(x):
-    # TODO: this is a very inefficient implementation
+    _x = u32(x)
+    n_ones = u32(0)
+    while _x != 0:
+        n_ones += count_ones_in_nibble(_x)
+        _x = _x >> 4
+    return n_ones
+
+
+def _count_ones_inefficient(x):
+    """
+    For testing, this is ground truth of count_ones()
+    >>> expected = []
+    >>> actual = []
+    >>> import random
+    >>> _count_ones_inefficient(31) == count_ones(31)
+    True
+    >>> _count_ones_inefficient(3131) == count_ones(3131)
+    True
+    """
     return len(str(bin(x)[2:]).replace("0", ""))
 
 
@@ -168,11 +224,22 @@ class Hand(_Hand):
         self._evaluation = u32(0)
         self._hand_type = u32(0)
         self._hand_distinguisher = u32(0)
+        # All Cards
         self._rankset = u32(0)
         self._rank_count = u32(0)
         self._rankset_suit = u32(0)
         self._rankset_of_count = u32(0)
-        self._extensive_details = None
+        # Hand
+        self._hand_rankset = u32(0)
+        self._hand_rank_count = u32(0)
+        self._hand_rankset_suit = u32(0)
+        self._hand_rankset_of_count = u32(0)
+        # Board
+        self._board_rankset = u32(0)
+        self._board_rank_count = u32(0)
+        self._board_rankset_suit = u32(0)
+        self._board_rankset_of_count = u32(0)
+        self._board_extensive_details = None
 
     def is_straight_flush(self):
         self._evaluate_internal()
@@ -218,19 +285,50 @@ class Hand(_Hand):
         if self._evaluation != 0:
             # Cache the result
             return self._evaluation
+        # All Cards
         rankset = u32(0)
         rankset_suit = [u32(0), u32(0), u32(0), u32(0)]
         rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
         rank_count = [u32(0) for _ in range(13)]
-        for c in self.all_cards:
+
+        # Hand
+        hand_rankset = u32(0)
+        hand_rankset_suit = [u32(0), u32(0), u32(0), u32(0)]
+        hand_rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
+        hand_rank_count = [u32(0) for _ in range(13)]
+
+        # Board
+        board_rankset = u32(0)
+        board_rankset_suit = [u32(0), u32(0), u32(0), u32(0)]
+        board_rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
+        board_rank_count = [u32(0) for _ in range(13)]
+
+        for c in self.board_cards:
             r = u32(c // 4)
             s = u32(c % 4)
             rankset |= 1 << r
             rankset_suit[s] |= 1 << r
             rank_count[r] += 1
 
+            board_rankset |= 1 << r
+            board_rankset_suit[s] |= 1 << r
+            board_rank_count[r] += 1
+
+        for c in self.hand_cards:
+            r = u32(c // 4)
+            s = u32(c % 4)
+            rankset |= 1 << r
+            rankset_suit[s] |= 1 << r
+            rank_count[r] += 1
+
+            hand_rankset |= 1 << r
+            hand_rankset_suit[s] |= 1 << r
+            hand_rank_count[r] += 1
+
         for r in range(13):
             rankset_of_count[rank_count[r]] |= 1 << r
+            board_rankset_of_count[board_rank_count[r]] |= 1 << r
+            hand_rankset_of_count[hand_rank_count[r]] |= 1 << r
 
         flush_suit = u32(0xFFFFFFFF)
         for suit in range(4):
@@ -282,10 +380,23 @@ class Hand(_Hand):
             self._evaluation = keep_n_msb(rankset, 5)
         self._hand_type = self._evaluation >> 26
         self._hand_distinguisher = self._evaluation & 0x3FFFFFF
+
+        # Save local vars as fields
+        # All Cards
         self._rankset = rankset
         self._rank_count = rank_count
         self._rankset_suit = rankset_suit
         self._rankset_of_count = rankset_of_count
+        # Hand
+        self._hand_rankset = hand_rankset
+        self._hand_rank_count = hand_rank_count
+        self._hand_rankset_suit = hand_rankset_suit
+        self._hand_rankset_of_count = hand_rankset_of_count
+        # Board
+        self._board_rankset = board_rankset
+        self._board_rank_count = board_rank_count
+        self._board_rankset_suit = board_rankset_suit
+        self._board_rankset_of_count = board_rankset_of_count
         return self._evaluation
 
 
