@@ -3,6 +3,8 @@ This module is responsible for various operations on NLHE hands, such as
 categorization and ranking.
 """
 
+import itertools
+from typing import Tuple
 import numpy as np
 from ._hand_table import HAND_TABLE
 from collections import namedtuple
@@ -225,20 +227,22 @@ class Hand(_Hand):
         self._hand_type = u32(0)
         self._hand_distinguisher = u32(0)
         # All Cards
-        self._rankset = u32(0)
-        self._rank_count = u32(0)
-        self._rankset_suit = u32(0)
-        self._rankset_of_count = u32(0)
+        self._rankset = None
+        self._rank_count = None
+        self._rankset_suit = None
+        self._rankset_of_count = None
+        self._suit_count = None
+
         # Hand
-        self._hand_rankset = u32(0)
-        self._hand_rank_count = u32(0)
-        self._hand_rankset_suit = u32(0)
-        self._hand_rankset_of_count = u32(0)
+        self._hand_rankset = None
+        self._hand_rank_count = None
+        self._hand_rankset_suit = None
+        self._hand_rankset_of_count = None
         # Board
-        self._board_rankset = u32(0)
-        self._board_rank_count = u32(0)
-        self._board_rankset_suit = u32(0)
-        self._board_rankset_of_count = u32(0)
+        self._board_rankset = None
+        self._board_rank_count = None
+        self._board_rankset_suit = None
+        self._board_rankset_of_count = None
         self._board_extensive_details = None
 
     def is_straight_flush(self):
@@ -281,6 +285,40 @@ class Hand(_Hand):
         evaluation = self._evaluate_internal()
         return bisect(HAND_TABLE, evaluation)
 
+    def compute_draws(self):
+        self._compute_flush_draws()
+        self._compute_straight_draws()
+
+    def _compute_flush_draws(self) -> Tuple[int, int]:
+        """
+        Compute if hand is a flush, flush draw, BDFD, or 2xBDFD,
+        and the number of cards in hand that contribute to this
+        """
+        n_cards = 0
+        BDFD = 2
+        BDFD_TWICE = 3
+
+        flush_type = 0
+        for suit in range(4):
+            sc = self._suit_count[suit]
+            hsc = self._hand_suit_count[suit]
+            if sc >= 3 and sc >= flush_type:
+                if sc == 3:
+                    # Assign to avoid a branch
+                    ft = BDFD
+                    if flush_type == BDFD and hsc == 1:
+                        ft = BDFD_TWICE
+                    flush_type = ft
+                    n_cards += hsc
+                else:
+                    flush_type = sc
+                    n_cards += hsc
+
+        return flush_type, n_cards
+
+    def _compute_straight_draws(self):
+        pass
+
     def _evaluate_internal(self):
         if self._evaluation != 0:
             # Cache the result
@@ -290,12 +328,14 @@ class Hand(_Hand):
         rankset_suit = [u32(0), u32(0), u32(0), u32(0)]
         rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
         rank_count = [u32(0) for _ in range(13)]
+        suit_count = [u32(0), u32(0), u32(0), u32(0)]
 
         # Hand
         hand_rankset = u32(0)
         hand_rankset_suit = [u32(0), u32(0), u32(0), u32(0)]
         hand_rankset_of_count = [u32(0), u32(0), u32(0), u32(0), u32(0)]
         hand_rank_count = [u32(0) for _ in range(13)]
+        hand_suit_count = [u32(0), u32(0), u32(0), u32(0)]
 
         # Board
         board_rankset = u32(0)
@@ -332,9 +372,11 @@ class Hand(_Hand):
 
         flush_suit = u32(0xFFFFFFFF)
         for suit in range(4):
-            if count_ones(rankset_suit[suit]) >= 5:
+            c = count_ones(rankset_suit[suit])
+            suit_count[suit] = c
+            hand_suit_count[suit] = count_ones(hand_rankset_suit[suit])
+            if c >= 5:
                 flush_suit = suit
-                break
 
         is_straight = find_straight(rankset)
         flush = 0
@@ -387,17 +429,31 @@ class Hand(_Hand):
         self._rank_count = rank_count
         self._rankset_suit = rankset_suit
         self._rankset_of_count = rankset_of_count
+        self._suit_count = suit_count
         # Hand
         self._hand_rankset = hand_rankset
         self._hand_rank_count = hand_rank_count
         self._hand_rankset_suit = hand_rankset_suit
         self._hand_rankset_of_count = hand_rankset_of_count
+        self._hand_suit_count = hand_suit_count
         # Board
         self._board_rankset = board_rankset
         self._board_rank_count = board_rank_count
         self._board_rankset_suit = board_rankset_suit
         self._board_rankset_of_count = board_rankset_of_count
         return self._evaluation
+
+    def get_rankset(self):
+        self._evaluate_internal()
+        return self._rankset
+
+    def get_hand_rankset(self):
+        self._evaluate_internal()
+        return self._hand_rankset
+
+    def get_board_rankset(self):
+        self._evaluate_internal()
+        return self._board_rankset
 
 
 class ExtensiveHandDetails:
@@ -409,3 +465,134 @@ class ExtensiveHandDetails:
         self.hand_suits = [c % 4 for c in hand_cards]
         self.board_ranks = [c // 4 for c in board_cards]
         self.board_suits = [c % 4 for c in board_cards]
+
+
+class StraightDrawMasks:
+    """
+    This generates all masks for straight draws.
+
+    Strength of straight draw masks
+    1. OESD/Double Gutter (8-out)
+    2. Gutter/A-wheel/A-broadway (4out)
+    3. Backdoor Straight Draw
+
+    Some of the returned masks need to be shifted to be accurate (namely, any of
+    the non-a-high masks). The shifted masks will cover n-bit windows and need
+    to be shifted. For instance, an OESD is just 0xf and covers a 5 bit window.
+    So 2345 would correspond to 0xf, 3456 would correspond to 0xf << 1, all the
+    way up to 0xf << 8, which corresponds to 9TJQK (note that the 5th bit is
+    unset: this works out because JQKA is not an OESD).
+
+    """
+
+    def __init__(self):
+
+        # OESDs are 4 contiguous ranks in a row
+        self.oesd_5_card_masks = {u32(0xF)}
+
+        # Differing bit windows. That's okay, we can still do the normal shifting
+        # assuming 7 bit widths (there will be 1 always-false check against the 2nd
+        # value)
+        self.double_gutter_7_card_masks = {
+            u32(0b11011101),
+            u32(0b01011101),
+            u32(0b11011011),
+        }
+        self.gutshot_5_card_masks = {u32(0b10111), u32(0b11011), u32(0b11101)}
+
+        self.a_high_broadway_13_card_masks = {
+            u32(0b1111000000000),
+            u32(0b1110100000000),
+            u32(0b1101100000000),
+            u32(0b1011100000000),
+        }
+        self.a_high_wheel_13_card_masks = {
+            u32(0b1000000001110),
+            u32(0b1000000001101),
+            u32(0b1000000001011),
+            u32(0b1000000000111),
+        }
+        self.backdoor_5_card_masks = set()
+        self.backdoor_4_high_masks = {u32(0b00111)}
+        self.backdoor_5_high_masks = {u32(0b01011), u32(0b01101), u32(0b01110)}
+
+        for r1, r2 in itertools.combinations(range(4), 2):
+            mask = u32(1 << 4)
+            mask += u32(1 << r1)
+            mask += u32(1 << r2)
+            self.backdoor_5_card_masks.add(mask)
+
+    def categorize(self, hand: Hand):
+
+        rankset = hand.get_rankset()
+        board_rankset = hand.get_board_rankset()
+        hand_rankset = hand.get_hand_rankset()
+
+        gutshot = None
+        a_high_broadway = None
+        a_high_wheel = None
+        if rankset & 1 << 12:
+            # Compute A-high broadway/wheels
+            if rankset & 0b1111100000000 in self.a_high_broadway_13_card_masks:
+                a_high_broadway = (
+                    "A_HIGH_BROADWAY",
+                    count_ones((0b1111100000000 & hand_rankset) & ~board_rankset),
+                )
+
+            elif rankset & 0b1000000001111 in self.a_high_wheel_13_card_masks:
+                a_high_wheel = (
+                    "A_HIGH_WHEEL",
+                    count_ones((0b1000000001111 & hand_rankset) & ~board_rankset),
+                )
+
+        # Check for 8-out straight draws
+        for offset in range(13 - 5, -1, -1):
+            ranks = rankset >> offset
+            board_ranks = board_rankset >> offset
+            hand_ranks = hand_rankset >> offset
+
+            hand_5_rank_window = hand_ranks & 0x1F
+            hand_7_rank_window = hand_ranks & 0xFF
+            num_hand_ranks_5_card_window = count_ones(hand_5_rank_window & ~board_ranks)
+            num_hand_ranks_7_card_window = count_ones(hand_7_rank_window & ~board_ranks)
+
+            # Double Gutter
+            if num_hand_ranks_7_card_window > 0:
+
+                if ranks & 0x7F in self.double_gutter_7_card_masks:
+                    return "DOUBLE_GUTTER", num_hand_ranks_7_card_window
+                if ranks & 0xFF in self.double_gutter_7_card_masks:
+                    return "DOUBLE_GUTTER", num_hand_ranks_7_card_window
+            # OESD
+            if num_hand_ranks_5_card_window > 0:
+                if ranks & 0x1F in self.oesd_5_card_masks:
+                    return "OESD", num_hand_ranks_5_card_window
+
+            if gutshot is None:
+                if ranks & 0x1F in self.gutshot_5_card_masks:
+                    gutshot = "GUTSHOT", num_hand_ranks_5_card_window
+
+        # Check for 4-out straight draws
+        if a_high_broadway:
+            return a_high_broadway
+        if a_high_wheel:
+            return a_high_wheel
+        if gutshot:
+            return gutshot
+
+        # Now backdoors
+        for offset in range(13 - 5, -1, -1):
+            ranks = rankset >> offset
+            if ranks & 0x1F in self.backdoor_5_card_masks:
+
+                # We need to compute the number of cards in hand that contribute.
+                hand_ranks = hand_rankset >> offset
+                board_ranks = board_rankset >> offset
+                hand_5_rank_window = hand_ranks & 0x1F
+                num_hand_ranks_5_card_window = count_ones(
+                    hand_5_rank_window & ~board_ranks
+                )
+                if num_hand_ranks_5_card_window > 0:
+                    return "BACKDOOR_STRAIGHT_DRAW", num_hand_ranks_5_card_window
+
+        return None

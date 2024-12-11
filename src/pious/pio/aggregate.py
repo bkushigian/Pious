@@ -421,7 +421,10 @@ def aggregate_lines_for_solver(
 
     reports: Dict[Line, pd.DataFrame] = {}
 
-    for line in progress_bar(lines_to_aggregate, prefix="Aggregating Lines: "):
+    xs = lines_to_aggregate
+    if print_progress:
+        xs = progress_bar(lines_to_aggregate, inc=1, prefix="Aggregating Lines: ")
+    for line in xs:
         node_ids = line.get_node_ids(dead_cards=board)
 
         # Get the first node_id to compute some global stuff about the line
