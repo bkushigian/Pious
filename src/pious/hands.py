@@ -457,6 +457,22 @@ class Hand(_Hand):
         self._evaluate_internal()
         return self._board_rankset
 
+    def get_suit_count(self) -> Tuple[u32]:
+        self._evaluate_internal()
+        return tuple(self._suit_count)
+
+    def get_hand_suit_count(self):
+        self._evaluate_internal()
+        return tuple(self._hand_suit_count)
+
+    def get_board_suit_count(self):
+        self._evaluate_internal()
+        return tuple(self._board_suit_count)
+
+    def get_suit_ranksets(self):
+        self._evaluate_internal()
+        return tuple(self._rankset_suit)
+
 
 class ExtensiveHandDetails:
     def __init__(self, hand: Hand):
@@ -467,6 +483,15 @@ class ExtensiveHandDetails:
         self.hand_suits = [c % 4 for c in hand_cards]
         self.board_ranks = [c // 4 for c in board_cards]
         self.board_suits = [c % 4 for c in board_cards]
+
+
+class FlushDraws:
+    def __init__(self):
+        pass
+
+    def categorize(self, hand: Hand) -> Tuple[str, int, int]:
+        hand._suit_count
+        pass
 
 
 class StraightDrawMasks:
