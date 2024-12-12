@@ -11,12 +11,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "numpy>=2.0.0",
     "matplotlib>=3.7.1",
     "pandas>=2.0.3",
     "mplcursors>=0.5.1",
     "ansi>=0.3.7",
     "pytest>=8.2.2",
-    "tabulate>=0.9.0"
+    "tabulate>=0.9.0",
 ]
 
 [project.scripts]
