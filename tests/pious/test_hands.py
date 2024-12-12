@@ -36,7 +36,7 @@ def test_straight_draw_masks_oesd():
     assert straight_draw_type("KsQs", "JhTh8h7h6d") == ("OESD", 2)
     assert straight_draw_type("KsJh", "QdJcTh8h") == ("OESD", 1)
     assert straight_draw_type("QsJh", "KdJcTh8h") == ("OESD", 1)
-    assert straight_draw_type("JhTh", "JsTd9d8s") == None
+    assert straight_draw_type("JhTh", "JsTd9d8s") == ("NO_STRAIGHT_DRAW", 0)
 
 
 def test_straight_draw_masks_double_gutters():
@@ -77,3 +77,21 @@ def test_straight_draw_masks_gutshots():
 def test_straight_draw_masks_backdoor():
     assert straight_draw_type("KsQs", "Th3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
     assert straight_draw_type("KsQs", "Jh3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("Ks5s", "Jh3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
+    assert straight_draw_type("7s6s", "9h3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+
+    # 4 high/5 high
+    assert straight_draw_type("Ks2s", "9h4d3h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
+    assert straight_draw_type("Ks2s", "9h5d3h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
+    assert straight_draw_type("4s2s", "9h8d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("5s2s", "Th9d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("5s4s", "Th9d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("5s4s", "Th9d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("4s3s", "Th9d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+
+    # Wheel backdoor draws
+    assert straight_draw_type("AsQs", "9h3d2h") == ("BACKDOOR_WHEEL_DRAW", 1)
+    assert straight_draw_type("As2s", "Th3d2h") == ("BACKDOOR_WHEEL_DRAW", 1)
+    assert straight_draw_type("As2s", "Th3d9h") == ("BACKDOOR_WHEEL_DRAW", 2)
+    assert straight_draw_type("3s2s", "Ah3d9h") == ("BACKDOOR_WHEEL_DRAW", 1)
+    assert straight_draw_type("4s3s", "Ah9d9h") == ("BACKDOOR_WHEEL_DRAW", 2)

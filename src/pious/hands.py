@@ -515,8 +515,21 @@ class StraightDrawMasks:
             u32(0b1000000000111),
         }
         self.backdoor_5_card_masks = set()
-        self.backdoor_4_high_masks = {u32(0b00111)}
-        self.backdoor_5_high_masks = {u32(0b01011), u32(0b01101), u32(0b01110)}
+        self.backdoor_4_5_high_masks = {
+            u32(0b00111),
+            u32(0b01011),
+            u32(0b01101),
+            u32(0b01110),
+        }
+        self.backdoor_wheel_masks = {
+            u32(0b1000000000011),
+            u32(0b1000000000101),
+            u32(0b1000000000110),
+            u32(0b1000000001001),
+            u32(0b1000000001001),
+            u32(0b1000000001010),
+            u32(0b1000000001100),
+        }
 
         for r1, r2 in itertools.combinations(range(4), 2):
             mask = u32(1 << 4)
@@ -524,7 +537,7 @@ class StraightDrawMasks:
             mask += u32(1 << r2)
             self.backdoor_5_card_masks.add(mask)
 
-    def categorize(self, hand: Hand):
+    def categorize(self, hand: Hand) -> Tuple[str, int]:
 
         rankset = hand.get_rankset()
         board_rankset = hand.get_board_rankset()
@@ -597,4 +610,14 @@ class StraightDrawMasks:
                 if num_hand_ranks_5_card_window > 0:
                     return "BACKDOOR_STRAIGHT_DRAW", num_hand_ranks_5_card_window
 
-        return None
+        if rankset & 0x100F in self.backdoor_wheel_masks:
+            num_hand_ranks = count_ones((hand_rankset & 0x100F) & ~board_rankset)
+            return "BACKDOOR_WHEEL_DRAW", num_hand_ranks
+
+        # 5 high and 4 high
+        masked = rankset & 0xF
+        if masked in self.backdoor_4_5_high_masks:
+            num_hand_ranks = count_ones((hand_rankset & 0xF) & ~board_rankset)
+            return "BACKDOOR_STRAIGHT_DRAW", num_hand_ranks
+
+        return "NO_STRAIGHT_DRAW", 0
