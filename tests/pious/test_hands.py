@@ -1,4 +1,5 @@
-from pious.hands import hand, StraightDrawMasks, FlushDraws
+from pious.hand_categories import FlushDraws, StraightDrawMasks
+from pious.hands import hand
 
 straight_draw_masks = StraightDrawMasks()
 flush_draws = FlushDraws()

@@ -525,6 +525,9 @@ class Solver(object):
             node_id = node_id.node_id
         return float(self._run("calc_global_freq", node_id))
 
+    def calc_results(self):
+        return self._run("calc_results")
+
     def _parse_data(self, data, *name_to_parser):
         parsed_data = {}
         for i, data_line in enumerate(data.split("\n")):
