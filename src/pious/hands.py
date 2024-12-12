@@ -35,7 +35,7 @@ def card_to_str(c: Card) -> str:
     return f"{_RANK_STR[r]}{_SUIT_STR[s]}"
 
 
-def count_ones_in_nibble(nibble: int):
+def count_ones_in_nibble(nibble: int) -> int:
     x = nibble & 0xF
     match x:
         case 0b0000:
@@ -73,18 +73,8 @@ def count_ones_in_nibble(nibble: int):
     return 0
 
 
-def count_ones(x):
-    _x = u32(x)
-    n_ones = u32(0)
-    while _x != 0:
-        n_ones += count_ones_in_nibble(_x)
-        _x = _x >> 4
-    return n_ones
-
-
-def _count_ones_inefficient(x):
+def count_ones(x) -> u32:
     """
-    For testing, this is ground truth of count_ones()
     >>> expected = []
     >>> actual = []
     >>> import random
@@ -92,6 +82,18 @@ def _count_ones_inefficient(x):
     np.uint32(5)
     >>> count_ones(3131)
     np.uint32(7)
+    """
+    _x = u32(x)
+    n_ones = u32(0)
+    while _x != 0:
+        n_ones += u32(count_ones_in_nibble(_x))
+        _x = _x >> 4
+    return n_ones
+
+
+def _count_ones_inefficient(x):
+    """
+    For testing, this is ground truth of count_ones()
     """
     return len(str(bin(x)[2:]).replace("0", ""))
 
