@@ -88,10 +88,10 @@ def _count_ones_inefficient(x):
     >>> expected = []
     >>> actual = []
     >>> import random
-    >>> _count_ones_inefficient(31) == count_ones(31)
-    True
-    >>> _count_ones_inefficient(3131) == count_ones(3131)
-    True
+    >>> count_ones(31)
+    np.uint32(5)
+    >>> count_ones(3131)
+    np.uint32(7)
     """
     return len(str(bin(x)[2:]).replace("0", ""))
 
