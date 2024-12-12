@@ -490,8 +490,26 @@ class FlushDraws:
         pass
 
     def categorize(self, hand: Hand) -> Tuple[str, int, int]:
-        hand._suit_count
-        pass
+        max_suit = -1
+        max_count = 0
+        num_cards = 0
+        suit_counts = hand.get_suit_count()
+
+        # Get ranksets for each suit for both the entire hand+board and the board itself
+        suit_ranksets = hand.get_suit_ranksets()
+        hand_suit_ranksets = hand.get_hand_rankset()
+
+        for suit, count in enumerate(suit_counts):
+            if count >= 3 and count > max_count:
+                max_suit, max_count = suit, count
+                hrs = hand_suit_ranksets[suit]
+                num_cards = count_ones(hrs)
+                if num_cards > 0:
+                    pass
+                    # TODO: count how strong the highest flush draw card is
+            elif count == 3 and count == max_count:
+                pass
+                # TODO: Handle case where we have a double flush draw
 
 
 class StraightDrawMasks:
