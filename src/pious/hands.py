@@ -473,6 +473,10 @@ class Hand(_Hand):
         self._evaluate_internal()
         return tuple(self._rankset_suit)
 
+    def get_hand_suit_ranksets(self):
+        self._evaluate_internal()
+        return tuple(self._hand_rankset_suit)
+
 
 class ExtensiveHandDetails:
     def __init__(self, hand: Hand):
@@ -490,26 +494,71 @@ class FlushDraws:
         pass
 
     def categorize(self, hand: Hand) -> Tuple[str, int, int]:
+        """
+        Test for flush draws and return details about the draw, including:
+        (DRAW_TYPE, N_CARDS, HIGHEST_CARD_IN_HAND)
+        """
+        max_suit_count = 0
         max_suit = -1
-        max_count = 0
+        second_max_suit = -1
         num_cards = 0
         suit_counts = hand.get_suit_count()
 
         # Get ranksets for each suit for both the entire hand+board and the board itself
         suit_ranksets = hand.get_suit_ranksets()
-        hand_suit_ranksets = hand.get_hand_rankset()
+        hand_suit_ranksets = hand.get_hand_suit_ranksets()
 
+        highest_draw_contributing_card_in_hand = -1
         for suit, count in enumerate(suit_counts):
-            if count >= 3 and count > max_count:
-                max_suit, max_count = suit, count
+            if count >= 3 and count > max_suit_count:
                 hrs = hand_suit_ranksets[suit]
-                num_cards = count_ones(hrs)
-                if num_cards > 0:
-                    pass
-                    # TODO: count how strong the highest flush draw card is
-            elif count == 3 and count == max_count:
-                pass
-                # TODO: Handle case where we have a double flush draw
+                n_cards = count_ones(hrs)
+
+                if n_cards == 0:
+                    # Skip: we do not contribute to the draw
+                    continue
+                num_cards = n_cards
+                max_suit_count = count
+                max_suit = suit
+
+                if max_suit_count == 5:
+                    break
+                if max_suit_count == 4:
+                    break
+                if num_cards == 2:
+                    break
+
+            elif count == max_suit_count == 3:
+                hrs = hand_suit_ranksets[suit]
+                n_cards = count_ones(hrs)
+                if n_cards == 0:
+                    continue
+                num_cards = n_cards
+                second_max_suit = suit
+
+        if max_suit_count < 3:
+            return "NO_FLUSH_DRAW", 0, -1
+
+        if max_suit_count >= 3:
+            rs = suit_ranksets[max_suit]
+            hrs = hand_suit_ranksets[max_suit]
+            flag = 1 << 13
+            card_strength_index = 0
+            while flag > 0:
+                flag = flag >> 1
+                if rs & flag != 0:
+                    if hrs & flag != 0:
+                        highest_draw_contributing_card_in_hand = card_strength_index + 1
+                        break
+                else:
+                    card_strength_index += 1
+        if second_max_suit > -1:
+            pass
+
+        fd_type = ("", "", "", "BACKDOOR_FLUSH_DRAW", "FLUSH_DRAW", "FLUSH")[
+            max_suit_count
+        ]
+        return fd_type, num_cards, highest_draw_contributing_card_in_hand
 
 
 class StraightDrawMasks:

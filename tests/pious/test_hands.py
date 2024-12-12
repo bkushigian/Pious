@@ -1,10 +1,15 @@
-from pious.hands import hand, Hand, StraightDrawMasks
+from pious.hands import hand, StraightDrawMasks, FlushDraws
 
-masks = StraightDrawMasks()
+straight_draw_masks = StraightDrawMasks()
+flush_draws = FlushDraws()
 
 
 def straight_draw_type(hole, board):
-    return masks.categorize(hand(hole, board))
+    return straight_draw_masks.categorize(hand(hole, board))
+
+
+def flush_draw_type(hole, board):
+    return flush_draws.categorize(hand(hole, board))
 
 
 def test_hand_category():
@@ -95,3 +100,20 @@ def test_straight_draw_masks_backdoor():
     assert straight_draw_type("As2s", "Th3d9h") == ("BACKDOOR_WHEEL_DRAW", 2)
     assert straight_draw_type("3s2s", "Ah3d9h") == ("BACKDOOR_WHEEL_DRAW", 1)
     assert straight_draw_type("4s3s", "Ah9d9h") == ("BACKDOOR_WHEEL_DRAW", 2)
+
+
+def test_flush_draws():
+    # NO FLUSH DRAW
+    assert flush_draw_type("QsJd", "9s3d2c") == ("NO_FLUSH_DRAW", 0, -1)
+
+    # BDFD
+    assert flush_draw_type("AsQs", "9s3c2c") == ("BACKDOOR_FLUSH_DRAW", 2, 1)
+    assert flush_draw_type("AsQd", "9s3s2c") == ("BACKDOOR_FLUSH_DRAW", 1, 1)
+    assert flush_draw_type("AdQs", "9s3s2c") == ("BACKDOOR_FLUSH_DRAW", 1, 3)
+
+    # Flush Draw
+    assert flush_draw_type("AsQs", "9s3s2c") == ("FLUSH_DRAW", 2, 1)
+    assert flush_draw_type("KsQs", "9s3s2c") == ("FLUSH_DRAW", 2, 2)
+    assert flush_draw_type("QsJs", "9s3s2c") == ("FLUSH_DRAW", 2, 3)
+
+    assert flush_draw_type("QsJs", "9s3s2cJc") == ("FLUSH_DRAW", 2, 3)
