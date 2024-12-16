@@ -15,7 +15,10 @@ import sys
 import re
 from multiprocessing import Pool
 
-from ..hands import Hand, hand
+from pious.util import PIO_HAND_ORDER
+
+from ..hands import Hand, card_from_str, hand, Card
+from ..hand_categories import FlushDraws, HandCategorizer, StraightDrawMasks
 from ..range import Range
 from ..progress_bar import progress_bar
 
@@ -720,3 +723,49 @@ def get_runout(solver: Solver, node_id: str) -> List[str]:
     if len(b) > 4:
         row.append(b[4])
     return row
+
+
+u32 = np.uint32
+
+
+def _compute_hand_ranksets_and_counts(row):
+    board = row["board"]
+    hand = row["hand"]
+
+
+def _cards_from_str(s: str) -> List[Card]:
+    return [card_from_str(s[i : i + 2]) for i in range(0, len(s), 2)]
+
+
+sdm = StraightDrawMasks()
+fds = FlushDraws()
+
+
+def hands_df(board="AhTd9sQs"):
+    """
+    Create a dataframe out of the hands
+    """
+    hand_strs = PIO_HAND_ORDER
+    hands = [hand(hand=h, board=board, evaluate=True) for h in hand_strs]
+    straight_draws = [sdm.categorize(h) for h in hands]
+    flush_draws = [fds.categorize(h) for h in hands]
+    data = {
+        "board": board,
+        "hand": hand_strs,
+        "hand_type_n": [h._hand_type for h in hands],
+        "hand_type": [HandCategorizer.categories[h._hand_type] for h in hands],
+        "high_card_type": [
+            HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
+            for h in hands
+        ],
+        "pair_type": [
+            HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
+        ],
+        "straight_type": [sd[0] for sd in straight_draws],
+        "straight_type_cards_used": [sd[1] for sd in straight_draws],
+        "flush_type": [fd[0] for fd in flush_draws],
+        "flush_type_cards_used": [fd[1] for fd in flush_draws],
+        "flush_type_high_card": [fd[2] for fd in flush_draws],
+    }
+    df = pd.DataFrame(data)
+    return df

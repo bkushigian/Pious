@@ -32,15 +32,15 @@ class HandCategorizer:
     REGULAR_PAIR = 2
 
     categories = [
-        "High Card",
-        "Pair",
-        "Two Pair",
-        "Trips",
-        "Straight",
-        "Flush",
-        "Full House",
-        "Quads",
-        "Straight Flush",
+        "HIGH_CARD",
+        "PAIR",
+        "TWO_PAIR",
+        "TRIPS",
+        "STRAIGHT",
+        "FLUSH",
+        "FULL HOUSE",
+        "QUADS",
+        "STRAIGHT FLUSH",
     ]
 
     @staticmethod
@@ -287,17 +287,17 @@ class StraightDrawMasks:
                     hand_5_rank_window & ~board_ranks
                 )
                 if num_hand_ranks_5_card_window > 0:
-                    return "BACKDOOR_STRAIGHT_DRAW", num_hand_ranks_5_card_window
+                    return "3_STRAIGHT", num_hand_ranks_5_card_window
 
         if rankset & 0x100F in self.backdoor_wheel_masks:
             num_hand_ranks = count_ones((hand_rankset & 0x100F) & ~board_rankset)
-            return "BACKDOOR_WHEEL_DRAW", num_hand_ranks
+            return "3_WHEEL", num_hand_ranks
 
         # 5 high and 4 high
         masked = rankset & 0xF
         if masked in self.backdoor_4_5_high_masks:
             num_hand_ranks = count_ones((hand_rankset & 0xF) & ~board_rankset)
-            return "BACKDOOR_STRAIGHT_DRAW", num_hand_ranks
+            return "3_STRAIGHT", num_hand_ranks
 
         return "NO_STRAIGHT_DRAW", 0
 
@@ -368,7 +368,5 @@ class FlushDraws:
         if second_max_suit > -1:
             pass
 
-        fd_type = ("", "", "", "BACKDOOR_FLUSH_DRAW", "FLUSH_DRAW", "FLUSH")[
-            max_suit_count
-        ]
+        fd_type = ("", "", "", "3_FLUSH", "FLUSH_DRAW", "FLUSH")[max_suit_count]
         return fd_type, num_cards, highest_draw_contributing_card_in_hand
