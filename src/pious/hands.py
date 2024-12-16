@@ -371,78 +371,80 @@ class Hand(_Hand):
             board_rankset_of_count[board_rank_count[r]] |= 1 << r
             hand_rankset_of_count[hand_rank_count[r]] |= 1 << r
 
-        flush_suit = u32(0xFFFFFFFF)
-        for suit in range(4):
-            c = count_ones(rankset_suit[suit])
-            suit_count[suit] = c
-            hand_suit_count[suit] = count_ones(hand_rankset_suit[suit])
-            if c >= 5:
-                flush_suit = suit
+        try:
+            flush_suit = u32(0xFFFFFFFF)
+            for suit in range(4):
+                c = count_ones(rankset_suit[suit])
+                suit_count[suit] = c
+                hand_suit_count[suit] = count_ones(hand_rankset_suit[suit])
+                if c >= 5:
+                    flush_suit = suit
 
-        is_straight = find_straight(rankset)
-        flush = 0
-        if flush_suit < 4:
-            is_straight_flush = find_straight(rankset_suit[flush_suit])
-            if is_straight_flush != 0:
-                self._evaluation = (Hand.STRAIGHT_FLUSH << 26) | is_straight_flush
-                return self._evaluation
-            flush = (Hand.FLUSH << 26) | keep_n_msb(rankset_suit[flush_suit], 5)
-        if rankset_of_count[4] != 0:
-            remaining = keep_n_msb(rankset ^ rankset_of_count[4], 1)
-            self._evaluation = (
-                (Hand.QUADS << 26) | rankset_of_count[4] << 14 | remaining
-            )
-        elif count_ones(rankset_of_count[3]) == 2:
-            trips = keep_n_msb(rankset_of_count[3], 1)
-            pair = rankset_of_count[3] ^ trips
-            self._evaluation = (Hand.FULL_HOUSE << 26) | (trips << 13) | pair
-        elif rankset_of_count[3] != 0 and rankset_of_count[2] != 0:
-            pair = keep_n_msb(rankset_of_count[2], 1)
-            self._evaluation = (
-                (Hand.FULL_HOUSE << 26) | (rankset_of_count[3] << 13) | pair
-            )
-        elif flush:
-            self._evaluation = flush
-        elif is_straight != 0:
-            self._evaluation = (Hand.STRAIGHT << 26) | is_straight
-        elif rankset_of_count[3] != 0:
-            remaining = keep_n_msb(rankset_of_count[1], 2)
-            self._evaluation = (
-                (Hand.TRIPS << 26) | (rankset_of_count[3] << 13) | remaining
-            )
-        elif count_ones(rankset_of_count[2]) >= 2:
-            pairs = keep_n_msb(rankset_of_count[2], 2)
-            remaining = keep_n_msb(rankset ^ pairs, 1)
-            self._evaluation = (Hand.TWO_PAIR << 26) | (pairs << 13) | remaining
-        elif rankset_of_count[2] != 0:
-            remaining = keep_n_msb(rankset_of_count[1], 3)
-            self._evaluation = (
-                (Hand.PAIR << 26) | (rankset_of_count[2] << 13) | remaining
-            )
-        else:
-            self._evaluation = keep_n_msb(rankset, 5)
-        self._hand_type = self._evaluation >> 26
-        self._hand_distinguisher = self._evaluation & 0x3FFFFFF
+            is_straight = find_straight(rankset)
+            flush = 0
+            if flush_suit < 4:
+                is_straight_flush = find_straight(rankset_suit[flush_suit])
+                if is_straight_flush != 0:
+                    self._evaluation = (Hand.STRAIGHT_FLUSH << 26) | is_straight_flush
+                    return self._evaluation
+                flush = (Hand.FLUSH << 26) | keep_n_msb(rankset_suit[flush_suit], 5)
+            if rankset_of_count[4] != 0:
+                remaining = keep_n_msb(rankset ^ rankset_of_count[4], 1)
+                self._evaluation = (
+                    (Hand.QUADS << 26) | rankset_of_count[4] << 14 | remaining
+                )
+            elif count_ones(rankset_of_count[3]) == 2:
+                trips = keep_n_msb(rankset_of_count[3], 1)
+                pair = rankset_of_count[3] ^ trips
+                self._evaluation = (Hand.FULL_HOUSE << 26) | (trips << 13) | pair
+            elif rankset_of_count[3] != 0 and rankset_of_count[2] != 0:
+                pair = keep_n_msb(rankset_of_count[2], 1)
+                self._evaluation = (
+                    (Hand.FULL_HOUSE << 26) | (rankset_of_count[3] << 13) | pair
+                )
+            elif flush:
+                self._evaluation = flush
+            elif is_straight != 0:
+                self._evaluation = (Hand.STRAIGHT << 26) | is_straight
+            elif rankset_of_count[3] != 0:
+                remaining = keep_n_msb(rankset_of_count[1], 2)
+                self._evaluation = (
+                    (Hand.TRIPS << 26) | (rankset_of_count[3] << 13) | remaining
+                )
+            elif count_ones(rankset_of_count[2]) >= 2:
+                pairs = keep_n_msb(rankset_of_count[2], 2)
+                remaining = keep_n_msb(rankset ^ pairs, 1)
+                self._evaluation = (Hand.TWO_PAIR << 26) | (pairs << 13) | remaining
+            elif rankset_of_count[2] != 0:
+                remaining = keep_n_msb(rankset_of_count[1], 3)
+                self._evaluation = (
+                    (Hand.PAIR << 26) | (rankset_of_count[2] << 13) | remaining
+                )
+            else:
+                self._evaluation = keep_n_msb(rankset, 5)
+            return self._evaluation
 
-        # Save local vars as fields
-        # All Cards
-        self._rankset = rankset
-        self._rank_count = rank_count
-        self._rankset_suit = rankset_suit
-        self._rankset_of_count = rankset_of_count
-        self._suit_count = suit_count
-        # Hand
-        self._hand_rankset = hand_rankset
-        self._hand_rank_count = hand_rank_count
-        self._hand_rankset_suit = hand_rankset_suit
-        self._hand_rankset_of_count = hand_rankset_of_count
-        self._hand_suit_count = hand_suit_count
-        # Board
-        self._board_rankset = board_rankset
-        self._board_rank_count = board_rank_count
-        self._board_rankset_suit = board_rankset_suit
-        self._board_rankset_of_count = board_rankset_of_count
-        return self._evaluation
+        finally:
+            # Save local vars as fields
+            # All Cards
+            self._hand_type = self._evaluation >> 26
+            self._hand_distinguisher = self._evaluation & 0x3FFFFFF
+            self._rankset = rankset
+            self._rank_count = rank_count
+            self._rankset_suit = rankset_suit
+            self._rankset_of_count = rankset_of_count
+            self._suit_count = suit_count
+            # Hand
+            self._hand_rankset = hand_rankset
+            self._hand_rank_count = hand_rank_count
+            self._hand_rankset_suit = hand_rankset_suit
+            self._hand_rankset_of_count = hand_rankset_of_count
+            self._hand_suit_count = hand_suit_count
+            # Board
+            self._board_rankset = board_rankset
+            self._board_rank_count = board_rank_count
+            self._board_rankset_suit = board_rankset_suit
+            self._board_rankset_of_count = board_rankset_of_count
 
     def get_rankset(self):
         self._evaluate_internal()

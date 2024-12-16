@@ -31,32 +31,35 @@ class HandCategorizer:
     BOARD_PAIR = 1
     REGULAR_PAIR = 2
 
-    def __init__(self):
-        self.categories = [
-            "High Card",
-            "Pair",
-            "Two Pair",
-            "Trips",
-            "Straight",
-            "Flush",
-            "Full House",
-            "Quads",
-            "Straight Flush",
-        ]
+    categories = [
+        "High Card",
+        "Pair",
+        "Two Pair",
+        "Trips",
+        "Straight",
+        "Flush",
+        "Full House",
+        "Quads",
+        "Straight Flush",
+    ]
 
-    def categorize(self, hand: Hand):
+    @staticmethod
+    def categorize(hand: Hand):
         hand.evaluate()
         hand.compute_draws()
         ht = hand._hand_type
         match ht:
             case Hand.HIGH_CARD:
-                return self.categories[ht]
+                return HandCategorizer.categories[ht]
             case Hand.PAIR:
-                pair_type, board_cards_seen, kicker = self.get_pair_category(hand)
+                pair_type, board_cards_seen, kicker = HandCategorizer.get_pair_category(
+                    hand
+                )
                 return pretty_pair(pair_type, board_cards_seen, kicker)
-        return self.categories[hand._hand_type]
+        return HandCategorizer.categories[hand._hand_type]
 
-    def get_pair_category(self, hand: Hand):
+    @staticmethod
+    def get_pair_category(hand: Hand):
         assert hand._hand_type == Hand.PAIR
         board_cards_seen = 0
         kicker_count = 0
@@ -95,6 +98,30 @@ class HandCategorizer:
                     )
         return pair_type, pair_strength, kicker
 
+    @staticmethod
+    def get_high_card_category(hand: Hand):
+        assert hand.is_high_card()
+        board_cards_seen = 0
+        top_card = None
+        bottom_card = None
+        # Iterate over hand rankg counts, board rank counts, and rank counts
+        hand._evaluate_internal()
+        if hand._hand_rank_count is None:
+            print(hand)
+        for hrc, brc, rc in zip(
+            hand._hand_rank_count[::-1],
+            hand._board_rank_count[::-1],
+            hand._rank_count[::-1],
+        ):
+            if brc > 0:
+                board_cards_seen += 1
+            elif hrc > 0:
+                if top_card is None:
+                    top_card = board_cards_seen
+                elif bottom_card is None:
+                    bottom_card = board_cards_seen
+                    return top_card, bottom_card
+
 
 def pretty_pair(pair_type, board_cards_seen, kicker):
     match pair_type:
@@ -118,6 +145,7 @@ def pretty_pair(pair_type, board_cards_seen, kicker):
             return "Unknown"
         case HandCategorizer.BOARD_PAIR:
             return f"BoardPair[{kicker}]"
+    return "NotPair"
 
 
 class StraightDrawMasks:

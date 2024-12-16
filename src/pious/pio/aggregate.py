@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import sys
 import re
+from multiprocessing import Pool
 
 from ..hands import Hand, hand
 from ..range import Range
@@ -340,30 +341,39 @@ def aggregate_files_in_dir(
 
     reports = None
     reports_lines = None
-    for board, cfr_file, freq in progress_bar(db, prefix="Aggregating Boards:"):
-        # print(board)
-        new_reports = aggregate_single_file(cfr_file, lines, conf, freq, print_progress)
-
-        # One time update: This is necessary to perform sanity checking and
-        # ensure that Each report has the same lines.
-        if reports is None:
-            reports = new_reports
-            reports_lines = set(reports.keys())
-            continue
-
-        # Perform Sanity Check
-        new_reports_lines = set(new_reports.keys())
-        if reports_lines != new_reports_lines:
-            sym_diff = reports_lines.symmetric_difference(new_reports_lines)
-            raise RuntimeError(
-                f"The following lines were not found in both reports: {sym_diff}"
+    xs = db
+    if print_progress:
+        xs = progress_bar(db, inc=1, prefix="Aggregating Boards: ")
+    for board, cfr_file, freq in xs:
+        try:
+            # print(board)
+            new_reports = aggregate_single_file(
+                cfr_file, lines, conf, freq, print_progress
             )
 
-        # We know we have the same keyset, so combine the reports
-        for line in new_reports:
-            df1 = reports[line]
-            df2 = new_reports[line]
-            reports[line] = pd.concat([df1, df2], ignore_index=True)
+            # One time update: This is necessary to perform sanity checking and
+            # ensure that Each report has the same lines.
+            if reports is None:
+                reports = new_reports
+                reports_lines = set(reports.keys())
+                continue
+
+            # Perform Sanity Check
+            new_reports_lines = set(new_reports.keys())
+            if reports_lines != new_reports_lines:
+                sym_diff = reports_lines.symmetric_difference(new_reports_lines)
+                raise RuntimeError(
+                    f"The following lines were not found in both reports: {sym_diff}"
+                )
+
+            # We know we have the same keyset, so combine the reports
+            for line in new_reports:
+                df1 = reports[line]
+                df2 = new_reports[line]
+                reports[line] = pd.concat([df1, df2], ignore_index=True)
+        except RuntimeError as e:
+            print("Encountered error during aggregation on board", board)
+            raise e
 
     return reports
 
@@ -374,7 +384,7 @@ def aggregate_single_file(
     conf: AggregationConfig = None,
     weight: float = 1.0,
     print_progress: bool = False,
-) -> pd.DataFrame:
+) -> Dict[Line, pd.DataFrame]:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
     `lines_to_aggregate`
@@ -425,55 +435,59 @@ def aggregate_lines_for_solver(
     if print_progress:
         xs = progress_bar(lines_to_aggregate, inc=1, prefix="Aggregating Lines: ")
     for line in xs:
-        node_ids = line.get_node_ids(dead_cards=board)
+        try:
+            node_ids = line.get_node_ids(dead_cards=board)
 
-        # Get the first node_id to compute some global stuff about the line
-        node_id = node_ids[0]
-        actions = solver.show_children_actions(node_id)
-        node: Node = solver.show_node(node_id)
-
-        action_names = get_action_names(line, actions)
-
-        # Compute columns
-        columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
-        if conf.global_freq:
-            columns.append("Global Freq")
-
-        if conf.evs:
-            columns.append("OOP EV")
-            columns.append("IP EV")
-
-        if conf.equities:
-            columns.append("OOP Equity")
-            columns.append("IP Equity")
-
-        if conf.extra_columns is not None:
-            for name, _ in conf.extra_columns:
-                columns.append(name)
-
-        sorted_actions = get_sorted_actions(actions)
-
-        if conf.action_freqs:
-            for a in sorted_actions:
-                columns.append(f"{action_names[a]} Freq")
-        if conf.action_evs:
-            for a in sorted_actions:
-                columns.append(f"{action_names[a]} EV")
-
-        df = pd.DataFrame(columns=columns)
-        reports[line] = df
-
-        for node_id in node_ids:
-            spot_data = SpotData(solver, node_id)
+            # Get the first node_id to compute some global stuff about the line
+            node_id = node_ids[0]
+            actions = solver.show_children_actions(node_id)
             node: Node = solver.show_node(node_id)
-            df.loc[len(df)] = compute_row(
-                conf,
-                spot_data,
-                weight,
-                actions,
-                sorted_actions,
-            )
 
+            action_names = get_action_names(line, actions)
+
+            # Compute columns
+            columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
+            if conf.global_freq:
+                columns.append("Global Freq")
+
+            if conf.evs:
+                columns.append("OOP EV")
+                columns.append("IP EV")
+
+            if conf.equities:
+                columns.append("OOP Equity")
+                columns.append("IP Equity")
+
+            if conf.extra_columns is not None:
+                for name, _ in conf.extra_columns:
+                    columns.append(name)
+
+            sorted_actions = get_sorted_actions(actions)
+
+            if conf.action_freqs:
+                for a in sorted_actions:
+                    columns.append(f"{action_names[a]} Freq")
+            if conf.action_evs:
+                for a in sorted_actions:
+                    columns.append(f"{action_names[a]} EV")
+
+            df = pd.DataFrame(columns=columns)
+            reports[line] = df
+
+            for node_id in node_ids:
+                spot_data = SpotData(solver, node_id)
+                node: Node = solver.show_node(node_id)
+                df.loc[len(df)] = compute_row(
+                    conf,
+                    spot_data,
+                    weight,
+                    actions,
+                    sorted_actions,
+                )
+
+        except RuntimeError as e:
+            print(f"Encountered error aggregating line {line} on board {board}")
+            raise e
     return reports
 
 

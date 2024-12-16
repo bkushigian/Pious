@@ -1,5 +1,5 @@
 from pious.hand_categories import FlushDraws, StraightDrawMasks
-from pious.hands import hand
+from pious.hands import Hand, hand
 
 straight_draw_masks = StraightDrawMasks()
 flush_draws = FlushDraws()
@@ -118,3 +118,11 @@ def test_flush_draws():
     assert flush_draw_type("QsJs", "9s3s2c") == ("FLUSH_DRAW", 2, 3)
 
     assert flush_draw_type("QsJs", "9s3s2cJc") == ("FLUSH_DRAW", 2, 3)
+
+
+def test_regressions():
+    h = Hand(hand="5d5c", board="4c3c2cAc")
+    h._evaluate_internal()
+    print(h._hand_type)
+    assert h.is_straight_flush()
+    assert h._hand_rank_count is not None
