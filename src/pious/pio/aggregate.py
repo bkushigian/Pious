@@ -99,6 +99,10 @@ class AggregationConfig:
 POSITIONS = ("OOP", "IP")
 
 
+_STRAIGHT_DRAW_MASKS_INSTANCE = StraightDrawMasks()
+_FLUSH_DRAWS_INSTANCE = FlushDraws()
+
+
 class SpotData:
     """
     Data corresponding to a single spot. This is constructed from a node_id and
@@ -123,14 +127,16 @@ class SpotData:
         self._range: List[Optional[Range]] = [None, None]
         self.position = self.node.get_position()
 
+        self._hands_df = None
+
     def board(self) -> Tuple[str]:
         return self.node.board
 
-    def hand_evs(self, pos_idx):
+    def hand_evs(self, pos_idx) -> np.ndarray:
         self._compute_hand_evs(pos_idx)
         return self._hand_evs[pos_idx]
 
-    def hand_eqs(self, pos_idx):
+    def hand_eqs(self, pos_idx) -> np.ndarray:
         self._compute_hand_eqs(pos_idx)
         return self._hand_eqs[pos_idx]
 
@@ -249,6 +255,71 @@ class SpotData:
                 self.node.get_position(), self.node.node_id
             )
 
+    def hands_df(self):
+        return self._compute_hands_df()
+
+    def _compute_hands_df(self):
+        """
+        Create a dataframe out of the hands
+        """
+        if self._hands_df is not None:
+            return self._hands_df
+        board = "".join(self.board())
+        pos_idx = self.node.get_position_idx()
+        eqs = self.hand_eqs(pos_idx)
+        evs = self.hand_evs(pos_idx)
+        matchups = self.matchups(pos_idx)
+        total_matchups = self.total_matchups(pos_idx)
+        weight = matchups / total_matchups
+        rng = self.range(pos_idx).range_array
+        actions = self.available_actions()
+        action_frequency = self.strategy()
+
+        data = {
+            "board": board,
+            "hand": PIO_HAND_ORDER,
+            "hand_idx": list(range(len(PIO_HAND_ORDER))),
+            "eq": eqs,
+            "ev": evs,
+            "range": rng,
+            "matchups": matchups,
+            "weight": weight,
+        }
+        for action, strat in zip(actions, action_frequency):
+            data[f"{action}_freq"] = strat
+
+        df = pd.DataFrame(data)
+        df = df[df["matchups"] != 0]
+        hands = [hand(h, board, True) for h in df["hand"]]
+        df["hand_type"] = [h._hand_type for h in hands]
+        pair_types = [
+            HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
+        ]
+        high_card_types = [
+            HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
+            for h in hands
+        ]
+        df["pair_type"] = [pt[0] if pt is not None else None for pt in pair_types]
+        df["pair_cards_seen"] = [pt[1] if pt is not None else None for pt in pair_types]
+        df["pair_kicker"] = [pt[2] if pt is not None else None for pt in pair_types]
+        df["high_card_1_type"] = [
+            ht[0] if ht is not None else None for ht in high_card_types
+        ]
+        df["high_card_2_type"] = [
+            ht[1] if ht is not None else None for ht in high_card_types
+        ]
+
+        # Compute Draws
+        straight_draws = [_STRAIGHT_DRAW_MASKS_INSTANCE.categorize(h) for h in hands]
+        flush_draws = [_FLUSH_DRAWS_INSTANCE.categorize(h) for h in hands]
+        df["straight_type"] = [sd[0] for sd in straight_draws]
+        df["straight_cards_used"] = [sd[1] for sd in straight_draws]
+        df["flush_type"] = [fd[0] for fd in flush_draws]
+        df["flush_cards_used"] = [fd[1] for fd in flush_draws]
+        df["flush_high_card"] = [fd[2] for fd in flush_draws]
+        self._hands_df = df
+        return df
+
 
 def _clean_np_array(a: np.ndarray) -> np.ndarray:
     """
@@ -327,6 +398,9 @@ def aggregate_files_in_dir(
     dir: str,
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
+    conf_callback: Optional[
+        Callable[[Node, AggregationConfig], AggregationConfig]
+    ] = None,
     print_progress: bool = False,
 ):
     if conf is None:
@@ -351,7 +425,7 @@ def aggregate_files_in_dir(
         try:
             # print(board)
             new_reports = aggregate_single_file(
-                cfr_file, lines, conf, freq, print_progress
+                cfr_file, lines, conf, conf_callback, freq, print_progress
             )
 
             # One time update: This is necessary to perform sanity checking and
@@ -385,6 +459,9 @@ def aggregate_single_file(
     cfr_file: str,
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
+    conf_callback: Optional[
+        Callable[[Node, AggregationConfig], AggregationConfig]
+    ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
 ) -> Dict[Line, pd.DataFrame]:
@@ -406,7 +483,7 @@ def aggregate_single_file(
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
     return aggregate_lines_for_solver(
-        solver, lines_to_aggregate, conf, weight, print_progress
+        solver, lines_to_aggregate, conf, conf_callback, weight, print_progress
     )
 
 
@@ -414,6 +491,9 @@ def aggregate_lines_for_solver(
     solver: Solver,
     lines_to_aggregate: List[Line],
     conf: Optional[AggregationConfig] = None,
+    conf_callback: Optional[
+        Callable[[Node, AggregationConfig], AggregationConfig]
+    ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
 ):
@@ -445,32 +525,36 @@ def aggregate_lines_for_solver(
             node_id = node_ids[0]
             actions = solver.show_children_actions(node_id)
             node: Node = solver.show_node(node_id)
+            if conf_callback is not None:
+                this_node_conf = conf_callback(node, conf)
+            else:
+                this_node_conf = conf
 
             action_names = get_action_names(line, actions)
 
             # Compute columns
             columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
-            if conf.global_freq:
+            if this_node_conf.global_freq:
                 columns.append("Global Freq")
 
-            if conf.evs:
+            if this_node_conf.evs:
                 columns.append("OOP EV")
                 columns.append("IP EV")
 
-            if conf.equities:
+            if this_node_conf.equities:
                 columns.append("OOP Equity")
                 columns.append("IP Equity")
 
-            if conf.extra_columns is not None:
-                for name, _ in conf.extra_columns:
+            if this_node_conf.extra_columns is not None:
+                for name, _ in this_node_conf.extra_columns:
                     columns.append(name)
 
             sorted_actions = get_sorted_actions(actions)
 
-            if conf.action_freqs:
+            if this_node_conf.action_freqs:
                 for a in sorted_actions:
                     columns.append(f"{action_names[a]} Freq")
-            if conf.action_evs:
+            if this_node_conf.action_evs:
                 for a in sorted_actions:
                     columns.append(f"{action_names[a]} EV")
 
@@ -481,7 +565,7 @@ def aggregate_lines_for_solver(
                 spot_data = SpotData(solver, node_id)
                 node: Node = solver.show_node(node_id)
                 df.loc[len(df)] = compute_row(
-                    conf,
+                    this_node_conf,
                     spot_data,
                     weight,
                     actions,
@@ -506,7 +590,6 @@ def compute_row(
     row = get_runout(spot.solver, node_id)
 
     if conf.global_freq:
-        print("Adding global freq")
         global_freq = spot.solver.calc_global_freq(node_id)
         row.append(global_freq * weight)
 
@@ -522,7 +605,8 @@ def compute_row(
 
     if conf.extra_columns is not None:
         for _, fn in conf.extra_columns:
-            row.append(fn(spot))
+            r = fn(spot)
+            row.append(r)
 
     # Compute Frequencies
     if conf.action_freqs:
@@ -735,37 +819,3 @@ def _compute_hand_ranksets_and_counts(row):
 
 def _cards_from_str(s: str) -> List[Card]:
     return [card_from_str(s[i : i + 2]) for i in range(0, len(s), 2)]
-
-
-sdm = StraightDrawMasks()
-fds = FlushDraws()
-
-
-def hands_df(board="AhTd9sQs"):
-    """
-    Create a dataframe out of the hands
-    """
-    hand_strs = PIO_HAND_ORDER
-    hands = [hand(hand=h, board=board, evaluate=True) for h in hand_strs]
-    straight_draws = [sdm.categorize(h) for h in hands]
-    flush_draws = [fds.categorize(h) for h in hands]
-    data = {
-        "board": board,
-        "hand": hand_strs,
-        "hand_type_n": [h._hand_type for h in hands],
-        "hand_type": [HandCategorizer.categories[h._hand_type] for h in hands],
-        "high_card_type": [
-            HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
-            for h in hands
-        ],
-        "pair_type": [
-            HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
-        ],
-        "straight_type": [sd[0] for sd in straight_draws],
-        "straight_type_cards_used": [sd[1] for sd in straight_draws],
-        "flush_type": [fd[0] for fd in flush_draws],
-        "flush_type_cards_used": [fd[1] for fd in flush_draws],
-        "flush_type_high_card": [fd[2] for fd in flush_draws],
-    }
-    df = pd.DataFrame(data)
-    return df
