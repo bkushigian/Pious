@@ -99,12 +99,12 @@ class HandCategorizer:
         return pair_type, pair_strength, kicker
 
     @staticmethod
-    def get_high_card_category(hand: Hand):
+    def get_high_card_category(hand: Hand) -> Optional[Tuple[int, int]]:
         assert hand.is_high_card()
         board_cards_seen = 0
         top_card = None
         bottom_card = None
-        # Iterate over hand rankg counts, board rank counts, and rank counts
+        # Iterate over hand rank counts, board rank counts, and rank counts
         hand._evaluate_internal()
         if hand._hand_rank_count is None:
             print(hand)
@@ -121,6 +121,7 @@ class HandCategorizer:
                 elif bottom_card is None:
                     bottom_card = board_cards_seen
                     return top_card, bottom_card
+        return None
 
 
 def pretty_pair(pair_type, board_cards_seen, kicker):
