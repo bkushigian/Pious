@@ -81,26 +81,26 @@ def test_straight_draw_masks_gutshots():
 
 
 def test_straight_draw_masks_backdoor():
-    assert straight_draw_type("KsQs", "Th3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("KsQs", "Jh3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("Ks5s", "Jh3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
-    assert straight_draw_type("7s6s", "9h3d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("KsQs", "Th3d2h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("KsQs", "Jh3d2h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("Ks5s", "Jh3d2h") == ("3_STRAIGHT", 1)
+    assert straight_draw_type("7s6s", "9h3d2h") == ("3_STRAIGHT", 2)
 
     # 4 high/5 high
-    assert straight_draw_type("Ks2s", "9h4d3h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
-    assert straight_draw_type("Ks2s", "9h5d3h") == ("BACKDOOR_STRAIGHT_DRAW", 1)
-    assert straight_draw_type("4s2s", "9h8d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("5s2s", "Th9d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("5s4s", "Th9d3h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("5s4s", "Th9d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
-    assert straight_draw_type("4s3s", "Th9d2h") == ("BACKDOOR_STRAIGHT_DRAW", 2)
+    assert straight_draw_type("Ks2s", "9h4d3h") == ("3_STRAIGHT", 1)
+    assert straight_draw_type("Ks2s", "9h5d3h") == ("3_STRAIGHT", 1)
+    assert straight_draw_type("4s2s", "9h8d3h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("5s2s", "Th9d3h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("5s4s", "Th9d3h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("5s4s", "Th9d2h") == ("3_STRAIGHT", 2)
+    assert straight_draw_type("4s3s", "Th9d2h") == ("3_STRAIGHT", 2)
 
     # Wheel backdoor draws
-    assert straight_draw_type("AsQs", "9h3d2h") == ("BACKDOOR_WHEEL_DRAW", 1)
-    assert straight_draw_type("As2s", "Th3d2h") == ("BACKDOOR_WHEEL_DRAW", 1)
-    assert straight_draw_type("As2s", "Th3d9h") == ("BACKDOOR_WHEEL_DRAW", 2)
-    assert straight_draw_type("3s2s", "Ah3d9h") == ("BACKDOOR_WHEEL_DRAW", 1)
-    assert straight_draw_type("4s3s", "Ah9d9h") == ("BACKDOOR_WHEEL_DRAW", 2)
+    assert straight_draw_type("AsQs", "9h3d2h") == ("3_WHEEL", 1)
+    assert straight_draw_type("As2s", "Th3d2h") == ("3_WHEEL", 1)
+    assert straight_draw_type("As2s", "Th3d9h") == ("3_WHEEL", 2)
+    assert straight_draw_type("3s2s", "Ah3d9h") == ("3_WHEEL", 1)
+    assert straight_draw_type("4s3s", "Ah9d9h") == ("3_WHEEL", 2)
 
 
 def test_flush_draws():
@@ -108,9 +108,9 @@ def test_flush_draws():
     assert flush_draw_type("QsJd", "9s3d2c") == ("NO_FLUSH_DRAW", 0, -1)
 
     # BDFD
-    assert flush_draw_type("AsQs", "9s3c2c") == ("BACKDOOR_FLUSH_DRAW", 2, 1)
-    assert flush_draw_type("AsQd", "9s3s2c") == ("BACKDOOR_FLUSH_DRAW", 1, 1)
-    assert flush_draw_type("AdQs", "9s3s2c") == ("BACKDOOR_FLUSH_DRAW", 1, 3)
+    assert flush_draw_type("AsQs", "9s3c2c") == ("3_FLUSH", 2, 1)
+    assert flush_draw_type("AsQd", "9s3s2c") == ("3_FLUSH", 1, 1)
+    assert flush_draw_type("AdQs", "9s3s2c") == ("3_FLUSH", 1, 3)
 
     # Flush Draw
     assert flush_draw_type("AsQs", "9s3s2c") == ("FLUSH_DRAW", 2, 1)
@@ -126,3 +126,37 @@ def test_regressions():
     print(h._hand_type)
     assert h.is_straight_flush()
     assert h._hand_rank_count is not None
+
+
+def test_board_adjusted_hand_type():
+    # 2 pair boards
+
+    h = hand("5c5h", "6c6h8c8h", True)
+    assert h._board_type == Hand.TWO_PAIR
+    assert h.board_adjusted_hand_type() == Hand.HIGH_CARD
+
+    h = hand("TcTh", "6c6h8c8h", True)
+    assert h._board_type == Hand.TWO_PAIR
+    assert h.board_adjusted_hand_type() == Hand.TWO_PAIR
+
+    h = hand("7c7h", "6c6h8c8h", True)
+    assert h._board_type == Hand.TWO_PAIR
+    assert h.board_adjusted_hand_type() == Hand.TWO_PAIR
+
+    h = hand("7c7h", "6c6h8c8h7d", True)
+    assert h._board_type == Hand.TWO_PAIR
+    assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE
+
+    # 1 pair boards
+
+    h = hand("5c5h", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.PAIR
+
+    h = hand("5c9d", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.PAIR
+
+    h = hand("9c9d", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE

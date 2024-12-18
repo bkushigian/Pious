@@ -6,7 +6,7 @@ implementation.
 This module is wrapped by the CLI command `pious execute`.
 """
 
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from os import path as osp
 import os
 import pandas as pd
@@ -72,28 +72,6 @@ class LinesToAggregate:
                 f"lines input must be of type List[str], str, or LinesToAggregate, but found {type(lines)}"
             )
         return ls
-
-
-class AggregationConfig:
-    """
-    Configure an aggregation report.
-    """
-
-    def __init__(
-        self,
-        equities=True,
-        evs=True,
-        action_freqs=True,
-        action_evs=False,
-        global_freq=False,
-        extra_columns: Optional[List[Tuple[str, Callable]]] = None,
-    ):
-        self.equities = equities
-        self.evs = evs
-        self.action_evs = action_evs
-        self.action_freqs = action_freqs
-        self.global_freq = global_freq
-        self.extra_columns = [] if extra_columns is None else extra_columns
 
 
 POSITIONS = ("OOP", "IP")
@@ -321,6 +299,42 @@ class SpotData:
         return df
 
 
+class AggregationConfig:
+    """
+    Configure an aggregation report.
+    """
+
+    def __init__(
+        self,
+        equities=True,
+        evs=True,
+        action_freqs=True,
+        action_evs=False,
+        global_freq=False,
+        extra_columns: Optional[List[Tuple[str, Callable[[SpotData], Any]]]] = None,
+    ):
+        self.equities = equities
+        self.evs = evs
+        self.action_evs = action_evs
+        self.action_freqs = action_freqs
+        self.global_freq = global_freq
+        self.extra_columns = [] if extra_columns is None else extra_columns
+
+    def copy(self):
+        extra_columns = None
+        if self.extra_columns is not None:
+            # Copy the list if need be
+            extra_columns = [c for c in self.extra_columns]
+        return AggregationConfig(
+            self.equities,
+            self.evs,
+            self.action_freqs,
+            self.action_evs,
+            self.global_freq,
+            extra_columns,
+        )
+
+
 def _clean_np_array(a: np.ndarray) -> np.ndarray:
     """
     helper function to clean up an np array by replacing inf and nan w/ 0
@@ -399,7 +413,7 @@ def aggregate_files_in_dir(
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
     conf_callback: Optional[
-        Callable[[Node, AggregationConfig], AggregationConfig]
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
     ] = None,
     print_progress: bool = False,
 ):
@@ -460,7 +474,7 @@ def aggregate_single_file(
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
     conf_callback: Optional[
-        Callable[[Node, AggregationConfig], AggregationConfig]
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
     ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
@@ -492,7 +506,7 @@ def aggregate_lines_for_solver(
     lines_to_aggregate: List[Line],
     conf: Optional[AggregationConfig] = None,
     conf_callback: Optional[
-        Callable[[Node, AggregationConfig], AggregationConfig]
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
     ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
@@ -526,7 +540,7 @@ def aggregate_lines_for_solver(
             actions = solver.show_children_actions(node_id)
             node: Node = solver.show_node(node_id)
             if conf_callback is not None:
-                this_node_conf = conf_callback(node, conf)
+                this_node_conf = conf_callback(node, actions, conf)
             else:
                 this_node_conf = conf
 

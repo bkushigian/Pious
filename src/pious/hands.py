@@ -246,6 +246,8 @@ class Hand(_Hand):
         self._board_rankset_of_count = None
         self._board_extensive_details = None
 
+        self._board_type = None
+
     def is_straight_flush(self):
         self._evaluate_internal()
         return self._hand_type == Hand.STRAIGHT_FLUSH
@@ -289,6 +291,42 @@ class Hand(_Hand):
     def compute_draws(self):
         self._compute_flush_draws()
         self._compute_straight_draws()
+
+    def hand_type(self, adjust_for_board=False):
+        if adjust_for_board:
+            return self.board_adjusted_hand_type()
+        return self._hand_type
+
+    def board_adjusted_hand_type(self):
+
+        bt = self._board_type
+        ht = self._hand_type
+        print(bt, ht)
+        if bt > Hand.TWO_PAIR:
+            return ht  # In this case, we care about interaction
+        elif self._board_type == Hand.TWO_PAIR:
+            if ht > Hand.TWO_PAIR:
+                return ht
+            elif 2 in self._hand_rank_count:
+                # Check if we have a better 2 pair
+                n = 0
+                for hrc, brc in zip(
+                    self._hand_rank_count[::-1], self._board_rank_count[::-1]
+                ):
+                    if hrc == 2:
+                        return Hand.TWO_PAIR
+                    elif brc == 2:
+                        n += 1
+                        if n >= 2:
+                            return Hand.HIGH_CARD
+                raise RuntimeError("Illegal State: This should never be reached")
+        elif self._board_type == Hand.PAIR:
+            print("Boink")
+            if ht == Hand.TWO_PAIR:
+                return Hand.PAIR
+            if ht == Hand.PAIR:
+                return Hand.HIGH_CARD
+        return ht
 
     def _compute_flush_draws(self) -> Tuple[int, int]:
         """
@@ -425,6 +463,44 @@ class Hand(_Hand):
             return self._evaluation
 
         finally:
+            # compute _board_type
+            # Number of board rank counts for each possible rank count
+            n_brcs = [0, 0, 0, 0, 0]
+            self._board_type = Hand.HIGH_CARD
+            for rc in board_rank_count:
+                n_brcs[rc] += 1
+            if n_brcs[4] >= 1:
+                self._board_type = Hand.QUADS
+            elif n_brcs[3] >= 1:
+                if n_brcs[2] >= 1:
+                    self._board_type = Hand.FULL_HOUSE
+                else:
+                    self._board_type = Hand.TRIPS
+            elif n_brcs[2] == 2:
+                self._board_type = Hand.TWO_PAIR
+            elif n_brcs[2] == 1:
+                self._board_type = Hand.PAIR
+            elif len(self.board) == 5:
+                ### Find straight flush on board
+                if is_straight_flush:
+                    board_suit_count = [0, 0, 0, 0]
+                    board_flush_suit = u32(0xFFFFFFFF)
+                    for suit in range(4):
+                        c = count_ones(board_rankset_suit[suit])
+                        board_suit_count[suit] = c
+                        if c >= 5:
+                            board_flush_suit = suit
+
+                    if board_flush_suit < 4:
+                        board_is_straight_flush = find_straight(
+                            board_rankset_suit[board_flush_suit]
+                        )
+                        if board_is_straight_flush != 0:
+                            self._board_type = Hand.STRAIGHT_FLUSH
+                elif flush and 5 in board_suit_count:
+                    self._board_type = Hand.FLUSH
+                elif is_straight and find_straight(board_rankset):
+                    self._board_type = Hand.STRAIGHT
             # Save local vars as fields
             # All Cards
             self._hand_type = self._evaluation >> 26
