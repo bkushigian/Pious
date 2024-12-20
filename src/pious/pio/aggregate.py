@@ -583,7 +583,12 @@ def aggregate_line_for_solver(
         raise e
 
 
-class PoolAggregationContext:
+class _LineAggregationPoolContext:
+    """
+    This class wraps context needed for multiprocessing aggregation across lines
+    in a callable interface.
+    """
+
     def __init__(
         self,
         cfr_file_path,
@@ -647,7 +652,7 @@ def aggregate_lines_for_solver(
             )
     else:
 
-        ctx = PoolAggregationContext(
+        ctx = _LineAggregationPoolContext(
             solver.cfr_file_path, board, conf, conf_callback, weight
         )
 
