@@ -106,6 +106,7 @@ class SpotData:
         self.position = self.node.get_position()
 
         self._hands_df = None
+        self._cache = {}
 
     def board(self) -> Tuple[str]:
         return self.node.board
@@ -248,7 +249,10 @@ class SpotData:
         evs = self.hand_evs(pos_idx)
         matchups = self.matchups(pos_idx)
         total_matchups = self.total_matchups(pos_idx)
-        weight = matchups / total_matchups
+        if total_matchups == 0.0:
+            weight = np.nan
+        else:
+            weight = matchups / total_matchups
         rng = self.range(pos_idx).range_array
         actions = self.available_actions()
         action_frequency = self.strategy()
@@ -269,7 +273,7 @@ class SpotData:
         df = pd.DataFrame(data)
         df = df[df["matchups"] != 0]
         hands = [hand(h, board, True) for h in df["hand"]]
-        df["hand_type"] = [h._hand_type for h in hands]
+        df["hand_type"] = [h.board_adjusted_hand_type() for h in hands]
         pair_types = [
             HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
         ]
@@ -416,6 +420,7 @@ def aggregate_files_in_dir(
         Callable[[Node, List[str], AggregationConfig], AggregationConfig]
     ] = None,
     print_progress: bool = False,
+    n_threads: int = 1,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -439,7 +444,7 @@ def aggregate_files_in_dir(
         try:
             # print(board)
             new_reports = aggregate_single_file(
-                cfr_file, lines, conf, conf_callback, freq, print_progress
+                cfr_file, lines, conf, conf_callback, freq, print_progress, n_threads
             )
 
             # One time update: This is necessary to perform sanity checking and
@@ -478,6 +483,7 @@ def aggregate_single_file(
     ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
+    n_threads: int = 1,
 ) -> Dict[Line, pd.DataFrame]:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
@@ -497,8 +503,109 @@ def aggregate_single_file(
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
     return aggregate_lines_for_solver(
-        solver, lines_to_aggregate, conf, conf_callback, weight, print_progress
+        solver,
+        lines_to_aggregate,
+        conf,
+        conf_callback,
+        weight,
+        print_progress,
+        n_threads,
     )
+
+
+def aggregate_line_for_solver(
+    board,
+    solver: Solver,
+    line: Line,
+    conf: Optional[AggregationConfig] = None,
+    conf_callback: Optional[
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
+    ] = None,
+    weight: float = 1.0,
+):
+    try:
+        node_ids = line.get_node_ids(dead_cards=board)
+
+        # Get the first node_id to compute some global stuff about the line
+        node_id = node_ids[0]
+        actions = solver.show_children_actions(node_id)
+        node: Node = solver.show_node(node_id)
+        if conf_callback is not None:
+            this_node_conf = conf_callback(node, actions, conf)
+        else:
+            this_node_conf = conf
+
+        action_names = get_action_names(line, actions)
+
+        # Compute columns
+        columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
+        if this_node_conf.global_freq:
+            columns.append("Global Freq")
+
+        if this_node_conf.evs:
+            columns.append("OOP EV")
+            columns.append("IP EV")
+
+        if this_node_conf.equities:
+            columns.append("OOP Equity")
+            columns.append("IP Equity")
+
+        if this_node_conf.extra_columns is not None:
+            for name, _ in this_node_conf.extra_columns:
+                columns.append(name)
+
+        sorted_actions = get_sorted_actions(actions)
+
+        if this_node_conf.action_freqs:
+            for a in sorted_actions:
+                columns.append(f"{action_names[a]} Freq")
+        if this_node_conf.action_evs:
+            for a in sorted_actions:
+                columns.append(f"{action_names[a]} EV")
+
+        df = pd.DataFrame(columns=columns)
+
+        for node_id in node_ids:
+            spot_data = SpotData(solver, node_id)
+            node: Node = solver.show_node(node_id)
+            df.loc[len(df)] = compute_row(
+                this_node_conf,
+                spot_data,
+                weight,
+                actions,
+                sorted_actions,
+            )
+            del spot_data
+        return df
+
+    except RuntimeError as e:
+        print(f"Encountered error aggregating line {line} on board {board}")
+        raise e
+
+
+class PoolAggregationContext:
+    def __init__(
+        self,
+        cfr_file_path,
+        board,
+        conf: Optional[AggregationConfig],
+        conf_callback,
+        weight,
+    ):
+        self.cfr_file_path = cfr_file_path
+        self.board = board
+        self.conf = conf
+        self.conf_callback = conf_callback
+        self.weight = weight
+        pass
+
+    def __call__(self, line):
+        s = make_solver()
+        s.load_tree(self.cfr_file_path)
+        df = aggregate_line_for_solver(
+            self.board, s, line, self.conf, self.conf_callback, self.weight
+        )
+        return df
 
 
 def aggregate_lines_for_solver(
@@ -510,7 +617,8 @@ def aggregate_lines_for_solver(
     ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
-):
+    n_threads: int = 1,
+) -> Dict[Line, pd.DataFrame]:
     """
     Aggregate the lines for a `Solver` instance with a tree already loaded.
 
@@ -531,64 +639,22 @@ def aggregate_lines_for_solver(
     xs = lines_to_aggregate
     if print_progress:
         xs = progress_bar(lines_to_aggregate, inc=1, prefix="Aggregating Lines: ")
-    for line in xs:
-        try:
-            node_ids = line.get_node_ids(dead_cards=board)
+    if n_threads <= 1:
+        for line in xs:
 
-            # Get the first node_id to compute some global stuff about the line
-            node_id = node_ids[0]
-            actions = solver.show_children_actions(node_id)
-            node: Node = solver.show_node(node_id)
-            if conf_callback is not None:
-                this_node_conf = conf_callback(node, actions, conf)
-            else:
-                this_node_conf = conf
+            reports[line] = aggregate_line_for_solver(
+                board, solver, line, conf, conf_callback, weight
+            )
+    else:
 
-            action_names = get_action_names(line, actions)
+        ctx = PoolAggregationContext(
+            solver.cfr_file_path, board, conf, conf_callback, weight
+        )
 
-            # Compute columns
-            columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
-            if this_node_conf.global_freq:
-                columns.append("Global Freq")
-
-            if this_node_conf.evs:
-                columns.append("OOP EV")
-                columns.append("IP EV")
-
-            if this_node_conf.equities:
-                columns.append("OOP Equity")
-                columns.append("IP Equity")
-
-            if this_node_conf.extra_columns is not None:
-                for name, _ in this_node_conf.extra_columns:
-                    columns.append(name)
-
-            sorted_actions = get_sorted_actions(actions)
-
-            if this_node_conf.action_freqs:
-                for a in sorted_actions:
-                    columns.append(f"{action_names[a]} Freq")
-            if this_node_conf.action_evs:
-                for a in sorted_actions:
-                    columns.append(f"{action_names[a]} EV")
-
-            df = pd.DataFrame(columns=columns)
-            reports[line] = df
-
-            for node_id in node_ids:
-                spot_data = SpotData(solver, node_id)
-                node: Node = solver.show_node(node_id)
-                df.loc[len(df)] = compute_row(
-                    this_node_conf,
-                    spot_data,
-                    weight,
-                    actions,
-                    sorted_actions,
-                )
-
-        except RuntimeError as e:
-            print(f"Encountered error aggregating line {line} on board {board}")
-            raise e
+        with Pool(processes=n_threads) as pool:
+            results = pool.map(ctx, xs)
+            return {line: df for (line, df) in zip(lines_to_aggregate, results)}
+        # ise e
     return reports
 
 
@@ -824,12 +890,3 @@ def get_runout(solver: Solver, node_id: str) -> List[str]:
 
 
 u32 = np.uint32
-
-
-def _compute_hand_ranksets_and_counts(row):
-    board = row["board"]
-    hand = row["hand"]
-
-
-def _cards_from_str(s: str) -> List[Card]:
-    return [card_from_str(s[i : i + 2]) for i in range(0, len(s), 2)]
