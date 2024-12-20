@@ -301,7 +301,6 @@ class Hand(_Hand):
 
         bt = self._board_type
         ht = self._hand_type
-        print(bt, ht)
         if bt > Hand.TWO_PAIR:
             return ht  # In this case, we care about interaction
         elif self._board_type == Hand.TWO_PAIR:
@@ -321,10 +320,19 @@ class Hand(_Hand):
                             return Hand.HIGH_CARD
                 raise RuntimeError("Illegal State: This should never be reached")
         elif self._board_type == Hand.PAIR:
-            print("Boink")
             if ht == Hand.TWO_PAIR:
-                return Hand.PAIR
-            if ht == Hand.PAIR:
+                n = 0
+                for hrc, brc in zip(
+                    self._hand_rank_count[::-1], self._board_rank_count[::-1]
+                ):
+                    if hrc == 1 and brc == 1:
+                        n += 1
+                        if n == 2:
+                            return Hand.TWO_PAIR
+                    elif brc == 2 or hrc == 2:
+                        return Hand.PAIR
+                raise RuntimeError("Unreachable! The above loop should always return")
+            elif ht == Hand.PAIR:
                 return Hand.HIGH_CARD
         return ht
 

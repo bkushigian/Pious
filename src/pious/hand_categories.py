@@ -369,5 +369,16 @@ class FlushDraws:
         if second_max_suit > -1:
             pass
 
-        fd_type = ("", "", "", "3_FLUSH", "FLUSH_DRAW", "FLUSH")[max_suit_count]
+        fd_type = (
+            "",
+            "",
+            "",
+            "3_FLUSH",
+            "FLUSH_DRAW",
+            "FLUSH",
+            "FLUSH",
+            "FLUSH",
+            "FLUSH",
+            "FLUSH",
+        )[max_suit_count]
         return fd_type, num_cards, highest_draw_contributing_card_in_hand
