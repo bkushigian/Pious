@@ -129,6 +129,37 @@ def test_regressions():
 
 
 def test_board_adjusted_hand_type():
+    # no-pair boards
+    h = hand("5c6h", "2cTh8c9h", True)
+    assert h._board_type == Hand.HIGH_CARD
+    assert h.board_adjusted_hand_type() == Hand.HIGH_CARD
+
+    # 1 pair boards
+
+    h = hand("5c5h", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.PAIR
+
+    h = hand("5c9d", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.PAIR
+
+    h = hand("9c9d", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE
+
+    h = hand("AcKd", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.HIGH_CARD
+
+    h = hand("9c8d", "6c6h8c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.TWO_PAIR
+
+    h = hand("9c2d", "6c6h2c9h", True)
+    assert h._board_type == Hand.PAIR
+    assert h.board_adjusted_hand_type() == Hand.PAIR
+
     # 2 pair boards
 
     h = hand("5c5h", "6c6h8c8h", True)
@@ -145,18 +176,4 @@ def test_board_adjusted_hand_type():
 
     h = hand("7c7h", "6c6h8c8h7d", True)
     assert h._board_type == Hand.TWO_PAIR
-    assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE
-
-    # 1 pair boards
-
-    h = hand("5c5h", "6c6h8c9h", True)
-    assert h._board_type == Hand.PAIR
-    assert h.board_adjusted_hand_type() == Hand.PAIR
-
-    h = hand("5c9d", "6c6h8c9h", True)
-    assert h._board_type == Hand.PAIR
-    assert h.board_adjusted_hand_type() == Hand.PAIR
-
-    h = hand("9c9d", "6c6h8c9h", True)
-    assert h._board_type == Hand.PAIR
     assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE
