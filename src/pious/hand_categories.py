@@ -1,4 +1,4 @@
-from typing import Optional, Callable, Tuple
+from typing import Any, Dict, Optional, Callable, Tuple
 
 from pious.hands import Hand, count_ones
 from .hands import Hand, count_ones, u32
@@ -42,6 +42,7 @@ class HandCategorizer:
         "QUADS",
         "STRAIGHT FLUSH",
     ]
+    RANK_MAP = {r: i for (i, r) in enumerate("23456789TJQKA", start=2)}
 
     @staticmethod
     def categorize(hand: Hand):
@@ -122,6 +123,58 @@ class HandCategorizer:
                     bottom_card = board_cards_seen
                     return top_card, bottom_card
         return None
+
+    @staticmethod
+    def get_hand_ranks_and_suits(hand: Hand) -> Tuple[int, int]:
+        board_cards_seen = 0
+        c1 = hand.hand[:2]
+        c2 = hand.hand[2:4]
+        r1 = HandCategorizer.RANK_MAP[c1[0]]
+        s1 = c1[1]
+        r2 = HandCategorizer.RANK_MAP[c2[0]]
+        s2 = c2[1]
+        return (r1, s1), (r2, s2)
+
+    def get_board_ranks_and_suits(board: Tuple) -> Dict[str, Any]:
+        result = {}
+        # Get board ranks
+        ranks = []
+        for i, c in enumerate(board, start=1):
+            r = HandCategorizer.RANK_MAP[c[0]]
+            result[f"bc{i}"] = c
+            result[f"br{i}"] = r
+            result[f"bs{i}"] = c[1]
+            ranks.append(r)
+        result["br_max"] = max(ranks)
+        result["br_min"] = min(ranks)
+
+        # Flop
+        ranks = []
+        for i, c in enumerate(board[:3], start=1):
+            r = HandCategorizer.RANK_MAP[c[0]]
+            result[f"fc{i}"] = c
+            result[f"fr{i}"] = r
+            result[f"fs{i}"] = c[1]
+            ranks.append(r)
+        result["fr_max"] = max(ranks)
+        result["fr_min"] = min(ranks)
+
+        # Turns
+        if len(board) > 3:
+            c = board[3]
+            r = HandCategorizer.RANK_MAP[c[0]]
+            result[f"tc{i}"] = c
+            result[f"tr"] = r
+            result[f"ts"] = c[1]
+        # Rivers
+        if len(board) > 4:
+            c = board[3]
+            r = HandCategorizer.RANK_MAP[c[0]]
+            result[f"rc{i}"] = c
+            result[f"rr"] = r
+            result[f"rs"] = c[1]
+
+        return result
 
 
 def pretty_pair(pair_type, board_cards_seen, kicker):

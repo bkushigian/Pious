@@ -243,7 +243,8 @@ class SpotData:
         """
         if self._hands_df is not None:
             return self._hands_df
-        board = "".join(self.board())
+        board_tuple = self.board()
+        board = "".join(board_tuple)
         pos_idx = self.node.get_position_idx()
         eqs = self.hand_eqs(pos_idx)
         evs = self.hand_evs(pos_idx)
@@ -281,6 +282,17 @@ class SpotData:
             HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
             for h in hands
         ]
+        hand_ranks_and_suits = [
+            HandCategorizer.get_hand_ranks_and_suits(h) for h in hands
+        ]
+        df["hr1"] = [c1[0] for c1, _ in hand_ranks_and_suits]
+        df["hs1"] = [c1[1] for c1, _ in hand_ranks_and_suits]
+        df["hr2"] = [c2[0] for _, c2 in hand_ranks_and_suits]
+        df["hs2"] = [c2[1] for _, c2 in hand_ranks_and_suits]
+
+        board_ranks_and_suits = HandCategorizer.get_board_ranks_and_suits(board_tuple)
+        for key, val in board_ranks_and_suits.items():
+            df[key] = val
         df["pair_type"] = [pt[0] if pt is not None else None for pt in pair_types]
         df["pair_cards_seen"] = [pt[1] if pt is not None else None for pt in pair_types]
         df["pair_kicker"] = [pt[2] if pt is not None else None for pt in pair_types]
