@@ -135,7 +135,10 @@ class HandCategorizer:
         s2 = c2[1]
         return (r1, s1), (r2, s2)
 
-    def get_board_ranks_and_suits(board: Tuple) -> Dict[str, Any]:
+    @staticmethod
+    def get_board_ranks_and_suits(board: Tuple | str) -> Dict[str, Any]:
+        if isinstance(board, str):
+            board = tuple(board[i : i + 2] for i in range(0, len(board), 2))
         result = {}
         # Get board ranks
         ranks = []
@@ -159,11 +162,18 @@ class HandCategorizer:
         result["fr_max"] = max(ranks)
         result["fr_min"] = min(ranks)
 
+        result[f"tc"] = None
+        result[f"tr"] = None
+        result[f"ts"] = None
+        result[f"rc"] = None
+        result[f"rr"] = None
+        result[f"rs"] = None
+
         # Turns
         if len(board) > 3:
             c = board[3]
             r = HandCategorizer.RANK_MAP[c[0]]
-            result[f"tc{i}"] = c
+            result[f"tc"] = c
             result[f"tr"] = r
             result[f"ts"] = c[1]
         # Rivers

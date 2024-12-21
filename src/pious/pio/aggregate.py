@@ -290,9 +290,6 @@ class SpotData:
         df["hr2"] = [c2[0] for _, c2 in hand_ranks_and_suits]
         df["hs2"] = [c2[1] for _, c2 in hand_ranks_and_suits]
 
-        board_ranks_and_suits = HandCategorizer.get_board_ranks_and_suits(board_tuple)
-        for key, val in board_ranks_and_suits.items():
-            df[key] = val
         df["pair_type"] = [pt[0] if pt is not None else None for pt in pair_types]
         df["pair_cards_seen"] = [pt[1] if pt is not None else None for pt in pair_types]
         df["pair_kicker"] = [pt[2] if pt is not None else None for pt in pair_types]
