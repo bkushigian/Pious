@@ -6,15 +6,19 @@ implementation.
 This module is wrapped by the CLI command `pious execute`.
 """
 
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from os import path as osp
 import os
 import pandas as pd
 import numpy as np
 import sys
 import re
+from multiprocessing import Pool
 
-from ..hands import Hand, hand
+from pious.util import PIO_HAND_ORDER
+
+from ..hands import Hand, card_from_str, hand, Card
+from ..hand_categories import FlushDraws, HandCategorizer, StraightDrawMasks
 from ..range import Range
 from ..progress_bar import progress_bar
 
@@ -70,29 +74,11 @@ class LinesToAggregate:
         return ls
 
 
-class AggregationConfig:
-    """
-    Configure an aggregation report.
-    """
-
-    def __init__(
-        self,
-        equities=True,
-        evs=True,
-        action_freqs=True,
-        action_evs=False,
-        global_freq=False,
-        extra_columns: Optional[List[Tuple[str, Callable]]] = None,
-    ):
-        self.equities = equities
-        self.evs = evs
-        self.action_evs = action_evs
-        self.action_freqs = action_freqs
-        self.global_freq = global_freq
-        self.extra_columns = [] if extra_columns is None else extra_columns
-
-
 POSITIONS = ("OOP", "IP")
+
+
+_STRAIGHT_DRAW_MASKS_INSTANCE = StraightDrawMasks()
+_FLUSH_DRAWS_INSTANCE = FlushDraws()
 
 
 class SpotData:
@@ -119,14 +105,17 @@ class SpotData:
         self._range: List[Optional[Range]] = [None, None]
         self.position = self.node.get_position()
 
+        self._hands_df = None
+        self._cache = {}
+
     def board(self) -> Tuple[str]:
         return self.node.board
 
-    def hand_evs(self, pos_idx):
+    def hand_evs(self, pos_idx) -> np.ndarray:
         self._compute_hand_evs(pos_idx)
         return self._hand_evs[pos_idx]
 
-    def hand_eqs(self, pos_idx):
+    def hand_eqs(self, pos_idx) -> np.ndarray:
         self._compute_hand_eqs(pos_idx)
         return self._hand_eqs[pos_idx]
 
@@ -245,6 +234,122 @@ class SpotData:
                 self.node.get_position(), self.node.node_id
             )
 
+    def hands_df(self):
+        return self._compute_hands_df()
+
+    def _compute_hands_df(self):
+        """
+        Create a dataframe out of the hands
+        """
+        if self._hands_df is not None:
+            return self._hands_df
+        board_tuple = self.board()
+        board = "".join(board_tuple)
+        pos_idx = self.node.get_position_idx()
+        eqs = self.hand_eqs(pos_idx)
+        evs = self.hand_evs(pos_idx)
+        matchups = self.matchups(pos_idx)
+        total_matchups = self.total_matchups(pos_idx)
+        if total_matchups == 0.0:
+            weight = np.nan
+        else:
+            weight = matchups / total_matchups
+        rng = self.range(pos_idx).range_array
+        actions = self.available_actions()
+        action_frequency = self.strategy()
+
+        data = {
+            "board": board,
+            "hand": PIO_HAND_ORDER,
+            "hand_idx": list(range(len(PIO_HAND_ORDER))),
+            "eq": eqs,
+            "ev": evs,
+            "range": rng,
+            "matchups": matchups,
+            "weight": weight,
+        }
+        for action, strat in zip(actions, action_frequency):
+            data[f"{action}_freq"] = strat
+
+        df = pd.DataFrame(data)
+        df = df[df["matchups"] != 0]
+        hands = [hand(h, board, True) for h in df["hand"]]
+        df["hand_type"] = [h.board_adjusted_hand_type() for h in hands]
+        pair_types = [
+            HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
+        ]
+        high_card_types = [
+            HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
+            for h in hands
+        ]
+        hand_ranks_and_suits = [
+            HandCategorizer.get_hand_ranks_and_suits(h) for h in hands
+        ]
+        df["hr1"] = [c1[0] for c1, _ in hand_ranks_and_suits]
+        df["hs1"] = [c1[1] for c1, _ in hand_ranks_and_suits]
+        df["hr2"] = [c2[0] for _, c2 in hand_ranks_and_suits]
+        df["hs2"] = [c2[1] for _, c2 in hand_ranks_and_suits]
+
+        board_ranks_and_suits = HandCategorizer.get_board_ranks_and_suits(board_tuple)
+        for key, val in board_ranks_and_suits.items():
+            df[key] = val
+        df["pair_type"] = [pt[0] if pt is not None else None for pt in pair_types]
+        df["pair_cards_seen"] = [pt[1] if pt is not None else None for pt in pair_types]
+        df["pair_kicker"] = [pt[2] if pt is not None else None for pt in pair_types]
+        df["high_card_1_type"] = [
+            ht[0] if ht is not None else None for ht in high_card_types
+        ]
+        df["high_card_2_type"] = [
+            ht[1] if ht is not None else None for ht in high_card_types
+        ]
+
+        # Compute Draws
+        straight_draws = [_STRAIGHT_DRAW_MASKS_INSTANCE.categorize(h) for h in hands]
+        flush_draws = [_FLUSH_DRAWS_INSTANCE.categorize(h) for h in hands]
+        df["straight_type"] = [sd[0] for sd in straight_draws]
+        df["straight_cards_used"] = [sd[1] for sd in straight_draws]
+        df["flush_type"] = [fd[0] for fd in flush_draws]
+        df["flush_cards_used"] = [fd[1] for fd in flush_draws]
+        df["flush_high_card"] = [fd[2] for fd in flush_draws]
+        self._hands_df = df
+        return df
+
+
+class AggregationConfig:
+    """
+    Configure an aggregation report.
+    """
+
+    def __init__(
+        self,
+        equities=True,
+        evs=True,
+        action_freqs=True,
+        action_evs=False,
+        global_freq=False,
+        extra_columns: Optional[List[Tuple[str, Callable[[SpotData], Any]]]] = None,
+    ):
+        self.equities = equities
+        self.evs = evs
+        self.action_evs = action_evs
+        self.action_freqs = action_freqs
+        self.global_freq = global_freq
+        self.extra_columns = [] if extra_columns is None else extra_columns
+
+    def copy(self):
+        extra_columns = None
+        if self.extra_columns is not None:
+            # Copy the list if need be
+            extra_columns = [c for c in self.extra_columns]
+        return AggregationConfig(
+            self.equities,
+            self.evs,
+            self.action_freqs,
+            self.action_evs,
+            self.global_freq,
+            extra_columns,
+        )
+
 
 def _clean_np_array(a: np.ndarray) -> np.ndarray:
     """
@@ -323,7 +428,11 @@ def aggregate_files_in_dir(
     dir: str,
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
+    conf_callback: Optional[
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
+    ] = None,
     print_progress: bool = False,
+    n_threads: int = 1,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -340,30 +449,39 @@ def aggregate_files_in_dir(
 
     reports = None
     reports_lines = None
-    for board, cfr_file, freq in progress_bar(db, prefix="Aggregating Boards:"):
-        # print(board)
-        new_reports = aggregate_single_file(cfr_file, lines, conf, freq, print_progress)
-
-        # One time update: This is necessary to perform sanity checking and
-        # ensure that Each report has the same lines.
-        if reports is None:
-            reports = new_reports
-            reports_lines = set(reports.keys())
-            continue
-
-        # Perform Sanity Check
-        new_reports_lines = set(new_reports.keys())
-        if reports_lines != new_reports_lines:
-            sym_diff = reports_lines.symmetric_difference(new_reports_lines)
-            raise RuntimeError(
-                f"The following lines were not found in both reports: {sym_diff}"
+    xs = db
+    if print_progress:
+        xs = progress_bar(db, inc=1, prefix="Aggregating Boards: ")
+    for board, cfr_file, freq in xs:
+        try:
+            # print(board)
+            new_reports = aggregate_single_file(
+                cfr_file, lines, conf, conf_callback, freq, print_progress, n_threads
             )
 
-        # We know we have the same keyset, so combine the reports
-        for line in new_reports:
-            df1 = reports[line]
-            df2 = new_reports[line]
-            reports[line] = pd.concat([df1, df2], ignore_index=True)
+            # One time update: This is necessary to perform sanity checking and
+            # ensure that Each report has the same lines.
+            if reports is None:
+                reports = new_reports
+                reports_lines = set(reports.keys())
+                continue
+
+            # Perform Sanity Check
+            new_reports_lines = set(new_reports.keys())
+            if reports_lines != new_reports_lines:
+                sym_diff = reports_lines.symmetric_difference(new_reports_lines)
+                raise RuntimeError(
+                    f"The following lines were not found in both reports: {sym_diff}"
+                )
+
+            # We know we have the same keyset, so combine the reports
+            for line in new_reports:
+                df1 = reports[line]
+                df2 = new_reports[line]
+                reports[line] = pd.concat([df1, df2], ignore_index=True)
+        except RuntimeError as e:
+            print("Encountered error during aggregation on board", board)
+            raise e
 
     return reports
 
@@ -372,9 +490,13 @@ def aggregate_single_file(
     cfr_file: str,
     lines: List[Line] | str | LinesToAggregate,
     conf: AggregationConfig = None,
+    conf_callback: Optional[
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
+    ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
-) -> pd.DataFrame:
+    n_threads: int = 1,
+) -> Dict[Line, pd.DataFrame]:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
     `lines_to_aggregate`
@@ -393,17 +515,127 @@ def aggregate_single_file(
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
     return aggregate_lines_for_solver(
-        solver, lines_to_aggregate, conf, weight, print_progress
+        solver,
+        lines_to_aggregate,
+        conf,
+        conf_callback,
+        weight,
+        print_progress,
+        n_threads,
     )
+
+
+def aggregate_line_for_solver(
+    board,
+    solver: Solver,
+    line: Line,
+    conf: Optional[AggregationConfig] = None,
+    conf_callback: Optional[
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
+    ] = None,
+    weight: float = 1.0,
+):
+    try:
+        node_ids = line.get_node_ids(dead_cards=board)
+
+        # Get the first node_id to compute some global stuff about the line
+        node_id = node_ids[0]
+        actions = solver.show_children_actions(node_id)
+        node: Node = solver.show_node(node_id)
+        if conf_callback is not None:
+            this_node_conf = conf_callback(node, actions, conf)
+        else:
+            this_node_conf = conf
+
+        action_names = get_action_names(line, actions)
+
+        # Compute columns
+        columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
+        if this_node_conf.global_freq:
+            columns.append("Global Freq")
+
+        if this_node_conf.evs:
+            columns.append("OOP EV")
+            columns.append("IP EV")
+
+        if this_node_conf.equities:
+            columns.append("OOP Equity")
+            columns.append("IP Equity")
+
+        if this_node_conf.extra_columns is not None:
+            for name, _ in this_node_conf.extra_columns:
+                columns.append(name)
+
+        sorted_actions = get_sorted_actions(actions)
+
+        if this_node_conf.action_freqs:
+            for a in sorted_actions:
+                columns.append(f"{action_names[a]} Freq")
+        if this_node_conf.action_evs:
+            for a in sorted_actions:
+                columns.append(f"{action_names[a]} EV")
+
+        df = pd.DataFrame(columns=columns)
+
+        for node_id in node_ids:
+            spot_data = SpotData(solver, node_id)
+            node: Node = solver.show_node(node_id)
+            df.loc[len(df)] = compute_row(
+                this_node_conf,
+                spot_data,
+                weight,
+                actions,
+                sorted_actions,
+            )
+            del spot_data
+        return df
+
+    except RuntimeError as e:
+        print(f"Encountered error aggregating line {line} on board {board}")
+        raise e
+
+
+class _LineAggregationPoolContext:
+    """
+    This class wraps context needed for multiprocessing aggregation across lines
+    in a callable interface.
+    """
+
+    def __init__(
+        self,
+        cfr_file_path,
+        board,
+        conf: Optional[AggregationConfig],
+        conf_callback,
+        weight,
+    ):
+        self.cfr_file_path = cfr_file_path
+        self.board = board
+        self.conf = conf
+        self.conf_callback = conf_callback
+        self.weight = weight
+        pass
+
+    def __call__(self, line):
+        s = make_solver()
+        s.load_tree(self.cfr_file_path)
+        df = aggregate_line_for_solver(
+            self.board, s, line, self.conf, self.conf_callback, self.weight
+        )
+        return df
 
 
 def aggregate_lines_for_solver(
     solver: Solver,
     lines_to_aggregate: List[Line],
     conf: Optional[AggregationConfig] = None,
+    conf_callback: Optional[
+        Callable[[Node, List[str], AggregationConfig], AggregationConfig]
+    ] = None,
     weight: float = 1.0,
     print_progress: bool = False,
-):
+    n_threads: int = 1,
+) -> Dict[Line, pd.DataFrame]:
     """
     Aggregate the lines for a `Solver` instance with a tree already loaded.
 
@@ -421,56 +653,25 @@ def aggregate_lines_for_solver(
 
     reports: Dict[Line, pd.DataFrame] = {}
 
-    for line in progress_bar(lines_to_aggregate, prefix="Aggregating Lines: "):
-        node_ids = line.get_node_ids(dead_cards=board)
+    xs = lines_to_aggregate
+    if print_progress:
+        xs = progress_bar(lines_to_aggregate, inc=1, prefix="Aggregating Lines: ")
+    if n_threads <= 1:
+        for line in xs:
 
-        # Get the first node_id to compute some global stuff about the line
-        node_id = node_ids[0]
-        actions = solver.show_children_actions(node_id)
-        node: Node = solver.show_node(node_id)
-
-        action_names = get_action_names(line, actions)
-
-        # Compute columns
-        columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
-        if conf.global_freq:
-            columns.append("Global Freq")
-
-        if conf.evs:
-            columns.append("OOP EV")
-            columns.append("IP EV")
-
-        if conf.equities:
-            columns.append("OOP Equity")
-            columns.append("IP Equity")
-
-        if conf.extra_columns is not None:
-            for name, _ in conf.extra_columns:
-                columns.append(name)
-
-        sorted_actions = get_sorted_actions(actions)
-
-        if conf.action_freqs:
-            for a in sorted_actions:
-                columns.append(f"{action_names[a]} Freq")
-        if conf.action_evs:
-            for a in sorted_actions:
-                columns.append(f"{action_names[a]} EV")
-
-        df = pd.DataFrame(columns=columns)
-        reports[line] = df
-
-        for node_id in node_ids:
-            spot_data = SpotData(solver, node_id)
-            node: Node = solver.show_node(node_id)
-            df.loc[len(df)] = compute_row(
-                conf,
-                spot_data,
-                weight,
-                actions,
-                sorted_actions,
+            reports[line] = aggregate_line_for_solver(
+                board, solver, line, conf, conf_callback, weight
             )
+    else:
 
+        ctx = _LineAggregationPoolContext(
+            solver.cfr_file_path, board, conf, conf_callback, weight
+        )
+
+        with Pool(processes=n_threads) as pool:
+            results = pool.map(ctx, xs)
+            return {line: df for (line, df) in zip(lines_to_aggregate, results)}
+        # ise e
     return reports
 
 
@@ -486,7 +687,6 @@ def compute_row(
     row = get_runout(spot.solver, node_id)
 
     if conf.global_freq:
-        print("Adding global freq")
         global_freq = spot.solver.calc_global_freq(node_id)
         row.append(global_freq * weight)
 
@@ -502,7 +702,8 @@ def compute_row(
 
     if conf.extra_columns is not None:
         for _, fn in conf.extra_columns:
-            row.append(fn(spot))
+            r = fn(spot)
+            row.append(r)
 
     # Compute Frequencies
     if conf.action_freqs:
@@ -703,3 +904,6 @@ def get_runout(solver: Solver, node_id: str) -> List[str]:
     if len(b) > 4:
         row.append(b[4])
     return row
+
+
+u32 = np.uint32
