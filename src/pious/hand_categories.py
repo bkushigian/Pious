@@ -173,6 +173,7 @@ class HandCategorizer:
         if len(board) > 3:
             c = board[3]
             r = HandCategorizer.RANK_MAP[c[0]]
+
             result[f"tc"] = c
             result[f"tr"] = r
             result[f"ts"] = c[1]
