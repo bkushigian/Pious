@@ -61,7 +61,9 @@ class HandCategorizer:
 
     @staticmethod
     def get_pair_category(hand: Hand):
-        assert hand._hand_type == Hand.PAIR
+        assert hand._hand_type == Hand.PAIR or (
+            hand._hand_type == Hand.TWO_PAIR and hand._board_type == Hand.PAIR
+        )
         board_cards_seen = 0
         kicker_count = 0
         kicker = None
@@ -173,7 +175,6 @@ class HandCategorizer:
         if len(board) > 3:
             c = board[3]
             r = HandCategorizer.RANK_MAP[c[0]]
-
             result[f"tc"] = c
             result[f"tr"] = r
             result[f"ts"] = c[1]
