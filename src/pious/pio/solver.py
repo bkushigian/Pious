@@ -6,7 +6,7 @@ suit my needs.
 import subprocess
 import os
 from os import path as osp
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 
@@ -106,8 +106,12 @@ class Solver(object):
         self.executable_name = executable_name
         self.end_string = end_string
         self.simulate = simulate
+        pio_exec = os.path.join(self.solver_path, self.executable_name) + ".exe"
+        if not (osp.exists(pio_exec)):
+            raise RuntimeError(f"Cannot find PioSOLVER executable {pio_exec}")
+
         self.process = subprocess.Popen(
-            [os.path.join(self.solver_path, self.executable_name)],
+            [pio_exec],
             cwd=self.solver_path,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
@@ -122,6 +126,10 @@ class Solver(object):
         self._run("set_accuracy", "20")
         self._run("set_always_recalc", "0 60000")
         self._run("is_ready")
+        self.version = [int(x) for x in self.show_version().split(".")]
+        self.MAJOR_VERSION = self.version[0]
+        self.MINOR_VERSION = self.version[1]
+        self.PATCH_VERSION = self.version[2]
 
     def reset(self):
         self.process = subprocess.Popen(
@@ -257,9 +265,17 @@ class Solver(object):
         """
         Show the board without any isomorphisms set (alias for show_board_no_iso())
         """
-        return self.show_board_no_iso()
+        if self.MAJOR_VERSION <= 2:
+            root_node = self.show_node("r")
+            return " ".join(root_node.board)
+        else:
+            return self.show_board_no_iso()
 
-    def show_tree_info(self):
+    def show_version(self):
+        v = self._run("show_version")
+        return v
+
+    def show_tree_info(self) -> Dict[str, Any]:
         data = {}
         self._run("show_tree_info")
         for line in self._run("show_tree_info").split("\n"):
