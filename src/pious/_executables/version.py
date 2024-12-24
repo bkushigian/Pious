@@ -8,7 +8,7 @@ def exec_version(args: Namespace):
 
 
 def register_command(sub_parsers: _SubParsersAction):
-    parser_version = sub_parsers.add_parser(
+    parser_conf = sub_parsers.add_parser(
         "version", description="Print version and exit"
     )
-    parser_version.set_defaults(function=exec_version)
+    parser_conf.set_defaults(function=exec_version)

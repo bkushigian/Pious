@@ -8,6 +8,7 @@ from ._executables.flops import register_command as flops_register_command
 from ._executables.blockers import register_command as blockers_register_command
 from ._executables.lines import register_command as lines_register_command
 from ._executables.version import register_command as version_register_command
+from ._executables.conf import register_command as conf_register_command
 
 PIOUS_DESCRIPTION = """Pious: The PIO Utility Suite
 
@@ -30,6 +31,7 @@ def main():
     blockers_register_command(sub_parsers)
     lines_register_command(sub_parsers)
     version_register_command(sub_parsers)
+    conf_register_command(sub_parsers)
 
     args = parser.parse_args()
     if "function" in args:
