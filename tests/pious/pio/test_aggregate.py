@@ -24,7 +24,5 @@ def test_blocker_effects():
     AsAh = df[df["hand"] == "AsAh"]
     assert AsAh.iloc[0]["hand_type"] == Hand.FULL_HOUSE
 
-    print(df)
     _5c4c = df[df["hand"] == "5c4c"]
-    print(_5c4c["hand_type"])
     assert _5c4c.iloc[0]["hand_type"] == Hand.HIGH_CARD
