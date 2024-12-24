@@ -177,3 +177,10 @@ def test_board_adjusted_hand_type():
     h = hand("7c7h", "6c6h8c8h7d", True)
     assert h._board_type == Hand.TWO_PAIR
     assert h.board_adjusted_hand_type() == Hand.FULL_HOUSE
+
+
+def test_hands_on_paired_boards():
+    board = "Th2h2c"
+    h = hand("AhAc", board, True)
+    assert h._board_type == Hand.PAIR
+    assert h._hand_type == Hand.TWO_PAIR

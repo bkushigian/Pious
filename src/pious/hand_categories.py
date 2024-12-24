@@ -61,7 +61,20 @@ class HandCategorizer:
 
     @staticmethod
     def get_pair_category(hand: Hand):
-        assert hand._hand_type == Hand.PAIR
+        """
+        Returns a 3-tuple `[pair_type: int, pair_strength: int, kicker: int]`
+        describing the pair type.
+
+        :pair_type: Can be HandCategorizer.BOARD_PAIR,
+                    HandCategorizer.POCKET_PAIR, or HandCategorizer.REGULAR_PAIR (card in
+                    hand pairs card on board)
+        """
+        if not (
+            hand._hand_type == Hand.PAIR
+            or (hand._hand_type == Hand.TWO_PAIR and hand._board_type == Hand.PAIR)
+            or (hand._hand_type == Hand.FULL_HOUSE and hand._board_type == Hand.TRIPS)
+        ):
+            return None
         board_cards_seen = 0
         kicker_count = 0
         kicker = None
@@ -83,15 +96,17 @@ class HandCategorizer:
             if rc == 2:
                 # If this is the pair, determine the type of pair
                 if brc == 2:
-                    pair_type, pair_strength = (
-                        HandCategorizer.BOARD_PAIR,
-                        board_cards_seen,
-                    )
+                    if pair_type is None:
+                        pair_type, pair_strength = (
+                            HandCategorizer.BOARD_PAIR,
+                            board_cards_seen,
+                        )
                 elif hrc == 2:
                     pair_type, pair_strength = (
                         HandCategorizer.POCKET_PAIR,
                         board_cards_seen,
                     )
+                    kicker = 0
                 else:
                     pair_type, pair_strength = (
                         HandCategorizer.REGULAR_PAIR,
@@ -101,7 +116,8 @@ class HandCategorizer:
 
     @staticmethod
     def get_high_card_category(hand: Hand) -> Optional[Tuple[int, int]]:
-        assert hand.is_high_card()
+        if not (hand._hand_type == hand._board_type and hand._hand_type < Hand.TRIPS):
+            return None
         board_cards_seen = 0
         top_card = None
         bottom_card = None
@@ -173,7 +189,6 @@ class HandCategorizer:
         if len(board) > 3:
             c = board[3]
             r = HandCategorizer.RANK_MAP[c[0]]
-
             result[f"tc"] = c
             result[f"tr"] = r
             result[f"ts"] = c[1]

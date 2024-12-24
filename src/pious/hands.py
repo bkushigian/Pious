@@ -301,8 +301,24 @@ class Hand(_Hand):
 
         bt = self._board_type
         ht = self._hand_type
-        if bt > Hand.TWO_PAIR:
+        if bt > Hand.TRIPS:
             return ht  # In this case, we care about interaction
+        elif self._board_type == Hand.TRIPS:
+            if ht > Hand.TRIPS:
+                return ht
+
+            elif 2 in self._hand_rank_count:
+                # Look for better trips
+                n = 0
+                for hrc, brc in zip(
+                    self._hand_rank_count[::-1], self._board_rank_count[::-1]
+                ):
+                    if hrc == 2:
+                        return Hand.TRIPS
+                    elif brc == 3:
+                        return Hand.HIGH_CARD
+                raise RuntimeError("Illegal State: This should never be reached")
+            return Hand.HIGH_CARD
         elif self._board_type == Hand.TWO_PAIR:
             if ht > Hand.TWO_PAIR:
                 return ht

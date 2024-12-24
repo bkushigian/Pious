@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.0.0.dev17
+- Various fixes to hand categorizations
+- Fixes/improvements/new tests
+
 ## v0.0.0.dev16
 - Fixed pio2 vs pio3 bug for `show_boards_no_iso`
 

@@ -275,13 +275,8 @@ class SpotData:
         df = df[df["matchups"] != 0]
         hands = [hand(h, board, True) for h in df["hand"]]
         df["hand_type"] = [h.board_adjusted_hand_type() for h in hands]
-        pair_types = [
-            HandCategorizer.get_pair_category(h) if h.is_pair() else None for h in hands
-        ]
-        high_card_types = [
-            HandCategorizer.get_high_card_category(h) if h.is_high_card() else None
-            for h in hands
-        ]
+        pair_types = [HandCategorizer.get_pair_category(h) for h in hands]
+        high_card_types = [HandCategorizer.get_high_card_category(h) for h in hands]
         hand_ranks_and_suits = [
             HandCategorizer.get_hand_ranks_and_suits(h) for h in hands
         ]
@@ -289,7 +284,6 @@ class SpotData:
         df["hs1"] = [c1[1] for c1, _ in hand_ranks_and_suits]
         df["hr2"] = [c2[0] for _, c2 in hand_ranks_and_suits]
         df["hs2"] = [c2[1] for _, c2 in hand_ranks_and_suits]
-
 
         df["pair_type"] = [pt[0] if pt is not None else None for pt in pair_types]
         df["pair_cards_seen"] = [pt[1] if pt is not None else None for pt in pair_types]

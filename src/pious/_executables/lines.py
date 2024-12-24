@@ -6,7 +6,6 @@ lines and nodes.
 from argparse import Namespace, _SubParsersAction
 from typing import List
 from ansi.color import fg, fx
-from pkg_resources import resource_filename
 from sys import exit
 from os import path as osp
 

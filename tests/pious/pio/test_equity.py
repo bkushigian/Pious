@@ -2,7 +2,6 @@ import pytest
 import os
 
 from pious.pio.equity import EquityCalculator, compute_equities
-from pious.pio.util import make_solver
 
 
 def approx(x, tolerance=0.01):
