@@ -15,7 +15,7 @@ import sys
 import re
 from multiprocessing import Pool
 
-from pious.util import PIO_HAND_ORDER
+from pious.util import CARDS, PIO_HAND_ORDER
 
 from ..hands import Hand, card_from_str, hand, Card
 from ..hand_categories import FlushDraws, HandCategorizer, StraightDrawMasks
@@ -738,8 +738,11 @@ def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[
     for line_str in lines.lines:
         line_str = ensure_line_root(line_str)
         if line_str not in strs2lines:
-            print(f"Unable to find line {line_str}")
-            continue
+            for card in CARDS:
+                line_str = line_str.replace(f"{card}:", "")
+            if line_str not in strs2lines:
+                print(f"Unable to find line {line_str}")
+                continue
         line = strs2lines[line_str]
         if is_terminal(line):
             print(f"Cannot aggregate terminal lines: {line}")
