@@ -1,3 +1,7 @@
+"""
+Read, manipulate, and plot PioSOLVER generated aggregation reports.
+"""
+
 from typing import Dict, Optional, Tuple, List
 import pandas as pd
 import os

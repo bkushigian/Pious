@@ -61,9 +61,9 @@ class Node:
 def normalize_position(pos):
     if isinstance(pos, int):
         if pos == 0:
-            pos = "OOP"
+            return "OOP"
         elif pos == 1:
-            pos = "IP"
+            return "IP"
         else:
             raise ValueError(
                 f"Invalid position int {pos}: must be 0 for OOP or 1 for IP"
