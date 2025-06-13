@@ -56,6 +56,18 @@ def exec_aggregate_main(args: Namespace):
         river=args.river,
     )
 
+    if args.out is None:
+        print()
+        print("\033[31mNo output directory specified!\033[0m")
+        print()
+        print(
+            textwrap.fill(
+                "Use \033[33m--out OUTPUT_DIRECTORY\033[0m to specify where to write the results.",
+                width=80,
+            )
+        )
+        sys.exit(1)
+
     out_dir = osp.abspath(args.out)
     if osp.exists(out_dir) and not args.overwrite:
         print()
