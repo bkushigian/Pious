@@ -11,6 +11,7 @@ import textwrap
 import tabulate
 from ..pio import aggregate
 import sys
+import time
 
 
 banner = f"""
@@ -86,6 +87,7 @@ def exec_aggregate_main(args: Namespace):
         print()
         sys.exit(1)
     reports = None
+    t0 = time.time()
     if osp.isdir(args.cfr_file_or_sim_dir):
         reports = aggregate.aggregate_files_in_dir(
             args.cfr_file_or_sim_dir, lines, print_progress=args.progress
@@ -99,6 +101,9 @@ def exec_aggregate_main(args: Namespace):
     else:
         print(f"{args.cfr_file_or_sim_dir} is neither a .cfr file or a directory")
         sys.exit(-1)
+
+    t1 = time.time()
+    print(f"Aggregation completed in {t1 - t0:.2f} seconds.")
 
     if args.print:
         for line in reports:

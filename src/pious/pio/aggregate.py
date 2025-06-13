@@ -15,12 +15,13 @@ import sys
 import re
 from multiprocessing import Pool
 
-from pious.util import CARDS, PIO_HAND_ORDER
+from ..util import CARDS, PIO_HAND_ORDER
 
 from ..hands import Hand, card_from_str, hand, Card
 from ..hand_categories import FlushDraws, HandCategorizer, StraightDrawMasks
 from ..range import Range
 from ..progress_bar import progress_bar
+from ..pio.line import ensure_line_root
 
 from . import (
     make_solver,
@@ -37,7 +38,7 @@ from . import (
     is_terminal,
     is_nonterminal,
 )
-from ..pio.line import ensure_line_root
+from .rebuild_utils import rebuild_and_resolve
 
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=200, precision=3)
@@ -433,12 +434,6 @@ def aggregate_files_in_dir(
     if len(db.cfr_files) == 0:
         raise RuntimeError(f"No CFR files found in {dir}")
 
-    # We want to collect lines. To do this we need a solver instance with a tree
-    # loaded, so we will grab the first cfr file in the DB
-    cfr0 = osp.join(db.dir, db.cfr_files[0])
-    solver: Solver = make_solver()
-    solver.load_tree(cfr0)
-
     reports = None
     reports_lines = None
     xs = db
@@ -446,7 +441,6 @@ def aggregate_files_in_dir(
         xs = progress_bar(db, inc=1, prefix="Aggregating Boards: ")
     for board, cfr_file, freq in xs:
         try:
-            # print(board)
             new_reports = aggregate_single_file(
                 cfr_file, lines, conf, conf_callback, freq, print_progress, n_threads
             )
@@ -505,6 +499,36 @@ def aggregate_single_file(
     solver.load_tree(file_name)
     ls = LinesToAggregate.create_from(lines)
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
+
+    # Do we need to reload and resolve?
+    board = solver.show_board().split()
+
+    if len(board) != 3:
+        print(
+            f"\033[31;1mBoard {board} is not a valid board for aggregation. Expected 3 cards, got {len(board)}\033[0m"
+        )
+        print(
+            "If you require aggregation for turn boards, please contact the developers and file a feature request."
+        )
+        sys.exit(-1)
+
+    # Check to see if we are aggregating lines for an unsolved street.
+    max_street = max([line.current_street() for line in lines_to_aggregate])
+
+    if max_street > 1:
+        card = next(iter(set(CARDS) - set(board)))  # Dummy Card
+        node_id = None
+        if max_street == 3:
+            node_id = f"r:0:c:c:{card}:c:c"
+        elif max_street == 2:
+            node_id = "r:0:c:c"
+        node = solver.show_node(node_id)
+
+        flags = node.flags
+        if "UNSOLVED" in flags:
+            solver.load_all_nodes()
+            solver.rebuild_forgotten_streets()
+            rebuild_and_resolve(solver, lock_turns=False)
 
     return aggregate_lines_for_solver(
         solver,
@@ -721,7 +745,7 @@ def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[
     Select lines from `all_lines` that pass the filters specified in args.
     """
     all_lines = get_all_lines(solver)
-    strs2lines = {l.line_str: l for l in all_lines}
+    line_str_to_line = {l.line_str: l for l in all_lines}
     nonterminal_lines: List[Line] = filter_lines(all_lines, is_nonterminal)
 
     collected_lines = []
@@ -737,13 +761,13 @@ def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[
 
     for line_str in lines.lines:
         line_str = ensure_line_root(line_str)
-        if line_str not in strs2lines:
+        if line_str not in line_str_to_line:
             for card in CARDS:
                 line_str = line_str.replace(f"{card}:", "")
-            if line_str not in strs2lines:
+            if line_str not in line_str_to_line:
                 print(f"Unable to find line {line_str}")
                 continue
-        line = strs2lines[line_str]
+        line = line_str_to_line[line_str]
         if is_terminal(line):
             print(f"Cannot aggregate terminal lines: {line}")
             continue

@@ -292,7 +292,9 @@ class Line:
             self.nodes[dead_cards] = nodes
         return self.nodes[dead_cards]
 
-    def streets_to_nodes(self, isomorphism: bool = False, dead_cards=None) -> List[str]:
+    def streets_to_nodes(
+        self, isomorphism: bool = False, dead_cards: Optional[List[str]] = None
+    ) -> List[str]:
         """
         Translate a list of streets representing a line to a list of nodes
 

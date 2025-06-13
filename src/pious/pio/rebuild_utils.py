@@ -1,4 +1,4 @@
-""" 
+"""
 Rebuild Utility Functions
 
 This module contains utility functions to rebuild and resolve a game tree.
@@ -24,11 +24,16 @@ from ..progress_bar import progress_bar
 
 
 def rebuild_and_resolve(
-    solver: Solver, lock_turns=True, lines=None, accuracy=0.05, unlock=True
+    solver: Solver,
+    lock_turns=True,
+    lines=None,
+    accuracy=0.05,
+    unlock=True,
+    print_progress=False,
 ):
     """
     Rebuild and resolve a game tree. This is to replace the broken functionality
-    of `solve_all_spots` from UPI.
+    of `solve_all_splits` from UPI.
 
     Parameters
     ----------
@@ -43,6 +48,8 @@ def rebuild_and_resolve(
         The accuracy as percent of pot to use for resolving, by default 0.05
     unlock : bool, optional
         Unlock nodes when done solving
+    print_progress : bool, optional
+        Whether to print a progress bar, by default False
     """
     if not solver.is_ready():
         return False
@@ -52,32 +59,15 @@ def rebuild_and_resolve(
     board = root_node.board
 
     pot = root_node.pot[2]
-    print(f"pot = {pot}")
     accuracy_in_chips = accuracy * pot
-    print(f"accuracy = {accuracy_in_chips}")
     solver.set_accuracy(accuracy_in_chips)
 
-    print("Loading all nodes...", end="", flush=True)
-    t0 = time.time()
     solver.load_all_nodes()
-    t1 = time.time()
-    print("DONE")
-    print(f"Loaded all nodes in {t1 - t0:3.2f} seconds")
-
-    print(solver.estimate_rebuild_forgotten_streets())
-    print("Rebuilding forgotten streets...", end="", flush=True)
-    t0 = time.time()
     solver.rebuild_forgotten_streets()
-    t1 = time.time()
-    print("DONE")
-    print(f"Rebuilt forgotten streets in {t1 - t0:3.2f} seconds")
 
     if lines is None:
-        print("Collecting all lines...", end="", flush=True)
         lines = solver.show_all_lines()
-        print("DONE")
 
-    print(f"Collected {len(lines):,} lines")
     lines = [
         Line(line, starting_street=FLOP, effective_stack=effective_stack)
         for line in lines
@@ -93,33 +83,23 @@ def rebuild_and_resolve(
         filters.append(is_flop)
     filtered_lines = filter_lines(lines, filters)
 
-    print(f"Filtered {len(lines):,} lines down to {len(filtered_lines):,} lines")
-
     node_ids = []
     for line in filtered_lines:
         node_ids += line.get_node_ids(dead_cards=board)
 
-    print(f"Expanded {len(filtered_lines):,} lines to {len(node_ids):,} nodes")
-
-    t0 = time.time()
-    for node_id in progress_bar(node_ids, prefix="Locking nodes"):
+    xs = node_ids
+    if print_progress:
+        xs = progress_bar(xs, prefix="Locking nodes")
+    for node_id in xs:
         solver.lock_node(node_id)
-    t1 = time.time()
-    print(f"Locked nodes in {t1 - t0:3.2f} seconds")
 
-    print("Resolving full tree...", end="", flush=True)
-    t0 = time.time()
-    solver.go()
-    t1 = time.time()
-    print("DONE")
-    print(f"Resolved full tree in {t1 - t0:3.2f} seconds")
+    solver.go(quiet=True)
     if unlock:
-        print("Unlocking nodes...")
-        t0 = time.time()
-        for node_id in progress_bar(node_ids, prefix="Unlocking nodes"):
+        xs = node_ids
+        if print_progress:
+            xs = progress_bar(xs, prefix="Unlocking nodes")
+        for node_id in xs:
             solver.unlock_node(node_id)
-        t1 = time.time()
-        print(f"Unlocked nodes in {t1 - t0:3.2f} seconds")
 
 
 def main():

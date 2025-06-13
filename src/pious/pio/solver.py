@@ -57,6 +57,15 @@ class Node:
         items = [a for a in items if a not in CARDS]
         return ":".join(items)
 
+    def parent(self) -> "Node":
+        """
+        Returns the parent node of this node.
+        """
+        if self.node_id == "r:0":
+            raise ValueError("Root node has no parent")
+        parent_id = ":".join(self.node_id.split(":")[:-1])
+        return Node(self._raw_node_data.replace(self.node_id, parent_id, 1))
+
 
 def normalize_position(pos):
     if isinstance(pos, int):
