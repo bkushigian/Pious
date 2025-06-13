@@ -621,7 +621,8 @@ class Solver(object):
                     print(f"Found line: {line}", end="")
                 lines.append(line)
                 if trigger_word in lines[-1]:
-                    print("Found Trigger word")
+                    if self.debug:
+                        print("Found Trigger word")
                     break
 
         else:
