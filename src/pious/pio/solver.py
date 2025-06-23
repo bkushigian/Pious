@@ -216,6 +216,16 @@ class Solver(object):
         return children
 
     def show_children_actions(self, node_id: str | Node) -> List[str]:
+        """
+        Return a list of actions for the children of the given specified node.
+        """
+        children_node_ids = self.show_children_node_ids(node_id)
+        return [child_node.split(":")[-1] for child_node in children_node_ids]
+
+    def show_children_node_ids(self, node_id: str | Node) -> List[str]:
+        """
+        Return a list of node IDs for the children of the given specified node.
+        """
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         data = self._run("show_children", node_id)
@@ -224,7 +234,7 @@ class Solver(object):
         if data.strip() == "":
             return []
         children_lines = data.split("\n\n")
-        return [child.split("\n")[1].strip().split(":")[-1] for child in children_lines]
+        return [child.split("\n")[1] for child in children_lines]
 
     def show_hand_order(self):
         return self._run("show_hand_order").split(" ")
@@ -264,13 +274,13 @@ class Solver(object):
     def add_info_line(self, info_line):
         return self._run("add_info_line", info_line)
 
-    def show_board_no_iso(self):
+    def show_board_no_iso(self) -> str:
         """
         Show the board without any isomorphisms set
         """
         return self._run("show_board_no_iso")
 
-    def show_board(self):
+    def show_board(self) -> str:
         """
         Show the board without any isomorphisms set (alias for show_board_no_iso())
         """
