@@ -94,6 +94,21 @@ def normalize_position(pos):
 
 
 class Solver(object):
+    """
+    A wrapper around the PioSOLVER UPI (Universal Poker Interface). This class
+    provides methods to interact with the PioSOLVER executable, allowing users
+    to load trees, execute UPI commands, run solves, interact with simulations,
+    etc.
+
+    To create a solver instance, we recommend using the `make_solver` function
+    provided by the `pious.pio` module, which will automatically supply your
+    PioSOLVER installation path and executable name (note: this might require
+    some configuration by setting up a pious.conf file in your home directory).
+
+    >>> from pious.pio import make_solver
+    >>> solver = make_solver()
+    """
+
     def __init__(
         self,
         path,
