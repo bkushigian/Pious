@@ -541,6 +541,68 @@ def aggregate_single_file(
     )
 
 
+def find_unsolved_node(solver: Solver, max_street_num: int) -> Optional[Node]:
+    """
+    Search for an unsolved node that has street number at most
+    `max_street_num` and, if found, return it.
+
+    :param solver: The `Solver` instance with the tree already loaded.
+    :param street_num: The street number to check (1 for flop, 2 for turn, 3 for river).
+    :return: The `Node` instance corresponding to the unsolved node, or `None` if not found.
+
+    :raises ValueError: If the street number is not valid (not 1, 2, or 3 for a flop solve).
+    :raises ValueError: If the node_id is not valid or does not correspond to a valid node loaded in the solver.
+    :raises RuntimeError: If the tree does not have a valid action to explore to
+    later streets. Note, this may happen if there is a forced fold or forced
+    all-in along a particular line. This should not happen normally so we do not
+    account for it.
+    """
+    board = solver.show_board().split()
+    starting_street = (
+        len(board) - 2
+    )  # Flop is street 1, Turn is street 2, River is street 3
+    if max_street_num < starting_street or max_street_num > 3:
+        raise ValueError(
+            f"Invalid street number {max_street_num}. Valid values are {starting_street} (flop), 2 (turn), or 3 (river)."
+        )
+
+    # Now, find a node_id that corresponds to the street number we care about
+    node_id = "r:0"
+    current_street = starting_street
+
+    while current_street <= max_street_num:
+        node: Node = solver.show_node(node_id)
+
+        if node.node_type == "SPLIT_NODE":
+            flags = solver.show_node(node_id).flags
+            if "UNSOLVED" in flags:
+                return node
+            current_street += 1
+        elif node.node_type == "OOP_DEC" or node.node_type == "IP_DEC":
+
+            actions = solver.show_children_actions(node_id)
+            if "c" in actions:
+                node_id += ":c"
+            else:
+                bets = [a for a in actions if a.startswith("b")]
+                min_bet_amount = 0xFFFFFFFF
+                min_bet_action = None
+                for bet_action in bets:
+                    bet_amount = int(bet_action[1:])
+                    if bet_amount < min_bet_amount:
+                        min_bet_amount = bet_amount
+                        min_bet_action = bet_action
+                if min_bet_action is None:
+                    raise RuntimeError(
+                        f"Unable to find a valid action to explore the game tree: no suitable candidate at node id {node_id} with actions {actions}"
+                    )
+        else:
+            raise RuntimeError(
+                f"Unexpected node type: {node.node_type} at node id {node_id}"
+            )
+    return None
+
+
 def aggregate_line_for_solver(
     board,
     solver: Solver,
