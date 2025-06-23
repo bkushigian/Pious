@@ -8,6 +8,8 @@ def exec_conf(args: Namespace):
 
     install_dir = pious_conf.pio_install_directory
 
+    print(f"Pious Config File Location: {pious_conf.pious_toml}")
+    print(f"Pious Config File Exists: {osp.exists(pious_conf.pious_toml)}")
     print(f'Pious Version: {importlib.metadata.version("pious")}')
     print(f"PioSOLVER:")
     print(

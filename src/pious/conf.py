@@ -17,6 +17,7 @@ class PiousConf:
         self.toml = None
 
         pious_toml = osp.join(osp.expanduser("~"), "pious.toml")
+        self.pious_toml = pious_toml
 
         if osp.exists(pious_toml):
             self.toml = self._read_from_toml(pious_toml)
