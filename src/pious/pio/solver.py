@@ -545,6 +545,12 @@ class Solver(object):
         return response
 
     def unlock_node(self, node_id: str | Node):
+        """
+        Unlock the specified node in the tree to allow further modifications.
+
+        :param node_id: The node ID or Node object to unlock.
+        :return: The response from the solver.
+        """
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         response = self._run("unlock_node", node_id)
@@ -589,7 +595,7 @@ class Solver(object):
         if len(commands) == 0:
             return None
         command = commands[0]
-        command_with_args = " ".join(commands)
+        command_with_args = " ".join(str(arg) for arg in commands)
         if self.store_script:
             self.commands.append(command_with_args)
 
@@ -601,7 +607,12 @@ class Solver(object):
 
         if self.simulate:
             return
-        self.process.stdin.write(command_with_args + "\n")
+        proc = self.process
+        if proc is None or proc.stdin is None or proc.stdin.closed:
+            raise RuntimeError("Solver process is not running or stdin is closed.")
+
+        proc.stdin.write(command_with_args + "\n")
+        proc.stdin.flush()
         end_string = f"{self.end_string}\n"
         lines = []
 
@@ -633,7 +644,10 @@ class Solver(object):
             self.log_file.write(f"[<] {output}\n")
             self.log_file.flush()
 
-        return output.replace("END\n", "").strip()
+        if output.endswith(f"{self.end_string}\n"):
+            output = output[: -len(f"{self.end_string}\n")]
+        output = output.strip()
+        return output
 
     def _get_solver_output(self, trigger_word, quiet=False):
         end_string = f"{self.end_string}\n"
