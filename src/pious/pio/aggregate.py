@@ -515,20 +515,14 @@ def aggregate_single_file(
     # Check to see if we are aggregating lines for an unsolved street.
     max_street = max([line.current_street() for line in lines_to_aggregate])
 
-    if max_street > 1:
-        card = next(iter(set(CARDS) - set(board)))  # Dummy Card
-        node_id = None
-        if max_street == 3:
-            node_id = f"r:0:c:c:{card}:c:c"
-        elif max_street == 2:
-            node_id = "r:0:c:c"
-        node = solver.show_node(node_id)
-
-        flags = node.flags
-        if "UNSOLVED" in flags:
-            solver.load_all_nodes()
-            solver.rebuild_forgotten_streets()
-            rebuild_and_resolve(solver, lock_turns=False)
+    if find_unsolved_node(solver, max_street) is not None:
+        print(
+            f"\033[31;1mFound unsolved node for street {max_street} on board {board}. Rebuilding and resolving...\033[0m"
+        )
+        # We need to rebuild and resolve the tree
+        solver.load_all_nodes()
+        solver.rebuild_forgotten_streets()
+        rebuild_and_resolve(solver, lock_turns=False)
 
     return aggregate_lines_for_solver(
         solver,
