@@ -4,3 +4,5 @@ script.txt
 .vscode/
 /*.cfr
 dist/
+
+.venv/*
