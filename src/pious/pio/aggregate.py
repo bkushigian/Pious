@@ -535,7 +535,7 @@ def aggregate_single_file(
     )
 
 
-def find_unsolved_node(solver: Solver, max_street_num: int) -> Optional[Node]:
+def find_unsolved_node(solver: Solver, max_street_num: int = 3) -> Optional[Node]:
     """
     Search for an unsolved node that has street number at most
     `max_street_num` and, if found, return it.
