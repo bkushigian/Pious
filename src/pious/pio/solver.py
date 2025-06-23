@@ -529,8 +529,8 @@ class Solver(object):
         return self._run("build_tree")
 
     def set_isomorphism(self, flop_trees: bool | int, turn_trees: bool | int):
-        flop_trees = bool_or_int_to_int(flop_trees)
-        turn_trees = bool_or_int_to_int(turn_trees)
+        flop_trees = intify(flop_trees)
+        turn_trees = intify(turn_trees)
         return self._run("set_isomorphism", str(flop_trees), str(turn_trees))
 
     def dump_tree(self, filename: str, save_type="no_rivers"):
@@ -844,9 +844,16 @@ _NO_OUTPUT_COMMANDS = [
 ]
 
 
-def bool_or_int_to_int(v: int | bool):
-    if v == True:
+def intify(v: Any) -> int:
+    """
+    Convert a value to an integer depending on its truthiness.
+    If the value is truthy, return 1; otherwise, return 0.
+    This is useful for converting boolean-like values to integers.
+
+    :param v: The value to convert.
+    :return: 1 if v is truthy, 0 if v is falsy
+    """
+    if v:
         return 1
-    if v == False:
+    else:
         return 0
-    return v
