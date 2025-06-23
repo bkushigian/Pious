@@ -855,5 +855,4 @@ def intify(v: Any) -> int:
     """
     if v:
         return 1
-    else:
-        return 0
+    return 0
