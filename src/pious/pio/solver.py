@@ -698,6 +698,32 @@ class Solver(object):
     def __del__(self):
         self.close()
 
+    def __call__(self, *args):
+        """
+        Allows direct forwarding of arbitrary UPI commands to the solver process.
+
+        This method enables advanced users to send any command supported by the solver
+        directly, bypassing the standard API. This can be useful for debugging, testing,
+        or accessing features not explicitly wrapped by this class. For more information
+        on available commands, refer to the
+        [PioSOLVER UPI documentation](https://piosolver.com/docs/upi/).
+
+        :param args: Command and its arguments to be sent to the solver.
+        :return: The raw output from the solver process.
+
+        Example
+        -------
+        >>> from pious.conf import pious_conf
+        >>> install_path = pious_conf.get_pio_install_directory()
+        >>> executable = pious_conf.get_pio_solver_name()
+        >>> solver = Solver(install_path, executable)
+        >>> solver("is_ready")
+        'is_ready ok!'
+        """
+
+        args = [str(arg) for arg in args]
+        return self._run(*args)
+
 
 def typed_list(data, t):
     return [t(a) for a in data.split()]
