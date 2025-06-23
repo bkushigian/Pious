@@ -141,6 +141,7 @@ class Solver(object):
         self.PATCH_VERSION = self.version[2]
 
     def reset(self):
+        self.process.kill()
         self.process = subprocess.Popen(
             [os.path.join(self.solver_path, self.executable_name)],
             cwd=self.solver_path,
@@ -351,7 +352,7 @@ class Solver(object):
         matchups = np.array([float(matchup) for matchup in matchups.split()])
         return evs, matchups
 
-    def calc_ev_pp(self, position: str | int, node) -> str:
+    def calc_ev_pp(self, position: str | int, node) -> Tuple[str, ...]:
         """
         EV of a given player in a given node for all hands.
 
@@ -386,8 +387,6 @@ class Solver(object):
         :return: a tuple of (equities, matchups), where each is a length 1326
             tuple of floats
         """
-        if isinstance(node_id, Node):
-            node_id = node_id.node_id
         position = normalize_position(position)
         results = self._run("calc_eq", position)
         eqs, matchups = results.split("\n")
@@ -395,7 +394,7 @@ class Solver(object):
         matchups = np.array([float(matchup) for matchup in matchups.split()])
         return eqs, matchups
 
-    def calc_eq_pp(self, position: str | int, node_id: str | Node) -> str:
+    def calc_eq_pp(self, position: str | int, node_id: str | Node) -> Tuple[str, ...]:
         """
         Equities for a given player in a given node for all hands.
 
@@ -464,7 +463,9 @@ class Solver(object):
             node_id = node_id.node_id
         return self._run("solve_partial", node_id)
 
-    def show_range(self, position: str | int, node_id: Optional[str | Node]) -> Range:
+    def show_range(
+        self, position: str | int, node_id: Optional[str | Node]
+    ) -> Optional[Range]:
         """
         Show range in given node as a list of 1326 floats from 0.0 (not
         present) to 1.0 (full combo).  If only one argument is given then
@@ -490,6 +491,8 @@ class Solver(object):
             r = " ".join([str(x) for x in rng])
         elif isinstance(rng, Range):
             r = rng.pio_str()
+        else:
+            raise TypeError(f"Unsupported type for rng: {type(rng)}")
         position = normalize_position(position)
         return self._run("set_range", position, r)
 
@@ -499,8 +502,13 @@ class Solver(object):
     def set_pot(self, oop: int, ip: int, start: int):
         return self._run("set_pot", str(oop), str(ip), str(start))
 
-    def set_board(self, board: str):
-        return self._run("set_board", "".join(board))
+    def set_board(self, board: str | List[str]):
+        if isinstance(board, list):
+            board_str = "".join(board)
+        else:
+            board_str = board
+
+        return self._run("set_board", board_str)
 
     def build_tree(self):
         return self._run("build_tree")
@@ -525,6 +533,12 @@ class Solver(object):
         return self._run("dump_tree", filename, save_type)
 
     def lock_node(self, node_id: str | Node):
+        """
+        Lock the specified node in the tree to prevent further modifications.
+
+        :param node_id: The node ID or Node object to lock.
+        :return: The response from the solver.
+        """
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         response = self._run("lock_node", node_id)
@@ -656,14 +670,19 @@ class Solver(object):
 
         return output.replace("END\n", "").strip()
 
-    def __del__(self):
+    def close(self):
         if self.log_file:
             self.log_file.close()
+            self.log_file = None
         if self.process:
             self.process.kill()
+            self.process = None
         if self.store_script:
             with open("script.txt", "w") as f:
                 f.write("\n".join(self.commands))
+
+    def __del__(self):
+        self.close()
 
 
 def typed_list(data, t):
