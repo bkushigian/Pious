@@ -24,31 +24,7 @@ from ..pio import (
 FLOP = 1
 
 
-def exec_lines(args: Namespace):
-
-    if not osp.exists(args.solve_file):
-        print(f"No such file {args.solve_file}, exiting")
-        exit(-1)
-
-    solve_file = osp.abspath(args.solve_file)
-
-    solver = make_solver()
-    solver.load_tree(solve_file)
-    solver.load_all_nodes()
-
-    root_node_info = solver.show_node("r:0")
-    all_lines_str = solver.show_all_lines()
-
-    if args.show_all:
-        show_all_lines(all_lines_str, solver)
-    if args.count:
-        all_lines = [Line(line, starting_street=FLOP) for line in all_lines_str]
-        count(all_lines, root_node_info)
-    if args.valid is not None:
-        lines_are_valid(args.valid, all_lines_str)
-
-
-def count(all_lines: List[Line], root_node_info):
+def count_lines(all_lines: List[Line], root_node_info):
 
     flop_lines = get_flop_lines(lines=all_lines)
     turn_lines = get_turn_lines(lines=all_lines)
@@ -153,6 +129,6 @@ def lines_cmd(
         show_all_lines(all_lines_str, solver)
     if count:
         all_lines = [Line(line, starting_street=FLOP) for line in all_lines_str]
-        count(all_lines, root_node_info)
+        count_lines(all_lines, root_node_info)
     if valid is not None:
         lines_are_valid(valid, all_lines_str)
