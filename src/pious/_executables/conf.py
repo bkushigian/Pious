@@ -1,4 +1,5 @@
-from argparse import Namespace, _SubParsersAction
+from argparse import Namespace
+import argparse
 
 
 def exec_conf(args: Namespace):
@@ -28,8 +29,8 @@ def exec_conf(args: Namespace):
     )
 
 
-def register_command(sub_parsers: _SubParsersAction):
+def register_command(sub_parsers: argparse._SubParsersAction):
     parser_version = sub_parsers.add_parser(
-        "conf", description="Print version and exit"
+        "conf", description="Print configuration information and exit"
     )
     parser_version.set_defaults(function=exec_conf)
