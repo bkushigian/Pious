@@ -45,7 +45,7 @@ class AggregationReport:
     def __init__(
         self,
         agg_report_directory: str,
-        cfr_database: Optional[str | CFRDatabase] = None,
+        cfr_database: Optional[str | Path | CFRDatabase] = None,
         report_cache: Optional[str] = None,
         spot_name: Optional[str] = None,
     ):
@@ -87,6 +87,8 @@ class AggregationReport:
         if cfr_database is not None:
             if isinstance(cfr_database, str):
                 self.cfr_database = CFRDatabase(cfr_database)
+            elif isinstance(cfr_database, Path):
+                self.cfr_database = CFRDatabase(str(cfr_database))
             elif isinstance(cfr_database, CFRDatabase):
                 self.cfr_database = cfr_database
             else:
