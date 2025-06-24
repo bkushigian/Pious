@@ -6,8 +6,6 @@ from sys import exit
 import typer
 from typing_extensions import Annotated
 from pathlib import Path
-from rich.console import Console
-from rich.panel import Panel
 
 
 def blockers_cmd(
