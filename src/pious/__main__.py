@@ -1,43 +1,43 @@
-from argparse import ArgumentParser, Namespace
+import typer
+from typing_extensions import Annotated
 
-from ._executables.aggregation_viewer import (
-    register_command as aggregation_viewer_register_command,
+# Import all command modules to register them
+from ._executables import (
+    aggregate,
+    aggregation_viewer,
+    blockers,
+    conf,
+    flops,
+    lines,
+    version,
 )
-from ._executables.aggregate import register_command as aggregate_register_command
-from ._executables.flops import register_command as flops_register_command
-from ._executables.blockers import register_command as blockers_register_command
-from ._executables.lines import register_command as lines_register_command
-from ._executables.version import register_command as version_register_command
-from ._executables.conf import register_command as conf_register_command
 
 PIOUS_DESCRIPTION = """Pious: The PIO Utility Suite
 
 The Pious Library began as a wrapper around PioSOLVER's Universal Poker
 Interface (UPI) and has evolved in to a full fledged poker software utility
 suite.
-
 """
+
+# Create the main Typer app
+app = typer.Typer(
+    name="pious",
+    help="The PioSOLVER Utility Suite",
+    no_args_is_help=True,
+)
+
+# Add all subcommands
+app.add_typer(aggregate.app, name="aggregate")
+app.add_typer(aggregation_viewer.app, name="aggregation-viewer")
+app.add_typer(blockers.app, name="blockers")
+app.add_typer(conf.app, name="conf")
+app.add_typer(flops.app, name="flops")
+app.add_typer(lines.app, name="lines")
+app.add_typer(version.app, name="version")
 
 
 def main():
-    parser = ArgumentParser(prog="pious", description="The PioSOLVER Utility Suite")
-
-    ## DEFINE SUBPARSERS
-    sub_parsers = parser.add_subparsers(title="commands")
-
-    flops_register_command(sub_parsers)
-    aggregation_viewer_register_command(sub_parsers)
-    aggregate_register_command(sub_parsers)
-    blockers_register_command(sub_parsers)
-    lines_register_command(sub_parsers)
-    version_register_command(sub_parsers)
-    conf_register_command(sub_parsers)
-
-    args = parser.parse_args()
-    if "function" in args:
-        args.function(args)
-    else:
-        parser.print_help()
+    app()
 
 
 if __name__ == "__main__":

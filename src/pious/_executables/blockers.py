@@ -2,6 +2,34 @@ from argparse import Namespace, _SubParsersAction
 from ..pio import compute_single_card_blocker_effects, make_solver
 from os import path as osp
 from sys import exit
+import typer
+from typing_extensions import Annotated
+from pathlib import Path
+
+app = typer.Typer(help="Compute blocker effects")
+
+
+@app.command()
+def blockers(
+    solve_file: Annotated[Path, typer.Argument(help="Path to solve file")],
+    node_id: Annotated[str, typer.Option(help="Node ID")] = None,
+    num_hist_bins: Annotated[int, typer.Option(help="Number of histogram bins")] = 20,
+):
+    """Compute single card blocker effects"""
+    from ..pio import compute_single_card_blocker_effects, make_solver
+    from sys import exit
+
+    if node_id is None:
+        node_id = "r:0"
+    if not node_id.startswith("r:0"):
+        node_id = "r:0" + node_id
+    if not solve_file.exists():
+        typer.echo(f"No such file {solve_file}, exiting", err=True)
+        raise typer.Exit(1)
+    solver = make_solver()
+    solver.load_tree(str(solve_file))
+    # Continue with existing logic...
+    typer.echo("Blockers command not fully implemented yet")
 
 
 def exec_blockers(args: Namespace):

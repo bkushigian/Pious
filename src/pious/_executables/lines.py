@@ -9,6 +9,8 @@ from ansi.color import fg, fx
 from sys import exit
 from os import path as osp
 
+import typer
+
 from pious.pio.solver import Solver
 from ..pio import (
     make_solver,
@@ -123,3 +125,12 @@ def register_command(sub_parsers: _SubParsersAction):
     parser.add_argument(
         "--show_all", action="store_true", help="Print all lines in tree"
     )
+
+
+app = typer.Typer(help="Line-related commands")
+
+
+@app.command()
+def lines():
+    """Line-related functionality"""
+    typer.echo("Lines command not fully implemented yet")

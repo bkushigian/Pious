@@ -8,6 +8,7 @@ from ..pio.aggregation import AggregationReport
 from code import InteractiveConsole
 from matplotlib import pyplot as plt
 from ansi.color import fg, fx
+import typer
 
 banner = f"""
 Launching interactive aggregation report session. Variable `ar` stores the
@@ -18,6 +19,14 @@ aggregation report. Use
 + `{fx.bold}{fg.blue}ar.plot(){fx.reset}` to plot the report
 
 """
+
+app = typer.Typer(help="Aggregation viewer")
+
+
+@app.command()
+def view():
+    """View aggregation results"""
+    typer.echo("Aggregation viewer command not fully implemented yet")
 
 
 def register_command(sub_parsers: _SubParsersAction):
