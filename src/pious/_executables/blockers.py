@@ -40,7 +40,7 @@ def blockers_cmd(
         print(f"No such file {solve_file}, exiting")
         exit(-1)
     solver = make_solver()
-    solver.load_tree(solve_file)
+    solver.load_tree(str(solve_file))
     blocker_effects = compute_single_card_blocker_effects(
         solver, node_id, num_hist_bins
     )
