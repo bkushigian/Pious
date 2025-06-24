@@ -44,7 +44,7 @@ def load_report_to_df(report_csv_path: str) -> Tuple[List[str], str, pd.DataFram
 class AggregationReport:
     def __init__(
         self,
-        agg_report_directory: str,
+        agg_report_directory: str | Path,
         cfr_database: Optional[str | Path | CFRDatabase] = None,
         report_cache: Optional[str] = None,
         spot_name: Optional[str] = None,
@@ -61,7 +61,7 @@ class AggregationReport:
         """
         self._ensure_is_valid_agg_report_directory(agg_report_directory)
         self.type = "RAW_REPORT"
-        self.agg_report_directory = agg_report_directory
+        self.agg_report_directory = str(agg_report_directory)
         self.report_csv_path = osp.join(agg_report_directory, "report.csv")
         self.report_info_path = osp.join(agg_report_directory, "info.txt")
         self.hands_ev_path = osp.join(agg_report_directory, "handsEV.csv")

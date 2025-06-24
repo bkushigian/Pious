@@ -82,7 +82,7 @@ def aggregation_viewer_cmd(
     if report_dir is None:
         report_dir = "."
     try:
-        ar = AggregationReport(str(report_dir), str(cfr_database))
+        ar = AggregationReport(report_dir, cfr_database)
     except RuntimeError as e:
         print(f"Couldn't load aggregation report for reports directory '{report_dir}'")
         return
