@@ -14,14 +14,11 @@ from ..pio import aggregate
 import sys
 import time
 
-app = typer.Typer(help="Create aggregation reports")
-
 banner = f"""
 Create an aggregation report
 """
 
 
-@app.command()
 def aggregate_cmd(
     cfr_file_or_sim_dir: Annotated[
         Path,
@@ -59,7 +56,7 @@ def aggregate_cmd(
 
     if out is None:
         typer.echo()
-        typer.echo("No output directory specified!", fg=typer.colors.RED, err=True)
+        typer.secho("No output directory specified!", fg=typer.colors.RED, err=True)
         typer.echo()
         typer.echo(
             textwrap.fill(
@@ -72,7 +69,7 @@ def aggregate_cmd(
     out_dir = out.resolve()
     if out_dir.exists() and not overwrite:
         typer.echo()
-        typer.echo("Destination exists!", fg=typer.colors.RED, err=True)
+        typer.secho("Destination exists!", fg=typer.colors.RED, err=True)
         typer.echo()
         typer.echo(f"    {out_dir}")
         typer.echo()

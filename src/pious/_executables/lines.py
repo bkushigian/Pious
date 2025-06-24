@@ -4,7 +4,8 @@ lines and nodes.
 """
 
 from argparse import Namespace, _SubParsersAction
-from typing import List
+from pathlib import Path
+from typing import Annotated, List
 from ansi.color import fg, fx
 from sys import exit
 from os import path as osp
@@ -127,10 +128,31 @@ def register_command(sub_parsers: _SubParsersAction):
     )
 
 
-app = typer.Typer(help="Line-related commands")
-
-
-@app.command()
-def lines():
+def lines_cmd(
+    solve_file: Annotated[Path, typer.Argument(help="Path to solve file")],
+    count: Annotated[bool, typer.Option(help="Print a summary of lines")] = False,
+    valid: Annotated[List[str], typer.Option(help="Check if lines are valid")] = None,
+    show_all: Annotated[bool, typer.Option(help="Print all lines in tree")] = False,
+):
     """Line-related functionality"""
-    typer.echo("Lines command not fully implemented yet")
+
+    if not osp.exists(solve_file):
+        print(f"No such file {solve_file}, exiting")
+        exit(-1)
+
+    solve_file = osp.abspath(solve_file)
+
+    solver = make_solver()
+    solver.load_tree(solve_file)
+    solver.load_all_nodes()
+
+    root_node_info = solver.show_node("r:0")
+    all_lines_str = solver.show_all_lines()
+
+    if show_all:
+        show_all_lines(all_lines_str, solver)
+    if count:
+        all_lines = [Line(line, starting_street=FLOP) for line in all_lines_str]
+        count(all_lines, root_node_info)
+    if valid is not None:
+        lines_are_valid(valid, all_lines_str)

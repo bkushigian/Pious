@@ -24,16 +24,17 @@ app = typer.Typer(
     name="pious",
     help="The PioSOLVER Utility Suite",
     no_args_is_help=True,
+    invoke_without_command=True,
 )
 
 # Add all subcommands
-app.add_typer(aggregate.app, name="aggregate")
+app.command(name="aggregate")(aggregate.aggregate_cmd)
 app.add_typer(aggregation_viewer.app, name="aggregation-viewer")
-app.add_typer(blockers.app, name="blockers")
-app.add_typer(conf.app, name="conf")
-app.add_typer(flops.app, name="flops")
-app.add_typer(lines.app, name="lines")
-app.add_typer(version.app, name="version")
+app.command(name="blockers")(blockers.blockers_cmd)
+app.command(name="conf")(conf.conf_cmd)
+app.command(name="flops")(flops.flops_cmd)
+app.command(name="lines")(lines.lines_cmd)
+app.command(name="version")(version.version_cmd)
 
 
 def main():
