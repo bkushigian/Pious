@@ -29,7 +29,7 @@ app = typer.Typer(
 
 # Add all subcommands
 app.command(name="aggregate")(aggregate.aggregate_cmd)
-app.add_typer(aggregation_viewer.app, name="aggregation-viewer")
+app.command(name="aggregation-viewer")(aggregation_viewer.aggregation_viewer_cmd)
 app.command(name="blockers")(blockers.blockers_cmd)
 app.command(name="conf")(conf.conf_cmd)
 app.command(name="flops")(flops.flops_cmd)
