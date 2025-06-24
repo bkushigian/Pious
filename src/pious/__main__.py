@@ -4,12 +4,12 @@ from typing_extensions import Annotated
 # Import all command modules to register them
 from ._executables import (
     aggregate,
-    aggregation_viewer,
     blockers,
     conf,
     flops,
     lines,
     version,
+    view_agg_report,
 )
 
 PIOUS_DESCRIPTION = """Pious: The PIO Utility Suite
@@ -29,7 +29,7 @@ app = typer.Typer(
 
 # Add all subcommands
 app.command(name="aggregate")(aggregate.aggregate_cmd)
-app.command(name="aggregation-viewer")(aggregation_viewer.aggregation_viewer_cmd)
+app.command(name="view-agg-report")(view_agg_report.aggregation_viewer_cmd)
 app.command(name="blockers")(blockers.blockers_cmd)
 app.command(name="conf")(conf.conf_cmd)
 app.command(name="flops")(flops.flops_cmd)
