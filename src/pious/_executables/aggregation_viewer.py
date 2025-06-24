@@ -6,6 +6,7 @@ should be launched `python -m pious aggregation_viewer`
 from argparse import Namespace, _SubParsersAction
 
 from pathlib import Path
+from typing import Optional
 from ..pio.aggregation import AggregationReport
 from code import InteractiveConsole
 from matplotlib import pyplot as plt
@@ -65,18 +66,18 @@ def aggregation_viewer_cmd(
         ),
     ],
     cfr_database: Annotated[
-        Path,
+        Optional[Path],
         typer.Argument(
             help="Path to CFR Database (cfr files that report was generated from) (optional).",
         ),
-    ],
+    ] = None,
     interactive: Annotated[
         bool, typer.Option("--interactive", "-I", help="Launch interactive console")
-    ],
+    ] = False,
     filter_expr: Annotated[
         str, typer.Option("--filter", "-F", help="Filter aggregation report")
-    ],
-    plot: Annotated[bool, typer.Option(help="Plot aggregation report results")],
+    ] = "",
+    plot: Annotated[bool, typer.Option(help="Plot aggregation report results")] = False,
 ):
     if report_dir is None:
         report_dir = "."
