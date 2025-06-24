@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.2
+- Documentation
+- Cleaned up some code
+- Bug fixes
+- Switched CLI to Typer
+
 ## v0.0.0.dev17
 - Various fixes to hand categorizations
 - Fixes/improvements/new tests
