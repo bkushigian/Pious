@@ -112,7 +112,7 @@ def lines_cmd(
 ):
     """Line-related functionality"""
 
-    if not osp.exists(solve_file):
+    if not solve_file.exists():
         print(f"No such file {solve_file}, exiting")
         exit(-1)
 

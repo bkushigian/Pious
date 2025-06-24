@@ -34,7 +34,7 @@ def blockers_cmd(
         node_id = "r:0"
     if not node_id.startswith("r:0"):
         node_id = "r:0" + node_id
-    if not osp.exists(solve_file):
+    if not solve_file.exists():
         print(f"No such file {solve_file}, exiting")
         exit(-1)
     solver = make_solver()
