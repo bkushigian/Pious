@@ -90,20 +90,6 @@ def show_all_lines(all_lines: List[str], solver: Solver):
         print(line)
 
 
-def register_command(sub_parsers: _SubParsersAction):
-    parser = sub_parsers.add_parser(
-        "lines", description="Utility for working with PioSOLVER lines and nodes"
-    )
-    parser.set_defaults(function=exec_lines)
-
-    parser.add_argument("solve_file", type=str, help="PioSOLVER save file to load")
-    parser.add_argument("--count", action="store_true", help="Print a summary of lines")
-    parser.add_argument("--valid", nargs="*", help="Check if line is valid")
-    parser.add_argument(
-        "--show_all", action="store_true", help="Print all lines in tree"
-    )
-
-
 def lines_cmd(
     solve_file: Annotated[Path, typer.Argument(help="Path to solve file")],
     count: Annotated[bool, typer.Option(help="Print a summary of lines")] = False,
