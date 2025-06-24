@@ -1,4 +1,4 @@
-from pious.pio.aggregation import load_report_to_df, AggregationReport
+from pious.pio.pio_aggregation_report import load_report_to_df, AggregationReport
 from pious.pio.resources import get_database_root, get_aggregation_root
 
 
