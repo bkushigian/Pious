@@ -7,7 +7,7 @@ from argparse import Namespace, _SubParsersAction
 
 from pathlib import Path
 from typing import Optional
-from ..pio.aggregation import AggregationReport
+from ..pio.pio_aggregation_report import AggregationReport
 from code import InteractiveConsole
 from matplotlib import pyplot as plt
 from ansi.color import fg, fx
