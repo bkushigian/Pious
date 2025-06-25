@@ -3,7 +3,7 @@ Compare different combination reports. This effectively performs a join on two
 aggregation reports.
 """
 
-from .pio_aggregation_report import AggregationReport, Plotter
+from .pio_aggregation_report import PioAggregationReport, Plotter
 import pandas as pd
 from typing import Optional, List, Tuple
 
@@ -11,8 +11,8 @@ from typing import Optional, List, Tuple
 class AggregationComparator:
     def __init__(
         self,
-        report1: AggregationReport,
-        report2: AggregationReport,
+        report1: PioAggregationReport,
+        report2: PioAggregationReport,
         lsuffix="_1",
         rsuffix="_2",
         join_type="left",

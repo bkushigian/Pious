@@ -41,12 +41,12 @@ def load_report_to_df(report_csv_path: str) -> Tuple[List[str], str, pd.DataFram
     return header, body, df
 
 
-class AggregationReport:
+class PioAggregationReport:
     def __init__(
         self,
         agg_report_directory: str | Path,
         cfr_database: Optional[str | Path | CFRDatabase] = None,
-        report_cache: Optional[Dict[Path, "AggregationReport"]] = None,
+        report_cache: Optional[Dict[Path, "PioAggregationReport"]] = None,
         spot_name: Optional[str] = None,
     ):
         """Create a new `AggregationReport`
@@ -66,7 +66,7 @@ class AggregationReport:
         self.report_info_path = self.agg_report_directory / "info.txt"
         self.hands_ev_path = self.agg_report_directory / "handsEV.csv"
         self.spot_name = spot_name
-        self._report_cache: Dict[Path, AggregationReport] = (
+        self._report_cache: Dict[Path, PioAggregationReport] = (
             {} if report_cache is None else report_cache
         )
         if self.agg_report_directory in self._report_cache:
@@ -287,7 +287,7 @@ class AggregationReport:
             return None
         # Is valid parent dir
         if par_dir not in self._report_cache:
-            return AggregationReport(
+            return PioAggregationReport(
                 par_dir, self.cfr_database, report_cache=self._report_cache
             )
         return self._report_cache[par_dir]
@@ -298,7 +298,7 @@ class AggregationReport:
         )
 
         if new_agg_report_directory not in self._report_cache:
-            return AggregationReport(
+            return PioAggregationReport(
                 agg_report_directory=new_agg_report_directory,
                 cfr_database=self.cfr_database,
                 report_cache=self._report_cache,
@@ -669,8 +669,8 @@ class AggregationReport:
 
 
 class Plotter:
-    def __init__(self, report: AggregationReport):
-        self.report: AggregationReport = report
+    def __init__(self, report: PioAggregationReport):
+        self.report: PioAggregationReport = report
         self.min_size = 20
         self.max_size = 200
         self.data_point_labels = True

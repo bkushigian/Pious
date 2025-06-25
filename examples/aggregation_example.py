@@ -1,9 +1,9 @@
-from pious.pio.pio_aggregation_report import AggregationReport
+from pious.pio.pio_aggregation_report import PioAggregationReport
 from pious.pio.resources import get_aggregation_root, get_database_root
 from ansi.color import fg
 from ansi.colour.fx import italic
 
-report = AggregationReport(get_aggregation_root(), get_database_root())
+report = PioAggregationReport(get_aggregation_root(), get_database_root())
 
 # Reports are printable
 print(report)
