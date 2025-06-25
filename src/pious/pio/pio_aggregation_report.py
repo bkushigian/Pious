@@ -345,7 +345,7 @@ class PioAggregationReport:
                     matching_dir = subdir
         if matching_dir is None:
             raise ValueError(
-                f"Unable to find an diretory in {dirs} corresponding to action {action_dir_name}"
+                f"Unable to find a directory in {dirs} corresponding to action {action_dir_name}"
             )
 
         return matching_dir
