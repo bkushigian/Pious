@@ -294,7 +294,7 @@ class PioAggregationReport:
 
     def take_action(self, action_dir_name: str):
         new_agg_report_directory = (
-            self.agg_report_directory / self.resolve_report_directory(action_dir_name)
+            self.agg_report_directory / self.resolve_action_directory(action_dir_name)
         )
 
         if new_agg_report_directory not in self._report_cache:
