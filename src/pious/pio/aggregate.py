@@ -394,6 +394,8 @@ class CFRDatabase:
         )
 
         if self.script_txt is None:
+            for board in self.boards:
+                self.raw_weights[board] = 1.0
             return
         with open(self.script_txt) as f:
             lines = f.readlines()
@@ -512,13 +514,12 @@ def aggregate_single_file(
         )
         sys.exit(-1)
 
+    if len(lines_to_aggregate) == 0:
+        return {}
     # Check to see if we are aggregating lines for an unsolved street.
     max_street = max([line.current_street() for line in lines_to_aggregate])
 
     if find_unsolved_node(solver, max_street) is not None:
-        print(
-            f"\033[31;1mFound unsolved node for street {max_street} on board {board}. Rebuilding and resolving...\033[0m"
-        )
         # We need to rebuild and resolve the tree
         solver.load_all_nodes()
         solver.rebuild_forgotten_streets()
@@ -572,6 +573,8 @@ def find_unsolved_node(solver: Solver, max_street_num: int = 3) -> Optional[Node
             if "UNSOLVED" in flags:
                 return node
             current_street += 1
+            actions = solver.show_children_actions(node_id)
+            node_id += f":{actions[0]}"
         elif node.node_type == "OOP_DEC" or node.node_type == "IP_DEC":
 
             actions = solver.show_children_actions(node_id)
@@ -590,6 +593,7 @@ def find_unsolved_node(solver: Solver, max_street_num: int = 3) -> Optional[Node
                     raise RuntimeError(
                         f"Unable to find a valid action to explore the game tree: no suitable candidate at node id {node_id} with actions {actions}"
                     )
+                node_id += f":{min_bet_action}"
         else:
             raise RuntimeError(
                 f"Unexpected node type: {node.node_type} at node id {node_id}"
