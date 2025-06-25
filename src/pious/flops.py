@@ -275,7 +275,6 @@ class Flops:
         return len(self._view)
 
     def __str__(self):
-        view = self.view()
         flops = [flop for flop in self.view()["raw_flop"]]
         return "\n".join(flops)
 

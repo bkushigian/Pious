@@ -131,6 +131,7 @@ class Solver(object):
         self.end_string = end_string
         self.simulate = simulate
         pio_exec = os.path.join(self.solver_path, self.executable_name) + ".exe"
+        self.process = None
         if not (osp.exists(pio_exec)):
             raise RuntimeError(f"Cannot find PioSOLVER executable {pio_exec}")
 

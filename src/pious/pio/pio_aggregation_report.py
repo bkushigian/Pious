@@ -41,12 +41,12 @@ def load_report_to_df(report_csv_path: str) -> Tuple[List[str], str, pd.DataFram
     return header, body, df
 
 
-class AggregationReport:
+class PioAggregationReport:
     def __init__(
         self,
-        agg_report_directory: str,
-        cfr_database: Optional[str | CFRDatabase] = None,
-        report_cache: Optional[str] = None,
+        agg_report_directory: str | Path,
+        cfr_database: Optional[str | Path | CFRDatabase] = None,
+        report_cache: Optional[Dict[Path, "PioAggregationReport"]] = None,
         spot_name: Optional[str] = None,
     ):
         """Create a new `AggregationReport`
@@ -61,12 +61,12 @@ class AggregationReport:
         """
         self._ensure_is_valid_agg_report_directory(agg_report_directory)
         self.type = "RAW_REPORT"
-        self.agg_report_directory = agg_report_directory
-        self.report_csv_path = osp.join(agg_report_directory, "report.csv")
-        self.report_info_path = osp.join(agg_report_directory, "info.txt")
-        self.hands_ev_path = osp.join(agg_report_directory, "handsEV.csv")
+        self.agg_report_directory = Path(agg_report_directory)
+        self.report_csv_path = self.agg_report_directory / "report.csv"
+        self.report_info_path = self.agg_report_directory / "info.txt"
+        self.hands_ev_path = self.agg_report_directory / "handsEV.csv"
         self.spot_name = spot_name
-        self._report_cache: Dict[str, AggregationReport] = (
+        self._report_cache: Dict[Path, PioAggregationReport] = (
             {} if report_cache is None else report_cache
         )
         if self.agg_report_directory in self._report_cache:
@@ -87,6 +87,8 @@ class AggregationReport:
         if cfr_database is not None:
             if isinstance(cfr_database, str):
                 self.cfr_database = CFRDatabase(cfr_database)
+            elif isinstance(cfr_database, Path):
+                self.cfr_database = CFRDatabase(str(cfr_database))
             elif isinstance(cfr_database, CFRDatabase):
                 self.cfr_database = cfr_database
             else:
@@ -274,10 +276,10 @@ class AggregationReport:
         self.cfr_database.open_board_in_pio(board, node=node)
 
     def parent(self):
-        ard = self.agg_report_directory
+        ard = Path(self.agg_report_directory)
         if osp.basename(ard) == "Root":
             return None
-        par_dir = str(Path(ard).parent.absolute())
+        par_dir = ard.parent.absolute()
         try:
             self._ensure_is_valid_agg_report_directory(par_dir)
         except RuntimeError as e:
@@ -285,54 +287,68 @@ class AggregationReport:
             return None
         # Is valid parent dir
         if par_dir not in self._report_cache:
-            return AggregationReport(
+            return PioAggregationReport(
                 par_dir, self.cfr_database, report_cache=self._report_cache
             )
         return self._report_cache[par_dir]
 
-    def take_action(self, action_directory: str):
-        ard = self.agg_report_directory
-        d = osp.join(ard, action_directory)
-        dirs = [
-            d
-            for d in os.listdir(self.agg_report_directory)
-            if osp.isdir(osp.join(ard, d))
-        ]
-        # Normalize the action directory
-        na = action_directory.upper().replace("_", "").replace(" ", "")
-        # Look for an exact match
-        matching_dir = None
-        for d in dirs:
-            nd = d.upper().replace("_", "").replace(" ", "")
-            if nd == na:
-                if matching_dir is not None:
-                    raise ValueError(
-                        f"Ambiguous match: {d} and {matching_dir} both normalize to {nd}"
-                    )
-                matching_dir = d
-        if matching_dir is None:  # No exact match, so lets find a unique prefix
-            matching_dir = None  # Redundant, but to be clear :)
-            for d in dirs:
-                nd = d.upper().replace("_", "").replace(" ", "")
-                if nd.startswith(na):
-                    if matching_dir is not None:
-                        raise ValueError(
-                            f"Ambiguous fuzzy match: {na} is a prefix to both {d} and {matching_dir}: cannot resolve which action to take"
-                        )
-                    matching_dir = d
-        if matching_dir is None:
-            raise ValueError(
-                f"Unable to find an diretory in {dirs} corresponding to action {action_directory}"
-            )
-        new_ard = osp.join(ard, matching_dir)
+    def take_action(self, action_dir_name: str):
+        new_agg_report_directory = (
+            self.agg_report_directory / self.resolve_action_directory(action_dir_name)
+        )
 
-        if new_ard not in self._report_cache:
-            return AggregationReport(
-                agg_report_directory=new_ard,
+        if new_agg_report_directory not in self._report_cache:
+            return PioAggregationReport(
+                agg_report_directory=new_agg_report_directory,
                 cfr_database=self.cfr_database,
                 report_cache=self._report_cache,
             )
-        return self._report_cache[new_ard]
+        return self._report_cache[new_agg_report_directory]
+
+    def resolve_action_directory(self, action_dir_name) -> str:
+        """
+        Resolves the directory name corresponding to a given action directory
+        name within the aggregation report directory.
+
+        :param action_dir_name: The name of the action directory to resolve.
+        :returns: The resolved subdirectory name within the aggregation report directory.
+        :raises ValueError: If no matching directory is found or if multiple ambiguous matches are found.
+        """
+        dirs = [
+            d
+            for d in os.listdir(self.agg_report_directory)
+            if (self.agg_report_directory / d).is_dir()
+        ]
+        # Normalize the action directory
+        action_dir_normalized = (
+            action_dir_name.upper().replace("_", "").replace(" ", "")
+        )
+        # First, look for an exact match
+        matching_dir = None
+        for subdir in dirs:
+            subdir_normalized = subdir.upper().replace("_", "").replace(" ", "")
+            if subdir_normalized == action_dir_normalized:
+                if matching_dir is not None:
+                    raise ValueError(
+                        f"Ambiguous match: {subdir} and {matching_dir} both normalize to {subdir_normalized}"
+                    )
+                matching_dir = subdir
+        # We did not find an exact match, so now we try to find a unique prefix
+        if matching_dir is None:  # No exact match, so lets find a unique prefix
+            for subdir in dirs:
+                subdir_normalized = subdir.upper().replace("_", "").replace(" ", "")
+                if subdir_normalized.startswith(action_dir_normalized):
+                    if matching_dir is not None:
+                        raise ValueError(
+                            f"Ambiguous fuzzy match: {action_dir_normalized} is a prefix to both {subdir} and {matching_dir}: cannot resolve which action to take"
+                        )
+                    matching_dir = subdir
+        if matching_dir is None:
+            raise ValueError(
+                f"Unable to find a directory in {dirs} corresponding to action {action_dir_name}"
+            )
+
+        return matching_dir
 
     def ion(self):
         plt.ion()
@@ -653,8 +669,8 @@ class AggregationReport:
 
 
 class Plotter:
-    def __init__(self, report: AggregationReport):
-        self.report: AggregationReport = report
+    def __init__(self, report: PioAggregationReport):
+        self.report: PioAggregationReport = report
         self.min_size = 20
         self.max_size = 200
         self.data_point_labels = True

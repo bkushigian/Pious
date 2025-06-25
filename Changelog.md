@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.2
+- Documentation
+- Cleaned up some code
+- Bug fixes
+- **Breaking** Switched CLI to Typer
+- **Breaking** Renamed `aggregation` pious command to `view-agg-report`
+- **Breaking** Renamed `pious.pio.aggregation` to `pious.pio.pio_aggregation_report`
+- **Breaking** Renamed class `AggregationReport` 
+
 ## v0.0.0.dev17
 - Various fixes to hand categorizations
 - Fixes/improvements/new tests

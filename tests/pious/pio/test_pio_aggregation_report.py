@@ -1,4 +1,4 @@
-from pious.pio.aggregation import load_report_to_df, AggregationReport
+from pious.pio.pio_aggregation_report import load_report_to_df, PioAggregationReport
 from pious.pio.resources import get_database_root, get_aggregation_root
 
 
@@ -9,7 +9,7 @@ def test_aggregation_report():
 
     root_dir = get_aggregation_root()
     db_root = get_database_root()
-    r = AggregationReport(root_dir, db_root)
+    r = PioAggregationReport(root_dir, db_root)
 
     print(r.view())
     print(r.describe())

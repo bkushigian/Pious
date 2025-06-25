@@ -4,10 +4,13 @@ lines and nodes.
 """
 
 from argparse import Namespace, _SubParsersAction
-from typing import List
+from pathlib import Path
+from typing import Annotated, List
 from ansi.color import fg, fx
 from sys import exit
 from os import path as osp
+
+import typer
 
 from pious.pio.solver import Solver
 from ..pio import (
@@ -21,31 +24,7 @@ from ..pio import (
 FLOP = 1
 
 
-def exec_lines(args: Namespace):
-
-    if not osp.exists(args.solve_file):
-        print(f"No such file {args.solve_file}, exiting")
-        exit(-1)
-
-    solve_file = osp.abspath(args.solve_file)
-
-    solver = make_solver()
-    solver.load_tree(solve_file)
-    solver.load_all_nodes()
-
-    root_node_info = solver.show_node("r:0")
-    all_lines_str = solver.show_all_lines()
-
-    if args.show_all:
-        show_all_lines(all_lines_str, solver)
-    if args.count:
-        all_lines = [Line(line, starting_street=FLOP) for line in all_lines_str]
-        count(all_lines, root_node_info)
-    if args.valid is not None:
-        lines_are_valid(args.valid, all_lines_str)
-
-
-def count(all_lines: List[Line], root_node_info):
+def count_lines(all_lines: List[Line], root_node_info):
 
     flop_lines = get_flop_lines(lines=all_lines)
     turn_lines = get_turn_lines(lines=all_lines)
@@ -111,15 +90,31 @@ def show_all_lines(all_lines: List[str], solver: Solver):
         print(line)
 
 
-def register_command(sub_parsers: _SubParsersAction):
-    parser = sub_parsers.add_parser(
-        "lines", description="Utility for working with PioSOLVER lines and nodes"
-    )
-    parser.set_defaults(function=exec_lines)
+def lines_cmd(
+    solve_file: Annotated[Path, typer.Argument(help="Path to solve file")],
+    count: Annotated[bool, typer.Option(help="Print a summary of lines")] = False,
+    valid: Annotated[List[str], typer.Option(help="Check if lines are valid")] = None,
+    show_all: Annotated[bool, typer.Option(help="Print all lines in tree")] = False,
+):
+    """Line-related functionality"""
 
-    parser.add_argument("solve_file", type=str, help="PioSOLVER save file to load")
-    parser.add_argument("--count", action="store_true", help="Print a summary of lines")
-    parser.add_argument("--valid", nargs="*", help="Check if line is valid")
-    parser.add_argument(
-        "--show_all", action="store_true", help="Print all lines in tree"
-    )
+    if not solve_file.exists():
+        print(f"No such file {solve_file}, exiting")
+        exit(-1)
+
+    solve_file = osp.abspath(solve_file)
+
+    solver = make_solver()
+    solver.load_tree(solve_file)
+    solver.load_all_nodes()
+
+    root_node_info = solver.show_node("r:0")
+    all_lines_str = solver.show_all_lines()
+
+    if show_all:
+        show_all_lines(all_lines_str, solver)
+    if count:
+        all_lines = [Line(line, starting_street=FLOP) for line in all_lines_str]
+        count_lines(all_lines, root_node_info)
+    if valid is not None:
+        lines_are_valid(valid, all_lines_str)
