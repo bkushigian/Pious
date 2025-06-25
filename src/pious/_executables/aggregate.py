@@ -11,8 +11,9 @@ import shutil
 import textwrap
 import tabulate
 from ..pio import aggregate
-import sys
 import time
+from rich.console import Console
+from rich.panel import Panel
 
 banner = f"""
 Create an aggregation report
@@ -40,11 +41,19 @@ def aggregate_cmd(
     progress: Annotated[bool, typer.Option(help="Print progress bar")] = False,
 ):
     """Create aggregation reports from CFR files"""
+    console = Console()
     if lines is None:
         lines = []
 
     if not cfr_file_or_sim_dir.exists():
-        typer.echo(f"No such file or directory {cfr_file_or_sim_dir}", err=True)
+        panel = Panel.fit(
+            f"[bold yellow]{str(cfr_file_or_sim_dir)}[/bold yellow]\n\n"
+            "Please specify a valid CFR file or a valid directory containing CFR files.",
+            title="No Such File or Directory",
+            title_align="left",
+            border_style="bold red",
+        )
+        console.print(panel)
         raise typer.Exit(1)
 
     lines_to_aggregate = aggregate.LinesToAggregate(
@@ -55,33 +64,28 @@ def aggregate_cmd(
     )
 
     if out is None:
-        typer.echo()
-        typer.secho("No output directory specified!", fg=typer.colors.RED, err=True)
-        typer.echo()
-        typer.echo(
-            textwrap.fill(
-                "Use --out OUTPUT_DIRECTORY to specify where to write the results.",
-                width=80,
-            )
+        panel = Panel.fit(
+            f"Use [bold white]--out OUTPUT_DIRECTORY[/bold white] to specify where to write the results.",
+            title="No Output Directory",
+            title_align="left",
+            border_style="bold red",
         )
+        console.print(panel)
         raise typer.Exit(1)
 
     out_dir = out.resolve()
     if out_dir.exists() and not overwrite:
-        typer.echo()
-        typer.secho("Destination exists!", fg=typer.colors.RED, err=True)
-        typer.echo()
-        typer.echo(f"    {out_dir}")
-        typer.echo()
-        typer.echo(
-            textwrap.fill(
-                f"Use --overwrite to overwrite existing directory, specify a new output directory with --out NEW_DESTINATION, or manually remove destination before rerunning.",
-                width=80,
-            )
+
+        panel = Panel.fit(
+            f"[bold yellow]{out_dir}[/bold yellow]\n\n"
+            "Use [bold white]--overwrite[/bold white] to overwrite the existing directory,"
+            "use [bold white]--out NEW_DESTINATION[/bold white] to specify a new output directory,"
+            "or manually remove the destination before rerunning.",
+            title="Destination Exists",
+            title_align="left",
+            border_style="bold red",
         )
-        typer.echo()
-        typer.echo("Exiting.", bold=True)
-        typer.echo()
+        console.print(panel)
         raise typer.Exit(1)
 
     reports = None
@@ -90,15 +94,19 @@ def aggregate_cmd(
         reports = aggregate.aggregate_files_in_dir(
             str(cfr_file_or_sim_dir), lines_to_aggregate, print_progress=progress
         )
-        typer.echo(list(reports.keys()))
     elif cfr_file_or_sim_dir.is_file():
         reports = aggregate.aggregate_single_file(
             str(cfr_file_or_sim_dir), lines_to_aggregate, print_progress=progress
         )
     else:
-        typer.echo(
-            f"{cfr_file_or_sim_dir} is neither a .cfr file or a directory", err=True
+        panel = Panel.fit(
+            f"[bold yellow]{str(cfr_file_or_sim_dir)}[/bold yellow]\n\n"
+            "Please specify a valid CFR file or a valid directory containing CFR files.",
+            title="Invalid File or Directory",
+            title_align="left",
+            border_style="bold red",
         )
+        console.print(panel)
         raise typer.Exit(1)
 
     t1 = time.time()

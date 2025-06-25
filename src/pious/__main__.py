@@ -25,6 +25,7 @@ app = typer.Typer(
     help="The PioSOLVER Utility Suite",
     no_args_is_help=True,
     invoke_without_command=True,
+    rich_markup_mode="rich",
 )
 
 # Add all subcommands
