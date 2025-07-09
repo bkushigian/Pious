@@ -291,6 +291,40 @@ class Solver(object):
     def add_info_line(self, info_line):
         return self._run("add_info_line", info_line)
 
+    def show_categories(self, board: str | List[str]) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
+        """
+        Show categories for the given board.
+        :param board: The board to show categories for, as a string or list of strings.
+        :return: A length-2 tuple of tuples, where the first tuple contains
+            the category values and the second tuple contains the draw values.
+            The ith entry of each tuple corresponds to the ith category or draw
+            of the ith hand on the given board. See [PioSOLVER UPI
+            documentation](https://piosolver.com/docs/upi/commands#range-explorer)
+            for more information.
+        """
+        if isinstance(board, list):
+            board_str = "".join(board)
+        else:
+            board_str = board
+        board_str = board_str.strip().replace(" ", "")
+        data = self._run("show_categories", board_str)
+        if "ERROR" in data:
+            raise RuntimeError(f"Error showing categories for {board}: {data}")
+        # Two lines are returned, each with int values separated by spaces
+        # We will split them into two lists of ints
+        value, draw = data.split("\n")
+        value = tuple(int(v) for v in value.strip().split())
+        draw = tuple(int(d) for d in draw.strip().split())
+
+        return (value, draw)
+
+    def show_category_names(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+        value = "nothing king_high ace_high low_pair 3rd-pair 2nd-pair underpair top_pair top_pair_tp overpair two_pair trips set straight flush fullhouse top_fullhouse quads straight_flush".split()
+        value = tuple([v.strip() for v in value])
+        draws = "no_draw bdfd_1card bdfd_2card 4out_straight_draw 8out_straight_draw flush_draw combo_draw".split()
+        draws = tuple([d.strip() for d in draws])
+        return (value, draws)
+
     def show_board_no_iso(self) -> str:
         """
         Show the board without any isomorphisms set
