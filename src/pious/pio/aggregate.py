@@ -820,6 +820,8 @@ def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[
         collected_lines += filter_lines(nonterminal_lines, is_river)
 
     for line_str in lines.lines:
+        if isinstance(line_str, Line):
+            line_str = line_str.line_str
         line_str = ensure_line_root(line_str)
         if line_str not in line_str_to_line:
             for card in CARDS:
