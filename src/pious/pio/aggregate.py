@@ -784,9 +784,7 @@ def compute_row(
 
     # Compute Frequencies
     if conf.action_freqs:
-        row += get_action_freqs(
-            spot, node_id, spot.position, sorted_actions, action_to_strats
-        )
+        row += get_action_freqs(spot, sorted_actions, action_to_strats)
 
     if conf.action_evs:
         row += get_action_evs(
@@ -886,20 +884,19 @@ def get_actions_to_strats(
     return actions_to_strats
 
 
-def get_action_freqs(
-    spot: SpotData, node_id, position, sorted_actions, action_to_strats
-):
+def get_action_freqs(spot: SpotData, sorted_actions, action_to_strats):
     row = []
-    range = spot.solver.show_range(position, node_id)
-    total_combos = sum(range.range_array)
-    if total_combos == 0.0:
+    # range = spot.solver.show_range(position, node_id)
+    matchups = spot.matchups(spot.node.get_position_idx())
+    total_matchups = sum(matchups)
+    if total_matchups == 0.0:
         for a in sorted_actions:
             row.append(np.nan)
     else:
         for a in sorted_actions:
             # compute action frequency as the percentage of combos taking
             # this action
-            x = 100.0 * np.dot(action_to_strats[a], range.range_array) / total_combos
+            x = 100.0 * np.dot(action_to_strats[a], matchups) / total_matchups
             row.append(x)
     return row
 
