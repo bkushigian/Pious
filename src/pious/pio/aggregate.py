@@ -505,6 +505,7 @@ def aggregate_single_file(
     # Do we need to reload and resolve?
     board = solver.show_board().split()
 
+    # TODO: error handling (see https://github.com/bkushigian/Pious/issues/22)
     if len(board) != 3:
         print(
             f"\033[31;1mBoard {board} is not a valid board for aggregation. Expected 3 cards, got {len(board)}\033[0m"
