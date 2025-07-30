@@ -101,6 +101,7 @@ class SpotData:
         self._hand_details: List[Optional[Hand]] = [None, None]
         self._strategy: Optional[List[np.ndarray]] = None
         self._available_actions: Optional[List[str]] = None
+        self._children: Optional[List[Node]] = None
 
         self._money_so_far = (self.node.pot[0], self.node.pot[1])
         self._range: List[Optional[Range]] = [None, None]
@@ -152,6 +153,10 @@ class SpotData:
         self._compute_range(pos_idx)
         return self._range[pos_idx]
 
+    def children(self) -> List[Node]:
+        self._compute_children()
+        return self._children
+
     def _compute_hand_evs(self, pos_idx):
         """
         helper function to compute OOP and IP hand evs and total matchups if
@@ -190,7 +195,7 @@ class SpotData:
     def _compute_matchups(self, pos_idx):
         if self._matchups[pos_idx] is None:
             _, matchups, _ = self.solver.calc_eq_node(
-                POSITIONS[pos_idx], self.node.nod_id
+                POSITIONS[pos_idx], self.node.node_id
             )
             self._set_matchups(pos_idx, matchups)
 
@@ -226,6 +231,12 @@ class SpotData:
     def _compute_available_actions(self):
         if self._available_actions is None:
             self._available_actions = self.solver.show_children_actions(
+                self.node.node_id
+            )
+
+    def _compute_children(self):
+        if self._children is None:
+            self._children = self.solver.show_children(
                 self.node.node_id
             )
 
@@ -320,6 +331,7 @@ class AggregationConfig:
         action_freqs=True,
         action_evs=False,
         global_freq=False,
+        matchups=False,
         extra_columns: Optional[List[Tuple[str, Callable[[SpotData], Any]]]] = None,
     ):
         self.equities = equities
@@ -327,6 +339,7 @@ class AggregationConfig:
         self.action_evs = action_evs
         self.action_freqs = action_freqs
         self.global_freq = global_freq
+        self.matchups = matchups
         self.extra_columns = [] if extra_columns is None else extra_columns
 
     def copy(self):
@@ -340,7 +353,8 @@ class AggregationConfig:
             self.action_freqs,
             self.action_evs,
             self.global_freq,
-            extra_columns,
+            self.matchups,
+            extra_columns
         )
 
 
@@ -428,6 +442,7 @@ def aggregate_files_in_dir(
     ] = None,
     print_progress: bool = False,
     n_threads: int = 1,
+    debug: bool = False,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -443,8 +458,9 @@ def aggregate_files_in_dir(
         xs = progress_bar(db, inc=1, prefix="Aggregating Boards: ")
     for board, cfr_file, freq in xs:
         try:
+
             new_reports = aggregate_single_file(
-                cfr_file, lines, conf, conf_callback, freq, print_progress, n_threads
+                cfr_file, lines, conf, conf_callback, freq, print_progress, n_threads, debug
             )
 
             # One time update: This is necessary to perform sanity checking and
@@ -471,6 +487,26 @@ def aggregate_files_in_dir(
             print("Encountered error during aggregation on board", board)
             raise e
 
+    # produce avg row
+    for line in reports.keys():
+        df = reports[line]
+        # Get numeric columns
+        numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+        # Calculate weighted means using matchups as weights
+        weighted_means = []
+        for col in df.columns:
+            if col in numeric_cols and col != 'Matchups':
+                weighted_mean = np.sum(df[col] * df['Matchups']) / np.sum(df['Matchups'])
+                weighted_means.append(weighted_mean)
+            elif col == 'Flop':
+                weighted_means.append('W.AVG')
+            else:
+                weighted_means.append(np.nan)
+        # Create avg row with weighted means
+        avg_row = pd.Series(weighted_means, index=df.columns)
+        # Append avg row to dataframe
+        reports[line] = pd.concat([df, avg_row.to_frame().T], ignore_index=True)
+
     return reports
 
 
@@ -484,6 +520,7 @@ def aggregate_single_file(
     weight: float = 1.0,
     print_progress: bool = False,
     n_threads: int = 1,
+    debug: bool = False,
 ) -> Dict[Line, pd.DataFrame]:
     """
     Compute an aggregation report for the sim in `cfr_file` for each line in
@@ -497,8 +534,9 @@ def aggregate_single_file(
     if not file_name.endswith(".cfr"):
         print(f"{file_name} must be a .cfr file")
         exit(-1)
-    solver: Solver = make_solver()
+    solver: Solver = make_solver(debug=debug)
     solver.load_tree(file_name)
+
     ls = LinesToAggregate.create_from(lines)
     lines_to_aggregate = collect_lines_to_aggregate(solver, ls)
 
@@ -628,6 +666,7 @@ def aggregate_line_for_solver(
 
         # Compute columns
         columns = ["Flop", "Turn", "River"][: len(node.board) - 2]
+
         if this_node_conf.global_freq:
             columns.append("Global Freq")
 
@@ -648,9 +687,14 @@ def aggregate_line_for_solver(
         if this_node_conf.action_freqs:
             for a in sorted_actions:
                 columns.append(f"{action_names[a]} Freq")
+
         if this_node_conf.action_evs:
             for a in sorted_actions:
                 columns.append(f"{action_names[a]} EV")
+            columns.append("Matchups")
+
+        if this_node_conf.matchups:
+            columns.append("Matchups")
 
         df = pd.DataFrame(columns=columns)
 
@@ -751,13 +795,19 @@ def aggregate_lines_for_solver(
         # ise e
     return reports
 
-
+# returns [{board},
+#           (opt){global_freq},
+#           (opt){evs},
+#           (opt){extra_columns},
+#           (opt){action_freqs},
+#           (opt){action_evs}
+#          ]
 def compute_row(
     conf: AggregationConfig,
     spot: SpotData,
     weight: float,
-    actions: List[str],
-    sorted_actions: List[str],
+    actions: List[str] = None,
+    sorted_actions: List[str] = None,
 ):
     node = spot.node
     node_id = node.node_id
@@ -766,8 +816,6 @@ def compute_row(
     if conf.global_freq:
         global_freq = spot.solver.calc_global_freq(node_id)
         row.append(global_freq * weight)
-
-    action_to_strats = get_actions_to_strats(spot.solver, node_id, actions)
 
     if conf.evs:
         evs = [spot.ev(0), spot.ev(1)]
@@ -782,11 +830,13 @@ def compute_row(
             r = fn(spot)
             row.append(r)
 
-    # Compute Frequencies
     if conf.action_freqs:
-        row += get_action_freqs(spot, sorted_actions, action_to_strats)
+        row += get_real_action_freqs(
+            spot, node_id, spot.position, sorted_actions
+        )
 
     if conf.action_evs:
+        action_to_strats = get_actions_to_strats(spot.solver, node_id, actions)
         row += get_action_evs(
             spot.solver,
             node_id,
@@ -795,6 +845,18 @@ def compute_row(
             action_to_strats,
             spot._money_so_far[spot.node.get_position_idx()],
         )
+
+    if conf.matchups:
+        spot.hand_eqs(spot.node.get_position_idx())
+        row += [spot.total_matchups(spot.node.get_position_idx())*weight]
+
+        # children = spot.children()
+        # total_matchups = 0
+        # for child in children:
+        #     _, child_matchups, _ = spot.solver.calc_eq_node(spot.node.get_position_idx(), child.node_id)
+        #     total_matchups += sum(child_matchups)
+        #
+        # row += [total_matchups]
 
     return row
 
@@ -860,7 +922,7 @@ def get_action_names(line: Line, actions: List[str]) -> Dict[str, str]:
             action_names[a] = "Call" if facing_bet_or_raise else "Check"
     return action_names
 
-
+# sort a list of actions from any to the biggest bet [any,"c","b1","b2"]
 def get_sorted_actions(actions):
     # Sort action keys
     def action_key(s):
@@ -873,7 +935,7 @@ def get_sorted_actions(actions):
 
     return sorted(actions, key=action_key)
 
-
+#returns a dictionary with actions ->strategy_array
 def get_actions_to_strats(
     solver: Solver, node_id: str, actions: List[str]
 ) -> Dict[str, List[List[float]]]:
@@ -898,6 +960,22 @@ def get_action_freqs(spot: SpotData, sorted_actions, action_to_strats):
             # this action
             x = 100.0 * np.dot(action_to_strats[a], matchups) / total_matchups
             row.append(x)
+    return row
+
+
+def get_real_action_freqs(
+        spot: SpotData, node_id, position, sorted_actions
+):
+    row = []
+    parent_ev, parent_matchups = spot.solver.calc_ev(position, node_id)
+    total_parent_matchups = sum(parent_matchups)
+
+    for a in sorted_actions:
+        child_ev, child_matchups = spot.solver.calc_ev(position, node_id + ":" + a)
+        total_child_matchups = sum(child_matchups)
+        x = 100.0 * total_child_matchups / total_parent_matchups
+        row.append(x)
+
     return row
 
 
@@ -948,16 +1026,19 @@ def get_player_ev(solver: Solver, node: Node, position_idx: int):
 def get_action_evs(
     solver, node_id, position, sorted_actions, action_to_strats, cp_money_so_far
 ):
-
     row = []
     evs, matchups = solver.calc_ev(position, node_id)
     evs = evs + cp_money_so_far
     total_matchups = sum(matchups)
 
+    # replaces matchups NaN and Inf
     matchups = np.where(np.isnan(matchups), 0, matchups)
     matchups[np.isinf(matchups)] = 0.0
+
+    # replaces evs NaN and Inf
     evs = np.where(np.isnan(evs), 0, evs)
     evs[np.isinf(evs)] = 0.0
+
     # EVs
     if total_matchups == 0:
         for a in sorted_actions:
@@ -966,12 +1047,10 @@ def get_action_evs(
         evs_dived = evs / total_matchups
 
         for a in sorted_actions:
-
             strat = action_to_strats[a]
             x = np.dot(np.multiply(matchups, strat), evs_dived)
             row.append(x)
     return row
-
 
 def get_runout(solver: Solver, node_id: str) -> List[str]:
     node = solver.show_node(node_id)

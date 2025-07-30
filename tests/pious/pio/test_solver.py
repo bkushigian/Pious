@@ -128,3 +128,20 @@ def _test_load_tree_from_config():
     solver.go()
     solver.wait_for_solver()
     tree_info = solver.show_tree_info()
+
+@pytest.fixture
+def solver():
+    return make_solver()
+
+@pytest.fixture
+def cfrQJ4(solver):
+    new_set_path = importlib.resources.files("pious.pio.resources.database.new_set")
+    cfr_path = new_set_path.joinpath(r"QsJs4h.cfr")
+    solver.load_tree(cfr_path)
+    return solver
+
+def test_show_strategy(cfrQJ4):
+    result = cfrQJ4.show_children("r:0:c:b18")
+    assert result == 1
+    result = cfrQJ4.show_strategy("r:0:c:b18")
+    assert result==1

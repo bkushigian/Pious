@@ -182,7 +182,7 @@ class Solver(object):
                 raise ValueError(
                     f"Illegal load type: must be 'full', 'fast', 'auto', or None"
                 )
-        cfr_file_path = cfr_file_path.strip()
+        cfr_file_path = str(cfr_file_path).strip()
         cfr_file_path = osp.abspath(cfr_file_path)
 
         if not osp.exists(cfr_file_path):
@@ -623,6 +623,7 @@ class Solver(object):
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         strats = self._run("show_strategy", node_id).split("\n")
+
         return [[float(s) for s in strat.split()] for strat in strats]
 
     def calc_global_freq(self, node_id: str | Node) -> float:
@@ -697,6 +698,9 @@ class Solver(object):
         if output.endswith(f"{self.end_string}\n"):
             output = output[: -len(f"{self.end_string}\n")]
         output = output.strip()
+
+        if output.__contains__("ERROR"):
+            raise ValueError(output)
         return output
 
     def _get_solver_output(self, trigger_word, quiet=False):

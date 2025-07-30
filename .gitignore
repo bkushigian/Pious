@@ -4,5 +4,10 @@ script.txt
 .vscode/
 /*.cfr
 dist/
-
 .venv/*
+build/*
+*.spec
+poetry.lock
+pytest.ini
+pytest.ini
+.idea

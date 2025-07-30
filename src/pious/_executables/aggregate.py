@@ -14,6 +14,7 @@ from ..pio import aggregate
 import time
 from rich.console import Console
 from rich.panel import Panel
+from pious.pio.aggregate import AggregationConfig
 
 banner = f"""
 Create an aggregation report
@@ -64,40 +65,51 @@ def aggregate_cmd(
     )
 
     if out is None:
-        panel = Panel.fit(
-            f"Use [bold white]--out OUTPUT_DIRECTORY[/bold white] to specify where to write the results.",
-            title="No Output Directory",
-            title_align="left",
-            border_style="bold red",
-        )
-        console.print(panel)
-        raise typer.Exit(1)
+    #     panel = Panel.fit(
+    #         f"Use [bold white]--out OUTPUT_DIRECTORY[/bold white] to specify where to write the results.",
+    #         title="No Output Directory",
+    #         title_align="left",
+    #         border_style="bold red",
+    #     )
+    #     console.print(panel)
+    #     raise typer.Exit(1)
+        pass
+    else:
+        out_dir = out.resolve()
+        if out_dir.exists() and not overwrite:
 
-    out_dir = out.resolve()
-    if out_dir.exists() and not overwrite:
-
-        panel = Panel.fit(
-            f"[bold yellow]{out_dir}[/bold yellow]\n\n"
-            "Use [bold white]--overwrite[/bold white] to overwrite the existing directory,"
-            "use [bold white]--out NEW_DESTINATION[/bold white] to specify a new output directory,"
-            "or manually remove the destination before rerunning.",
-            title="Destination Exists",
-            title_align="left",
-            border_style="bold red",
-        )
-        console.print(panel)
-        raise typer.Exit(1)
+            panel = Panel.fit(
+                f"[bold yellow]{out_dir}[/bold yellow]\n\n"
+                "Use [bold white]--overwrite[/bold white] to overwrite the existing directory,"
+                "use [bold white]--out NEW_DESTINATION[/bold white] to specify a new output directory,"
+                "or manually remove the destination before rerunning.",
+                title="Destination Exists",
+                title_align="left",
+                border_style="bold red",
+            )
+            console.print(panel)
+            raise typer.Exit(1)
 
     reports = None
     t0 = time.time()
+
+    ag_config = AggregationConfig(equities=False,
+                                evs=False,
+                                action_freqs=True,
+                                action_evs=False,
+                                global_freq=False,
+                                matchups=True)
+
     if cfr_file_or_sim_dir.is_dir():
-        reports = aggregate.aggregate_files_in_dir(
-            str(cfr_file_or_sim_dir), lines_to_aggregate, print_progress=progress
-        )
+        reports = aggregate.aggregate_files_in_dir(str(cfr_file_or_sim_dir),
+                                                   lines_to_aggregate,
+                                                   ag_config,
+                                                   print_progress=progress)
     elif cfr_file_or_sim_dir.is_file():
-        reports = aggregate.aggregate_single_file(
-            str(cfr_file_or_sim_dir), lines_to_aggregate, print_progress=progress
-        )
+        reports = aggregate.aggregate_single_file(str(cfr_file_or_sim_dir),
+                                                  lines_to_aggregate,
+                                                  ag_config,
+                                                  print_progress=progress)
     else:
         panel = Panel.fit(
             f"[bold yellow]{str(cfr_file_or_sim_dir)}[/bold yellow]\n\n"
@@ -117,7 +129,7 @@ def aggregate_cmd(
             typer.echo()
             typer.echo(f"----- {line} -----")
             df = reports[line]
-            typer.echo(tabulate.tabulate(df, headers=df.keys()))
+            typer.echo(tabulate.tabulate(df, headers=df.keys(),floatfmt=".2f"))
             typer.echo()
 
     if out is not None and reports is not None:
