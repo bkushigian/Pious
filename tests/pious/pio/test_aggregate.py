@@ -11,10 +11,8 @@ from pious.pio.resources import get_test_tree
 from pious.pio.aggregate import aggregate_single_file
 import pious._executables.aggregate as agg_exec
 
-
 def test_hands_df_on_toak_board():
     pass
-
 
 cfr_db_path = importlib.resources.files("pious.pio.resources.database")
 cfr_path = cfr_db_path / "2c2s2d.cfr"
@@ -330,13 +328,43 @@ def test_spot_data(QJ4_c_b18_b54):
     assert close_enough(QJ4_c_b18_b54.ev(0),97.39,0.1)
     assert close_enough(QJ4_c_b18_b54.total_matchups(0), 11452.65, 0.1)
 
-def test_aggregate_cmd(database_very_small_path):
+def test_aggregate_cmd_vsmall_flop(database_very_small_path):
     line_1 = "r:0:c:b18:b54"
     line_2 = "r:0:c:b18"
 
     agg_exec.aggregate_cmd(
         cfr_file_or_sim_dir=database_very_small_path,
         lines=[line_1,line_2],
+        flop=False,
+        turn=False,
+        river=False,
+        out=None,
+        print_results=True,
+        overwrite=False,
+        progress=False,
+    )
+
+def test_aggregate_cmd_vsmall_turn(database_very_small_path):
+    line_1 = "r:0:c:b18:c:?:c:b73"
+
+    agg_exec.aggregate_cmd(
+        cfr_file_or_sim_dir=database_very_small_path,
+        lines=[line_1],
+        flop=False,
+        turn=False,
+        river=False,
+        out=None,
+        print_results=True,
+        overwrite=False,
+        progress=False,
+    )
+
+def test_aggregate_cmd_vsmall_river(database_very_small_path):
+    line_1 = "r:0:c:b18:c:?:c:c:?:b73"
+
+    agg_exec.aggregate_cmd(
+        cfr_file_or_sim_dir=database_very_small_path,
+        lines=[line_1],
         flop=False,
         turn=False,
         river=False,

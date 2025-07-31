@@ -443,6 +443,7 @@ def aggregate_files_in_dir(
     print_progress: bool = False,
     n_threads: int = 1,
     debug: bool = False,
+    avg_only: bool = False,
 ):
     if conf is None:
         conf = AggregationConfig()
@@ -502,10 +503,20 @@ def aggregate_files_in_dir(
                 weighted_means.append('W.AVG')
             else:
                 weighted_means.append(np.nan)
+
         # Create avg row with weighted means
         avg_row = pd.Series(weighted_means, index=df.columns)
         # Append avg row to dataframe
-        reports[line] = pd.concat([df, avg_row.to_frame().T], ignore_index=True)
+        if avg_only:
+            objs = [avg_row.to_frame().T]
+        else:
+            objs = [df,avg_row.to_frame().T]
+        reports[line] = pd.concat(
+            objs,
+            axis=0,
+            join='inner',
+            ignore_index=True
+        )
 
     return reports
 
@@ -880,12 +891,13 @@ def collect_lines_to_aggregate(solver: Solver, lines: LinesToAggregate) -> List[
     if lines.river:
         collected_lines += filter_lines(nonterminal_lines, is_river)
 
+    cards = CARDS + ("?",)
     for line_str in lines.lines:
         if isinstance(line_str, Line):
             line_str = line_str.line_str
         line_str = ensure_line_root(line_str)
         if line_str not in line_str_to_line:
-            for card in CARDS:
+            for card in cards:
                 line_str = line_str.replace(f"{card}:", "")
             if line_str not in line_str_to_line:
                 print(f"Unable to find line {line_str}")
@@ -973,8 +985,11 @@ def get_real_action_freqs(
     for a in sorted_actions:
         child_ev, child_matchups = spot.solver.calc_ev(position, node_id + ":" + a)
         total_child_matchups = sum(child_matchups)
-        x = 100.0 * total_child_matchups / total_parent_matchups
-        row.append(x)
+        if(np.isnan(total_parent_matchups) or total_parent_matchups == 0.0):
+            row.append(np.nan)
+        else:
+            x = 100.0 * total_child_matchups / total_parent_matchups
+            row.append(x)
 
     return row
 

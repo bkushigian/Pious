@@ -40,6 +40,7 @@ def aggregate_cmd(
         bool, typer.Option(help="Overwrite results of a computation")
     ] = False,
     progress: Annotated[bool, typer.Option(help="Print progress bar")] = False,
+    avg_only: Annotated[bool, typer.Option(help="Show only weighted average row")] = False
 ):
     """Create aggregation reports from CFR files"""
     console = Console()
@@ -104,7 +105,8 @@ def aggregate_cmd(
         reports = aggregate.aggregate_files_in_dir(str(cfr_file_or_sim_dir),
                                                    lines_to_aggregate,
                                                    ag_config,
-                                                   print_progress=progress)
+                                                   print_progress=progress,
+                                                   avg_only=avg_only)
     elif cfr_file_or_sim_dir.is_file():
         reports = aggregate.aggregate_single_file(str(cfr_file_or_sim_dir),
                                                   lines_to_aggregate,
@@ -178,6 +180,9 @@ def register_command(sub_parsers: _SubParsersAction):
     parser_agg.add_argument(
         "--progress", action="store_true", help="Print progress bar"
     )
+    parser_agg.add_argument(
+        "--avg_only", action="store_true", help="Show only weighted average row (multiple files agg.)"
+    )
 
 
 def exec_aggregate_main(args: Namespace):
@@ -197,4 +202,5 @@ def exec_aggregate_main(args: Namespace):
         print_results=args.print,
         overwrite=args.overwrite,
         progress=args.progress,
+        avg_only=args.avg_only
     )
