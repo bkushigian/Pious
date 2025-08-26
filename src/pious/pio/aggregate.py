@@ -468,6 +468,7 @@ def aggregate_files_in_dir(
                 df2 = new_reports[line]
                 reports[line] = pd.concat([df1, df2], ignore_index=True)
         except RuntimeError as e:
+            # TODO: error handling (see https://github.com/bkushigian/Pious/issues/22)
             print("Encountered error during aggregation on board", board)
             raise e
 
@@ -495,6 +496,8 @@ def aggregate_single_file(
     file_name: str = cfr_file
     assert osp.isfile(file_name)
     if not file_name.endswith(".cfr"):
+        # TODO: error handling
+        # (see  https://github.com/bkushigian/Pious/issues/22)
         print(f"{file_name} must be a .cfr file")
         exit(-1)
     solver: Solver = make_solver()
@@ -886,7 +889,6 @@ def get_actions_to_strats(
 
 def get_action_freqs(spot: SpotData, sorted_actions, action_to_strats):
     row = []
-    # range = spot.solver.show_range(position, node_id)
     matchups = spot.matchups(spot.node.get_position_idx())
     total_matchups = sum(matchups)
     if total_matchups == 0.0:
@@ -894,8 +896,6 @@ def get_action_freqs(spot: SpotData, sorted_actions, action_to_strats):
             row.append(np.nan)
     else:
         for a in sorted_actions:
-            # compute action frequency as the percentage of combos taking
-            # this action
             x = 100.0 * np.dot(action_to_strats[a], matchups) / total_matchups
             row.append(x)
     return row
@@ -949,27 +949,34 @@ def get_action_evs(
     solver, node_id, position, sorted_actions, action_to_strats, cp_money_so_far
 ):
 
+    print(node_id)
     row = []
-    evs, matchups = solver.calc_ev(position, node_id)
-    evs = evs + cp_money_so_far
+    _, matchups = solver.calc_ev(position, node_id)
     total_matchups = sum(matchups)
 
     matchups = np.where(np.isnan(matchups), 0, matchups)
     matchups[np.isinf(matchups)] = 0.0
-    evs = np.where(np.isnan(evs), 0, evs)
-    evs[np.isinf(evs)] = 0.0
-    # EVs
     if total_matchups == 0:
         for a in sorted_actions:
             row.append(np.nan)
     else:
-        evs_dived = evs / total_matchups
-
         for a in sorted_actions:
+            # Compute ev at node
+            a_evs, a_matches = solver.calc_ev(position, f"{node_id}:{a}")
+            a_evs = np.where(np.isnan(a_evs), 0.0, a_evs)
+            a_matches = np.where(np.isnan(a_matches), 0.0, a_matches)
+            total_a_matches = sum(a_matches)
+            if total_a_matches == 0:
+                a_ev = np.nan
+            else:
+                a_evs = np.where(np.isnan(a_evs), 0, a_evs)
+                a_evs[np.isinf(a_evs)] = 0.0
+                a_matches = np.where(np.isnan(a_matches), 0, a_matches)
+                a_matches[np.isinf(a_matches)] = 0.0
+                # Compute the weighted mean
+                a_ev = np.dot(a_evs, np.divide(a_matches, np.sum(a_matches)))
 
-            strat = action_to_strats[a]
-            x = np.dot(np.multiply(matchups, strat), evs_dived)
-            row.append(x)
+            row.append(a_ev)
     return row
 
 

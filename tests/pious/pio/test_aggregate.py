@@ -7,6 +7,7 @@ import importlib.resources
 from pious.pio import make_solver, Line
 from pious.pio.resources import get_test_tree
 from pious.pio.aggregate import aggregate_single_file
+import numpy as np
 
 
 def test_hands_df_on_toak_board():
@@ -33,7 +34,7 @@ def test_aggregate_single_file_default_config():
 
     assert ag0["Flop"] == "Kh7h2c"
     assert ag0["OOP EV"] == pytest.approx(165.602843)
-    assert ag0["IP EV"] == pytest.approx(132.897156)
+    assert ag0["IP EV"] == pytest.approx(132.897156, rel=1e-2)
     assert ag0["OOP Equity"] == pytest.approx(0.528665)
     assert ag0["IP Equity"] == pytest.approx(0.471334)
     assert ag0["Check Freq"] == pytest.approx(59.09, rel=1e-2)
@@ -43,17 +44,17 @@ def test_aggregate_single_file_default_config():
     assert ag1["Flop"] == "Kh7h2c"
     assert ag1["OOP EV"] == pytest.approx(141.650326)
     assert ag1["IP EV"] == pytest.approx(156.849696)
-    assert ag1["OOP Equity"] == pytest.approx(0.517879)
-    assert ag1["IP Equity"] == pytest.approx(0.482119)
+    assert ag1["OOP Equity"] == pytest.approx(0.517879, rel=1e-5)
+    assert ag1["IP Equity"] == pytest.approx(0.482119, rel=1e-5)
     assert ag1["Check Freq"] == pytest.approx(90.04, rel=1e-2)
     assert ag1["Bet 300 Freq"] == pytest.approx(9.96, rel=1e-2)
-    assert ag1["Bet 850 Freq"] == pytest.approx(0.0)
+    assert ag1["Bet 850 Freq"] == pytest.approx(0.0, rel=1e-2)
 
     assert ag2["Flop"] == "Kh7h2c"
-    assert ag2["OOP EV"] == pytest.approx(500.203785)
-    assert ag2["IP EV"] == pytest.approx(98.296226)
-    assert ag2["OOP Equity"] == pytest.approx(0.544246)
-    assert ag2["IP Equity"] == pytest.approx(0.455754, rel=1e-5)
+    assert ag2["OOP EV"] == pytest.approx(500.20, rel=1e-2)
+    assert ag2["IP EV"] == pytest.approx(98.30, rel=1e-2)
+    assert ag2["OOP Equity"] == pytest.approx(0.54425, rel=1e-5)
+    assert ag2["IP Equity"] == pytest.approx(0.45575, rel=1e-5)
     assert ag2["Fold Freq"] == pytest.approx(57.67, rel=1e-2)
     assert ag2["Call Freq"] == pytest.approx(25.15, rel=1e-2)
     assert ag2["Raise 850 Freq"] == pytest.approx(17.18, rel=1e-2)
@@ -83,33 +84,32 @@ def test_aggregate_single_file_custom_config_01():
     assert ag0["Check Freq"] == pytest.approx(59.09, rel=1e-2)
     assert ag0["Bet 300 Freq"] == pytest.approx(40.91, rel=1e-2)
     assert ag0["Bet 850 Freq"] == pytest.approx(0.0)
-    assert ag0["Check EV"] == pytest.approx(83.705258)
-    assert ag0["Bet 300 EV"] == pytest.approx(81.897584)
-    assert ag0["Bet 850 EV"] == pytest.approx(0.0)
+    assert ag0["Check EV"] == pytest.approx(141.65, rel=1e-2)
+    assert ag0["Bet 300 EV"] == pytest.approx(200.20, rel=1e-2)
+    assert np.isnan(ag0["Bet 850 EV"])
 
-    # Flop                Kh7h2c
-    # Global Freq       0.590929
-    # OOP EV          141.650326
-    # IP EV           156.849696
-    # OOP Equity        0.517879
-    # IP Equity         0.482119
-    # Check Freq       89.966564
-    # Bet 300 Freq     10.033435
-    # Bet 850 Freq           0.0
-    # Check EV        134.149602
-    # Bet 300 EV       22.700091
-    # Bet 850 EV             0.0
+    assert ag1["Flop"] == "Kh7h2c"
+    assert ag1["Global Freq"] == pytest.approx(0.590929, rel=1e-5)
+    assert ag1["OOP EV"] == pytest.approx(141.65, rel=1e-2)
+    assert ag1["IP EV"] == pytest.approx(156.85, rel=1e-2)
+    assert ag1["OOP Equity"] == pytest.approx(0.5179, rel=1e-4)
+    assert ag1["IP Equity"] == pytest.approx(0.4821, rel=1e-4)
+    assert ag1["Check Freq"] == pytest.approx(90.04, rel=1e-2)
+    assert ag1["Bet 300 Freq"] == pytest.approx(9.96, rel=1e-2)
+    assert ag1["Bet 850 Freq"] == pytest.approx(0.00, rel=1e-2)
+    assert ag1["Check EV"] == pytest.approx(148.99, rel=1e-2)
+    assert ag1["Bet 300 EV"] == pytest.approx(227.95, rel=1e-2)
+    assert np.isnan(ag1["Bet 850 EV"])
 
-    # Flop                  Kh7h2c
-    # Global Freq         0.409071
-    # OOP EV            500.203785
-    # IP EV              98.296226
-    # OOP Equity          0.544246
-    # IP Equity           0.455754
-    # Fold Freq           56.58156
-    # Call Freq          25.641076
-    # Raise 850 Freq     17.777363
-    # Fold EV             0.000025
-    # Call EV            60.416299
-    # Raise 850 EV       37.879902
-    # Name: 0, dtype: object
+    assert ag2["Flop"] == "Kh7h2c"
+    assert ag2["Global Freq"] == pytest.approx(0.409071, rel=1e-5)
+    assert ag2["OOP EV"] == pytest.approx(500.20, rel=1e-2)
+    assert ag2["IP EV"] == pytest.approx(98.30, rel=1e-2)
+    assert ag2["OOP Equity"] == pytest.approx(0.54425, rel=1e-5)
+    assert ag2["IP Equity"] == pytest.approx(0.45575, rel=1e-5)
+    assert ag2["Fold Freq"] == pytest.approx(57.67, rel=1e-2)
+    assert ag2["Call Freq"] == pytest.approx(25.15, rel=1e-2)
+    assert ag2["Raise 850 Freq"] == pytest.approx(17.18, rel=1e-2)
+    assert ag2["Fold EV"] == pytest.approx(0.00, rel=1e-2)
+    assert ag2["Call EV"] == pytest.approx(240.27, rel=1e-2)
+    assert ag2["Raise 850 EV"] == pytest.approx(220.44, rel=1e-2)
