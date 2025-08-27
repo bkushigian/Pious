@@ -3,6 +3,7 @@ from os import path as osp
 import subprocess
 from itertools import permutations
 from typing import Optional, Tuple
+from pathlib import Path
 
 
 def board_to_ranks_suits(board) -> Tuple[Tuple[str], Tuple[str]]:
@@ -41,9 +42,21 @@ def find_isomorphic_board(board_path: str, full_path=True) -> Optional[str]:
 
 
 class CFRDatabase:
-    def __init__(self, db_location, pio_viewer_location=None):
-        if db_location.endswith(".cfr"):
-            db_location = osp.dirname(db_location)
+    def __init__(self, db_location: str | Path, pio_viewer_location=None):
+        # First, normalize db_location to a Path object and ensure it is a
+        # directory
+        if isinstance(db_location, str):
+            db_location = Path(db_location)
+        if not db_location.exists():
+            raise ValueError(f"No such database location as {db_location}")
+        if db_location.is_file():
+            if db_location.suffix == ".cfr":
+                db_location = db_location.parent
+            else:
+                # TODO: Should we support `script.txt` files as DB?
+                raise ValueError(
+                    f"Database location {db_location} is a file but not a .cfr file"
+                )
         self.db_location = db_location
         self.pio_viewer_location = pio_viewer_location
 

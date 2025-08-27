@@ -5,7 +5,7 @@ import os
 from os import path as osp
 import importlib.resources
 from pious.pio import make_solver, Line
-from pious.pio.resources import get_test_tree
+from pious.pio.resources import get_test_tree, get_database_root
 from pious.pio.aggregate import aggregate_single_file
 import numpy as np
 
@@ -14,7 +14,7 @@ def test_hands_df_on_toak_board():
     pass
 
 
-cfr_db_path = importlib.resources.files("pious.pio.resources.database")
+cfr_db_path = get_database_root()
 cfr_path = cfr_db_path / "2c2s2d.cfr"
 
 
