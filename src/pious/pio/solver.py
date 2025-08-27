@@ -36,7 +36,7 @@ class Node:
 
     def get_position(self):
         try:
-            return normalize_position(self.node_type)
+            return position_to_str(self.node_type)
         except ValueError:
             return None
 
@@ -395,7 +395,7 @@ class Solver(object):
         :return: a tuple of (evs, matchups), where each is a length 1326 tuple
             of floats
         """
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_ev", position, node)
         evs, matchups = results.split("\n")
         evs = np.array([float(ev) for ev in evs.split()])
@@ -413,7 +413,7 @@ class Solver(object):
 
         :return: a human readable per-hand EV summary
         """
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_ev_pp", position, node)
         return tuple(results.split("\n"))
 
@@ -437,7 +437,7 @@ class Solver(object):
         :return: a tuple of (equities, matchups), where each is a length 1326
             tuple of floats
         """
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_eq", position)
         eqs, matchups = results.split("\n")
         eqs = np.array([float(ev) for ev in eqs.split()])
@@ -457,7 +457,7 @@ class Solver(object):
         """
         if isinstance(node_id, Node):
             node_id = node_id.node_id
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_eq_pp", position, node_id)
         return tuple(results.split("\n"))
 
@@ -475,7 +475,7 @@ class Solver(object):
         """
         if isinstance(node_id, Node):
             node_id = node_id.node_id
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_eq_node", position, node_id)
         try:
             eqs, matchups, total = results.split("\n")
@@ -497,7 +497,7 @@ class Solver(object):
 
         :position: "OOP" or "IP"
         """
-        position = normalize_position(position)
+        position = position_to_str(position)
         results = self._run("calc_eq_preflop", position)
         try:
             eqs, matchups, total = results.split("\n")
@@ -521,7 +521,7 @@ class Solver(object):
         present) to 1.0 (full combo).  If only one argument is given then
         IP/OOPrange from solver state is shown (the one set by set_range).
         """
-        position = normalize_position(position)
+        position = position_to_str(position)
         if isinstance(node_id, Node):
             node_id = node_id.node_id
         if node_id is None:
@@ -543,7 +543,7 @@ class Solver(object):
             r = rng.pio_str()
         else:
             raise TypeError(f"Unsupported type for rng: {type(rng)}")
-        position = normalize_position(position)
+        position = position_to_str(position)
         return self._run("set_range", position, r)
 
     def set_eff_stack(self, value: int):
@@ -895,3 +895,75 @@ def intify(v: Any) -> int:
     if v:
         return 1
     return 0
+
+
+def position_to_str(pos: int | str) -> str:
+    """
+    Normalize a position int or str.
+    - If the position is either the int `0` or a string such that
+      `s.upper() == "OOP"`, return "OOP".
+    - If the position is either the int `1` or a string such that
+      `s.upper() == "IP"`, return "IP".
+    - Otherwise, raise ValueError
+    """
+    if isinstance(pos, int):
+        if pos == 0:
+            return "OOP"
+        elif pos == 1:
+            return "IP"
+        else:
+            raise ValueError(
+                f"Invalid position int {pos}: must be 0 for OOP or 1 for IP"
+            )
+    elif isinstance(pos, str):
+        pos2 = pos.upper()
+        if pos2 == "OOP" or pos2 == "IP":
+            return pos2
+        elif pos2 == "OOP_DEC":
+            return "OOP"
+        elif pos2 == "IP_DEC":
+            return "IP"
+        else:
+            raise ValueError(f'Invalid position str {pos}: must be "OOP" or "IP"')
+    else:
+        raise ValueError(
+            f"Invalid position {pos}: must be int (0 or 1) or str (OOP or IP)"
+        )
+
+
+
+def position_to_int(pos: int | str) -> int:
+    """
+    Normalize a position int or str.
+    - If the position is either the int `0` or a string such that
+      `s.upper() == "OOP"`, return "OOP".
+    - If the position is either the int `1` or a string such that
+      `s.upper() == "IP"`, return "IP".
+    - Otherwise, raise ValueError
+    """
+    if isinstance(pos, int):
+        if pos == 0:
+            return 0
+        elif pos == 1:
+            return 1
+        else:
+            raise ValueError(
+                f"Invalid position int {pos}: must be 0 for OOP or 1 for IP"
+            )
+    elif isinstance(pos, str):
+        pos2 = pos.upper()
+        if pos2 == "OOP":
+            return 0
+        if pos2 == "IP":
+            return 1
+        elif pos2 == "OOP_DEC":
+            return 0
+        elif pos2 == "IP_DEC":
+            return 1
+        else:
+            raise ValueError(f'Invalid position str {pos}: must be "OOP" or "IP"')
+    else:
+        raise ValueError(
+            f"Invalid position {pos}: must be int (0 or 1) or str (OOP or IP)"
+        )
+

@@ -25,4 +25,4 @@ from .line import (
 )
 from .database import CFRDatabase, find_isomorphic_board
 
-from .solver import Node, Solver
+from .solver import Node, Solver, position_to_str, position_to_int

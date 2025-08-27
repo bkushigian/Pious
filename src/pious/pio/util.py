@@ -1,5 +1,5 @@
 from collections import namedtuple
-from .solver import Solver
+from .solver import Solver, position_to_str, position_to_int
 from ..util import card_tuple
 from ..conf import pious_conf
 

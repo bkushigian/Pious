@@ -37,6 +37,7 @@ from . import (
     is_oop,
     is_terminal,
     is_nonterminal,
+    position_to_int,
 )
 from .rebuild_utils import rebuild_and_resolve
 
@@ -692,10 +693,6 @@ def aggregate_line_for_solver(
             columns.append("OOP Equity")
             columns.append("IP Equity")
 
-        if this_node_conf.extra_columns is not None:
-            for name, _ in this_node_conf.extra_columns:
-                columns.append(name)
-
         sorted_actions = get_sorted_actions(actions)
 
         if this_node_conf.action_freqs:
@@ -705,10 +702,14 @@ def aggregate_line_for_solver(
         if this_node_conf.action_evs:
             for a in sorted_actions:
                 columns.append(f"{action_names[a]} EV")
-            columns.append("Matchups")
 
         if this_node_conf.matchups:
             columns.append("Matchups")
+
+
+        if this_node_conf.extra_columns is not None:
+            for name, _ in this_node_conf.extra_columns:
+                columns.append(name)
 
         df = pd.DataFrame(columns=columns)
 
@@ -809,13 +810,6 @@ def aggregate_lines_for_solver(
         # ise e
     return reports
 
-# returns [{board},
-#           (opt){global_freq},
-#           (opt){evs},
-#           (opt){extra_columns},
-#           (opt){action_freqs},
-#           (opt){action_evs}
-#          ]
 def compute_row(
     conf: AggregationConfig,
     spot: SpotData,
@@ -832,17 +826,10 @@ def compute_row(
         row.append(global_freq * weight)
 
     if conf.evs:
-        evs = [spot.ev(0), spot.ev(1)]
-        row += evs
+        row += [spot.ev(0), spot.ev(1)]
 
     if conf.equities:
-        equities = [spot.eq(0), spot.eq(1)]
-        row += equities
-
-    if conf.extra_columns is not None:
-        for _, fn in conf.extra_columns:
-            r = fn(spot)
-            row.append(r)
+        row += [spot.eq(0), spot.eq(1)]
 
     if conf.action_freqs:
         row += get_real_action_freqs(
@@ -864,13 +851,9 @@ def compute_row(
         spot.hand_eqs(spot.node.get_position_idx())
         row += [spot.total_matchups(spot.node.get_position_idx())*weight]
 
-        # children = spot.children()
-        # total_matchups = 0
-        # for child in children:
-        #     _, child_matchups, _ = spot.solver.calc_eq_node(spot.node.get_position_idx(), child.node_id)
-        #     total_matchups += sum(child_matchups)
-        #
-        # row += [total_matchups]
+    if conf.extra_columns is not None:
+        for _, fn in conf.extra_columns:
+            row.append(fn(spot))
 
     return row
 
@@ -1042,7 +1025,9 @@ def get_action_evs(
     solver, node_id, position, sorted_actions, action_to_strats, cp_money_so_far
 ):
     row = []
-    _, matchups = solver.calc_ev(position, node_id)
+    node = solver.show_node(node_id)
+    current_player_contributed = node.pot[position_to_int(position)]
+    evs, matchups = solver.calc_ev(position, node_id)
     total_matchups = sum(matchups)
 
     # replaces matchups NaN and Inf
@@ -1066,7 +1051,7 @@ def get_action_evs(
                 a_ev = np.nan
             else:
                 a_evs[np.isnan(a_evs) | np.isinf(a_evs)] = 0.0
-                a_ev = np.dot(a_evs, a_matches / total_matches)
+                a_ev = np.dot(a_evs, a_matches / total_matches) + cp_money_so_far
 
             row.append(a_ev)
     return row

@@ -13,7 +13,7 @@ def get_test_tree(tree="Kh7h2c.cfr"):
 
 def get_database_root():
     resources_path = importlib.resources.files("pious.pio.resources")
-    return osp.join(resources_path, "database")
+    return Path(osp.join(resources_path, "database"))
 
 
 def get_database_files():

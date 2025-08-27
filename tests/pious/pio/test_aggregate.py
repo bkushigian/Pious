@@ -1,22 +1,51 @@
 from pious.hands import Hand
-from pious.pio import aggregate as ag
-from pious.pio.aggregate import SpotData, AggregationConfig
 import pytest
 import os
 import importlib.resources
 from pious.pio import make_solver, Line
-from pious.pio.aggregate import LinesToAggregate
-from pious.pio import make_solver, Line
-from pious.pio.resources import get_test_tree
-from pious.pio.aggregate import aggregate_single_file
+from pious.pio import aggregate as ag
+from pious.pio.resources import get_test_tree, get_database_root
+from pious.pio.aggregate import SpotData, AggregationConfig, aggregate_single_file, LinesToAggregate
 import pious._executables.aggregate as agg_exec
 import numpy as np
 
-def test_hands_df_on_toak_board():
-    pass
 
-cfr_db_path = importlib.resources.files("pious.pio.resources.database")
-cfr_path = cfr_db_path / "2c2s2d.cfr"
+def close_enough(actual, expected, tolerance, absolute_tolerance=True):
+    if absolute_tolerance:
+        return abs(actual - expected) < tolerance
+    else:
+        return abs(actual - expected) / expected * 100 < tolerance
+
+@pytest.fixture
+def solver():
+    return make_solver(debug=False)
+
+@pytest.fixture
+def test_tree():
+    return get_test_tree()
+
+def solver_with_test_tree(solver, test_tree):
+    solver.load_tree(test_tree)
+    return solver
+
+@pytest.fixture
+def database_very_small_path():
+    new_set_path = importlib.resources.files("pious.pio.resources.database.very_small")
+    return new_set_path
+
+@pytest.fixture
+def file_path_cfrQJ4c(database_very_small_path):
+    cfr_path = database_very_small_path.joinpath(r"QsJs4h.cfr")
+    return str(cfr_path)
+
+@pytest.fixture
+def cfrQJ4(solver,file_path_cfrQJ4c):
+    solver.load_tree(file_path_cfrQJ4c)
+    return solver
+
+@pytest.fixture
+def QJ4_c_b18_b54(cfrQJ4):
+    return ag.SpotData(cfrQJ4, "r:0:c:b18:b54")
 
 @pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_single_file_default_config():
@@ -59,22 +88,68 @@ def test_aggregate_single_file_default_config():
     assert ag2["Call Freq"] == pytest.approx(25.15, rel=1e-2)
     assert ag2["Raise 850 Freq"] == pytest.approx(17.18, rel=1e-2)
 
-
 @pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
-def test_aggregate_single_file_custom_config_01():
+def test_aggregate_single_file_custom_config_01(solver, test_tree):
     t = get_test_tree()
     s = make_solver()
-    s.load_tree(str(cfr_path))
-    spot = ag.SpotData(s, "r:0")
-    df = spot.hands_df()
-    AsAh = df[df["hand"] == "AsAh"]
-    assert AsAh.iloc[0]["hand_type"] == Hand.FULL_HOUSE
     s.load_tree(t)
-    config = AggregationConfig(action_evs=True, global_freq=True)
     lines = [Line(l) for l in ["r:0", "r:0:c", "r:0:b300"]]
-    ag = aggregate_single_file(t, lines, conf=config)
     l0, l1, l2 = lines
 
+    config = AggregationConfig(action_evs=False, global_freq=False)
+    ag = aggregate_single_file(t, lines, conf=config)
+    ag = {l.line_str: df for l, df in ag.items()}
+    ag0 = ag[l0.line_str].iloc[0]  # Get first row as Series
+    ag1 = ag[l1.line_str].iloc[0]  # Get first row as Series
+    ag2 = ag[l2.line_str].iloc[0]
+
+    assert ag0["Flop"] == "Kh7h2c"
+    assert ag0["OOP EV"] == pytest.approx(165.60, rel=1e-2)
+    assert ag0["IP EV"] == pytest.approx(132.90, rel=1e-2)
+    assert ag0["OOP Equity"] == pytest.approx(0.52867, rel=1e-5)
+    assert ag0["IP Equity"] == pytest.approx(0.47133, rel=1e-5)
+    assert ag0["Check Freq"] == pytest.approx(59.09, rel=1e-2)
+    assert ag0["Bet 300 Freq"] == pytest.approx(40.91, rel=1e-2)
+    assert ag0["Bet 850 Freq"] == pytest.approx(0.0)
+
+    with pytest.raises(KeyError):
+        _ = ag0["Global Freq"]
+    with pytest.raises(KeyError):
+        _ = ag0["Check EV"]
+    with pytest.raises(KeyError):
+        _ = ag0["Bet 300 EV"]
+    with pytest.raises(KeyError):
+        _ = ag0["Bet 850 EV"]
+
+    assert ag1["Flop"] == "Kh7h2c"
+    assert ag1["OOP EV"] == pytest.approx(141.65, rel=1e-2)
+    assert ag1["IP EV"] == pytest.approx(156.85, rel=1e-2)
+    assert ag1["OOP Equity"] == pytest.approx(0.5179, rel=1e-4)
+    assert ag1["IP Equity"] == pytest.approx(0.4821, rel=1e-4)
+    assert ag1["Check Freq"] == pytest.approx(90.04, rel=1e-2)
+    assert ag1["Bet 300 Freq"] == pytest.approx(9.96, rel=1e-2)
+    assert ag1["Bet 850 Freq"] == pytest.approx(0.00, rel=1e-2)
+
+    with pytest.raises(KeyError):
+        _ = ag1["Global Freq"]
+    with pytest.raises(KeyError):
+        _ = ag1["Check EV"]
+    with pytest.raises(KeyError):
+        _ = ag1["Bet 300 EV"]
+    with pytest.raises(KeyError):
+        _ = ag1["Bet 850 EV"]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
+def test_aggregate_single_file_custom_config_02(solver, test_tree):
+    t = get_test_tree()
+    s = make_solver()
+    s.load_tree(t)
+    lines = [Line(l) for l in ["r:0", "r:0:c", "r:0:b300"]]
+    l0, l1, l2 = lines
+
+    config = AggregationConfig(action_evs=False, global_freq=True)
+    ag = aggregate_single_file(t, lines, conf=config)
     ag = {l.line_str: df for l, df in ag.items()}
     ag0 = ag[l0.line_str].iloc[0]  # Get first row as Series
     ag1 = ag[l1.line_str].iloc[0]  # Get first row as Series
@@ -89,12 +164,64 @@ def test_aggregate_single_file_custom_config_01():
     assert ag0["Check Freq"] == pytest.approx(59.09, rel=1e-2)
     assert ag0["Bet 300 Freq"] == pytest.approx(40.91, rel=1e-2)
     assert ag0["Bet 850 Freq"] == pytest.approx(0.0)
+
+    with pytest.raises(KeyError):
+        _ = ag0["Check EV"]
+    with pytest.raises(KeyError):
+        _ = ag0["Bet 300 EV"]
+    with pytest.raises(KeyError):
+        _ = ag0["Bet 850 EV"]
+
+
+    assert ag1["Flop"] == "Kh7h2c"
+    assert ag1["Global Freq"] == pytest.approx(0.590929, rel=1e-5)
+    assert ag1["OOP EV"] == pytest.approx(141.65, rel=1e-2)
+    assert ag1["IP EV"] == pytest.approx(156.85, rel=1e-2)
+    assert ag1["OOP Equity"] == pytest.approx(0.5179, rel=1e-4)
+    assert ag1["IP Equity"] == pytest.approx(0.4821, rel=1e-4)
+    assert ag1["Check Freq"] == pytest.approx(90.04, rel=1e-2)
+    assert ag1["Bet 300 Freq"] == pytest.approx(9.96, rel=1e-2)
+    assert ag1["Bet 850 Freq"] == pytest.approx(0.00, rel=1e-2)
+
+    with pytest.raises(KeyError):
+        _ = ag1["Check EV"]
+    with pytest.raises(KeyError):
+        _ = ag1["Bet 300 EV"]
+    with pytest.raises(KeyError):
+        _ = ag1["Bet 850 EV"]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
+def test_aggregate_single_file_custom_config_03(solver, test_tree):
+    t = get_test_tree()
+    s = make_solver()
+    s.load_tree(t)
+    lines = [Line(l) for l in ["r:0", "r:0:c", "r:0:b300"]]
+    l0, l1, l2 = lines
+
+    config = AggregationConfig(action_evs=True, global_freq=False)
+    ag = aggregate_single_file(t, lines, conf=config)
+    ag = {l.line_str: df for l, df in ag.items()}
+    ag0 = ag[l0.line_str].iloc[0]  # Get first row as Series
+    ag1 = ag[l1.line_str].iloc[0]  # Get first row as Series
+    ag2 = ag[l2.line_str].iloc[0]
+
+    assert ag0["Flop"] == "Kh7h2c"
+    assert ag0["OOP EV"] == pytest.approx(165.60, rel=1e-2)
+    assert ag0["IP EV"] == pytest.approx(132.90, rel=1e-2)
+    assert ag0["OOP Equity"] == pytest.approx(0.52867, rel=1e-5)
+    assert ag0["IP Equity"] == pytest.approx(0.47133, rel=1e-5)
+    assert ag0["Check Freq"] == pytest.approx(59.09, rel=1e-2)
+    assert ag0["Bet 300 Freq"] == pytest.approx(40.91, rel=1e-2)
+    assert ag0["Bet 850 Freq"] == pytest.approx(0.0)
     assert ag0["Check EV"] == pytest.approx(141.65, rel=1e-2)
     assert ag0["Bet 300 EV"] == pytest.approx(200.20, rel=1e-2)
     assert np.isnan(ag0["Bet 850 EV"])
 
+    with pytest.raises(KeyError):
+        _ = ag0["Global Freq"]
+
     assert ag1["Flop"] == "Kh7h2c"
-    assert ag1["Global Freq"] == pytest.approx(0.590929, rel=1e-5)
     assert ag1["OOP EV"] == pytest.approx(141.65, rel=1e-2)
     assert ag1["IP EV"] == pytest.approx(156.85, rel=1e-2)
     assert ag1["OOP Equity"] == pytest.approx(0.5179, rel=1e-4)
@@ -106,39 +233,15 @@ def test_aggregate_single_file_custom_config_01():
     assert ag1["Bet 300 EV"] == pytest.approx(227.95, rel=1e-2)
     assert np.isnan(ag1["Bet 850 EV"])
 
-def close_enough(actual, expected, tolerance, absolute_tolerance=True):
-    if absolute_tolerance:
-        return abs(actual - expected) < tolerance
-    else:
-        return abs(actual - expected) / expected * 100 < tolerance
+    with pytest.raises(KeyError):
+        _ = ag1["Global Freq"]
 
-@pytest.fixture
-def solver():
-    return make_solver(debug=True)
-
-@pytest.fixture
-def database_very_small_path():
-    new_set_path = importlib.resources.files("pious.pio.resources.database.very_small")
-    return new_set_path
-
-@pytest.fixture
-def file_path_cfrQJ4c(database_very_small_path):
-    cfr_path = database_very_small_path.joinpath(r"QsJs4h.cfr")
-    return str(cfr_path)
-
-@pytest.fixture
-def cfrQJ4(solver,file_path_cfrQJ4c):
-    solver.load_tree(file_path_cfrQJ4c)
-    return solver
-
-@pytest.fixture
-def QJ4_c_b18_b54(cfrQJ4):
-    return ag.SpotData(cfrQJ4, "r:0:c:b18:b54")
-
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_get_sorted_actions():
     result = ag.get_sorted_actions("r:0:c:b18:c:4d:c:b73:c".split(":"))
     assert(result[0]=="r")
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_get_actions_to_strats(QJ4_c_b18_b54):
     solver = QJ4_c_b18_b54.solver
     node_id = QJ4_c_b18_b54.node.node_id
@@ -150,6 +253,7 @@ def test_get_actions_to_strats(QJ4_c_b18_b54):
     for result in results.values():
         assert len(result) == 1326
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_get_real_action_freqs(QJ4_c_b18_b54):
     node_id = "r:0:c:b18:b54"
     actions = QJ4_c_b18_b54.solver.show_children_actions(node_id)
@@ -160,6 +264,7 @@ def test_get_real_action_freqs(QJ4_c_b18_b54):
     assert abs(result[2] - 2.8) < 0.1
     assert abs(result[3] - 3.49) < 0.1
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_compute_row_matchups(QJ4_c_b18_b54):
     ag_config = ag.AggregationConfig(global_freq=False,
                                      evs=False,
@@ -176,8 +281,9 @@ def test_compute_row_matchups(QJ4_c_b18_b54):
     # global_freq
     assert close_enough(result[1], 22676244.371, 0.1, False)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_compute_row(QJ4_c_b18_b54):
-    ag_config = ag.AggregationConfig(global_freq=True,
+    ag_config = AggregationConfig(global_freq=True,
                                      evs=True,
                                      equities=True,
                                      action_freqs=True,
@@ -210,10 +316,11 @@ def test_compute_row(QJ4_c_b18_b54):
 
     # children action_evs (sum ev for every combo in node)
     assert close_enough(result[10], 0, 0.1)  # fold
-    assert close_enough(result[11], 26.41, 0.1)  # call
-    assert close_enough(result[12], 1.54, 0.1)  # b119
-    assert close_enough(result[13], 1.64, 0.1)  # b280
+    assert close_enough(result[11], 44.33, 0.1)  # call
+    assert close_enough(result[12], 55.17, 0.1)  # b119
+    assert close_enough(result[13], 47.10, 0.1)  # b280
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_line_for_solver(QJ4_c_b18_b54):
     ag_config = ag.AggregationConfig(equities=False,
                                 evs=False,
@@ -229,6 +336,7 @@ def test_aggregate_line_for_solver(QJ4_c_b18_b54):
 
     assert close_enough(result['Global Freq'][0],0.42,0.1)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_lines_for_solver(QJ4_c_b18_b54):
     ag_config = ag.AggregationConfig(equities=False,
                                 evs=False,
@@ -245,6 +353,7 @@ def test_aggregate_lines_for_solver(QJ4_c_b18_b54):
     assert close_enough(result[Line(QJ4_c_b18_b54.node.node_id)]['Global Freq'][0],0.42,0.1)
     assert close_enough(result[Line(QJ4_c_b18_b54.node.parent().node_id)]['Global Freq'][0], 1, 0.1)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_single_file(file_path_cfrQJ4c):
     ag_config = ag.AggregationConfig(equities=False,
                                 evs=False,
@@ -263,6 +372,7 @@ def test_aggregate_single_file(file_path_cfrQJ4c):
     assert close_enough(result[line_1]['Global Freq'][0],0.42,0.1)
     assert close_enough(result[line_2]['Global Freq'][0], 1, 0.1)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_files_in_dir_action_freqs_only(file_path_cfrQJ4c):
     new_set_path = str(importlib.resources.files("pious.pio.resources.database.very_small"))
 
@@ -298,6 +408,7 @@ def test_aggregate_files_in_dir_action_freqs_only(file_path_cfrQJ4c):
     # assert close_enough(result[line_1]['Global Freq'][0],0.42,0.1)
     # assert close_enough(result[line_2]['Global Freq'][0], 1, 0.1)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_spot_data_children_matchups(QJ4_c_b18_b54):
     total_matchups = QJ4_c_b18_b54.total_matchups(0)
     children = QJ4_c_b18_b54.solver.show_children(QJ4_c_b18_b54.node.node_id)
@@ -309,11 +420,13 @@ def test_spot_data_children_matchups(QJ4_c_b18_b54):
 
     assert close_enough(total_matchups,sum(children_matchups),0.1,False)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_spot_data(QJ4_c_b18_b54):
     QJ4_c_b18_b54.hand_evs(0)
     assert close_enough(QJ4_c_b18_b54.ev(0),97.39,0.1)
     assert close_enough(QJ4_c_b18_b54.total_matchups(0), 11452.65, 0.1)
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_cmd_vsmall_flop(database_very_small_path):
     line_1 = "r:0:c:b18:b54"
     line_2 = "r:0:c:b18"
@@ -330,6 +443,7 @@ def test_aggregate_cmd_vsmall_flop(database_very_small_path):
         progress=False,
     )
 
+@pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
 def test_aggregate_cmd_vsmall_turn(database_very_small_path):
     line_1 = "r:0:c:b18:c:?:c:b73"
 
@@ -345,6 +459,7 @@ def test_aggregate_cmd_vsmall_turn(database_very_small_path):
         progress=False,
     )
 
+@pytest.mark.skip(reason="Long running test")
 def test_aggregate_cmd_vsmall_river(database_very_small_path):
     line_1 = "r:0:c:b18:c:?:c:c:?:b73"
 
@@ -359,19 +474,3 @@ def test_aggregate_cmd_vsmall_river(database_very_small_path):
         overwrite=False,
         progress=False,
     )
-
-def test_CFRDatabase(database_very_small_path):
-    db = ag.CFRDatabase(database_very_small_path)
-    print(db.raw_weights)
-    assert ag2["Flop"] == "Kh7h2c"
-    assert ag2["Global Freq"] == pytest.approx(0.409071, rel=1e-5)
-    assert ag2["OOP EV"] == pytest.approx(500.20, rel=1e-2)
-    assert ag2["IP EV"] == pytest.approx(98.30, rel=1e-2)
-    assert ag2["OOP Equity"] == pytest.approx(0.54425, rel=1e-5)
-    assert ag2["IP Equity"] == pytest.approx(0.45575, rel=1e-5)
-    assert ag2["Fold Freq"] == pytest.approx(57.67, rel=1e-2)
-    assert ag2["Call Freq"] == pytest.approx(25.15, rel=1e-2)
-    assert ag2["Raise 850 Freq"] == pytest.approx(17.18, rel=1e-2)
-    assert ag2["Fold EV"] == pytest.approx(0.00, rel=1e-2)
-    assert ag2["Call EV"] == pytest.approx(240.27, rel=1e-2)
-    assert ag2["Raise 850 EV"] == pytest.approx(220.44, rel=1e-2)
