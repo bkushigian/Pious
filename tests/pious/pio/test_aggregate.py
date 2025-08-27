@@ -30,13 +30,11 @@ def solver_with_test_tree(solver, test_tree):
 
 @pytest.fixture
 def database_very_small_path():
-    new_set_path = importlib.resources.files("pious.pio.resources.database.very_small")
-    return new_set_path
+    return importlib.resources.files("pious.pio.resources.database.very_small")
 
 @pytest.fixture
 def file_path_cfrQJ4c(database_very_small_path):
-    cfr_path = database_very_small_path.joinpath(r"QsJs4h.cfr")
-    return str(cfr_path)
+    return str(database_very_small_path.joinpath(r"QsJs4h.cfr"))
 
 @pytest.fixture
 def cfrQJ4(solver,file_path_cfrQJ4c):

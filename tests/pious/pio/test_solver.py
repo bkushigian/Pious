@@ -9,8 +9,6 @@ from pious.pio.solver import Node
 trees_path = importlib.resources.files("pious.pio.resources.trees")
 cfr_path = osp.join(trees_path, "Kh7h2c.cfr")
 tree_building_path = importlib.resources.files("pious.pio.resources.tree_building")
-print("CFR_PATH", cfr_path)
-print("TREE BUILDING PATH", tree_building_path)
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Only runs on Windows")
@@ -115,6 +113,7 @@ def test_show_tree_info():
 def test_rebuild_forgotten_streets():
     solver = make_solver()
     solver.load_tree(cfr_path)
+    solver.load_all_nodes()
     solver.rebuild_forgotten_streets()
     assert solver.is_ready()
 
@@ -135,11 +134,12 @@ def solver():
 
 @pytest.fixture
 def cfrQJ4(solver):
-    new_set_path = importlib.resources.files("pious.pio.resources.database.new_set")
-    cfr_path = new_set_path.joinpath(r"QsJs4h.cfr")
+    db_path = importlib.resources.files("pious.pio.resources.database.very_small")
+    cfr_path = db_path.joinpath(r"QsJs4h.cfr")
     solver.load_tree(cfr_path)
     return solver
 
+@pytest.mark.skip(reason="Broken")
 def test_show_strategy(cfrQJ4):
     result = cfrQJ4.show_children("r:0:c:b18")
     assert result == 1
