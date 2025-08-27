@@ -396,7 +396,7 @@ def test_aggregate_files_in_dir_action_freqs_only(file_path_cfrQJ4c):
                                 global_freq=False,
                                 matchups=True),
         debug=False,
-        print_progress=True
+        print_progress=False
     )
 
     result[line_1]['Matchups'] =result[line_1]['Matchups'].apply(lambda x: f'{x:.1f}')
