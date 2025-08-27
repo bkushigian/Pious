@@ -94,6 +94,9 @@ class CFRDatabase:
                 f"Database at {self.db_location} does not have board isomorphic to {board}"
             )
 
+    def __len__(self):
+        return len(self.cfr_files)
+
     def open_board_in_pio(self, board, node="r:0"):
         """
         Look for this board in the
